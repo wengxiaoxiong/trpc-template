@@ -1,7 +1,7 @@
 import { initTRPC } from '@trpc/server';
 import SuperJSON from 'superjson';
 import { verifyToken } from '@/utils/jwt';
-
+import { TRPCError } from '@trpc/server';
 
 // 只定义需要的类型
 export interface Context {
@@ -12,8 +12,7 @@ export interface Context {
         [key:string]:string|undefined;
       };
     };
-  }
-  
+}
 
 const t = initTRPC.context<Context>().create({
     transformer: SuperJSON,
@@ -22,11 +21,11 @@ const t = initTRPC.context<Context>().create({
 const isAuthenticated = t.middleware(async ({ ctx, next }) => {
     const token = ctx.req?.headers?.cookie?.split('; ').find(row => row.startsWith('token'))?.split('=')[1];
     if (!token) {
-        throw new Error('Token missing from cookie');
+        throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Token missing from cookie' });
     }
     const decoded = verifyToken(token);
     if (!decoded) {
-        throw new Error('Invalid token');
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Invalid token' });
     }
     return next({   
         ctx: {

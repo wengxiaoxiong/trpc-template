@@ -1,8 +1,7 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-
 
 interface AuthContextType {
   user: any
@@ -34,15 +33,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = (token: string) => {
     localStorage.setItem('token', token)
+    // 设置cookie
+    document.cookie = `token=${token}; path=/`
     setUser({ token })
     router.push('/')
   }
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem('token')
     setUser(null)
     router.push('/login')
-  }
+  }, [router])
+
+  // 处理 token 过期的情况
+  useEffect(() => {
+    const checkTokenExpiration = () => {
+      const token = localStorage.getItem('token')
+      if (token) {
+        const decodedToken = parseJwt(token)
+        if (decodedToken.exp * 1000 < Date.now()) {
+          logout()
+        }
+      }
+    }
+
+    const parseJwt = (token: string) => {
+      try {
+        return JSON.parse(atob(token.split('.')[1]))
+      } catch (e) {
+        return null
+      }
+    }
+
+    const interval = setInterval(checkTokenExpiration, 1000 * 60) // 每分钟检查一次
+    return () => clearInterval(interval)
+  }, [logout])
 
   return (
     <AuthContext.Provider value={{ user, login, logout }}>
