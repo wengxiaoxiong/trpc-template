@@ -18,10 +18,6 @@ const handler = async (req: Request) => {
     router: appRouter,
     createContext,
   });
-  if (response.status === 401) {
-    // 重定向到登录页面
-    window.location.href = "/login";
-  }
   return response;
 };
 

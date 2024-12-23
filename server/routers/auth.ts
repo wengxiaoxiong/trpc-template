@@ -23,7 +23,8 @@ export const authRouter = router({
                 },
             });
             const token = generateToken(user.id);
-            return { token };
+            const sanitizedUser = { ...user, password: undefined };
+            return { token, user: sanitizedUser };
         }),
 
     login: publicProcedure
@@ -44,6 +45,7 @@ export const authRouter = router({
                 throw new Error('Invalid password');
             }
             const token = generateToken(user.id);
-            return { token };
+            const sanitizedUser = { ...user, password: undefined };
+            return { token, user: sanitizedUser };
         }),
 });

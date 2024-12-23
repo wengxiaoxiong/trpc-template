@@ -3,7 +3,9 @@
 import { useRouter } from 'next/navigation'
 import { trpc } from '@/utils/trpc/client'
 import { useState } from 'react'
-import { useAuth } from '../auth/AuthProvider'
+import { useAuth, userAtom } from '../auth/AuthProvider'
+import { useRecoilState } from 'recoil'
+import { User } from '@prisma/client'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -11,10 +13,13 @@ export default function LoginPage() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [user,setUser] = useRecoilState(userAtom)
 
   const { mutateAsync: loginMutation } = trpc.auth.login.useMutation({
     onSuccess: (data) => {
+        
       login(data.token)
+      setUser(data.user as unknown as User)
     },
     onError: (error) => {
       setError(error.message)

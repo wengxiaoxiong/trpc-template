@@ -5,10 +5,12 @@ import {
 import { router } from '@/utils/trpc'
 import { batchTaskRouter } from './routers/task'
 import { authRouter } from './routers/auth'
+import { workflowRouter } from './routers/workflow'
 
 export const appRouter = router({
     batchTask: batchTaskRouter,
     auth: authRouter,
+    workflow:workflowRouter
 })
 
 // export type definition of API
