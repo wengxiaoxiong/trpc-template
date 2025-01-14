@@ -24,14 +24,14 @@ export default function UploadPage() {
     },
   })
 
-  const handleUpload = async (file: Blob) => {
+  const handleUpload = async (file: File) => {
     const reader = new FileReader()
     reader.readAsText(file)
     reader.onload = async () => {
       const workflow = JSON.parse(reader.result as string)
       await uploadWorkflow({
         payload: {
-          name: "",
+          name: file.name,
           description: 'Uploaded workflow',
           workflow: JSON.stringify(workflow),
         },
