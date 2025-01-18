@@ -2,7 +2,6 @@ import { Card, Button, Space, Divider, Input, InputNumber, Tag } from 'antd'
 import { PlusOutlined, MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { workflowDataState, paramGroupsState } from '../store/workflow'
-import type { ParamValue } from '../store/workflow'
 
 interface ParamGroupEditorProps {
   groupIndex: number
@@ -77,65 +76,7 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
     setParamGroups(newGroups)
   }
 
-  const handleAddArrayValue = (
-    combinationIndex: number,
-    paramIndex: number
-  ) => {
-    const newGroups = paramGroups.map((g, index) => {
-      if (index === groupIndex) {
-        return {
-          ...g,
-          combinations: g.combinations.map((combo, i) => {
-            if (i === combinationIndex) {
-              return combo.map((param, j) => {
-                if (j === paramIndex) {
-                  const currentValue = Array.isArray(param.value) ? param.value : [param.value]
-                  return { 
-                    ...param, 
-                    value: [...currentValue, typeof currentValue[0] === 'string' ? '' : 0] 
-                  }
-                }
-                return param
-              })
-            }
-            return combo
-          })
-        }
-      }
-      return g
-    })
-    setParamGroups(newGroups)
-  }
 
-  const handleRemoveArrayValue = (
-    combinationIndex: number,
-    paramIndex: number,
-    arrayIndex: number
-  ) => {
-    const newGroups = paramGroups.map((g, index) => {
-      if (index === groupIndex) {
-        return {
-          ...g,
-          combinations: g.combinations.map((combo, i) => {
-            if (i === combinationIndex) {
-              return combo.map((param, j) => {
-                if (j === paramIndex && Array.isArray(param.value)) {
-                  return { 
-                    ...param, 
-                    value: param.value.filter((_, idx) => idx !== arrayIndex)
-                  }
-                }
-                return param
-              })
-            }
-            return combo
-          })
-        }
-      }
-      return g
-    })
-    setParamGroups(newGroups)
-  }
 
   const handleRemoveParam = (paramIndex: number) => {
     const newGroups = paramGroups.map((g, index) => {
