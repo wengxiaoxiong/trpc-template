@@ -14,7 +14,6 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       <div className="max-w-[1440px] mx-auto px-6">
         <Header />
         <main className="space-y-6">
-          <StatCards />
           {children}
         </main>
       </div>
