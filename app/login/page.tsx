@@ -3,9 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { trpc } from '@/utils/trpc/client'
 import { useState } from 'react'
-import { useAuth, userAtom } from '../auth/AuthProvider'
-import { useRecoilState } from 'recoil'
-import { User } from '@prisma/client'
+import { useAuth } from '../auth/AuthProvider'
 import { Input, Button, message, Form } from 'antd'
 import { UserOutlined, LockOutlined } from '@ant-design/icons'
 
@@ -15,13 +13,11 @@ export default function LoginPage() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
-  const [user, setUser] = useRecoilState(userAtom)
   const [loading, setLoading] = useState(false)
 
   const { mutateAsync: loginMutation } = trpc.auth.login.useMutation({
     onSuccess: (data) => {
       login(data.token)
-      setUser(data.user as unknown as User)
       message.success('登录成功')
       router.push('/')
     },

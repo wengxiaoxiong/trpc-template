@@ -4,7 +4,6 @@
 
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { atom, useRecoilState } from 'recoil'
 import { User } from '@prisma/client'
 import { trpc } from '@/utils/trpc/client'
 
@@ -20,13 +19,24 @@ const AuthContext = createContext<AuthContextType>({
   user: undefined,
 })
 
-export const userAtom = atom<User | undefined>({
-  key: 'user',
-  default: undefined,
-})
+// 新增 token 工具函数
+const TOKEN_KEY = 'token'
 
+const tokenUtils = {
+  set: (token: string) => {
+    localStorage.setItem(TOKEN_KEY, token)
+    document.cookie = `${TOKEN_KEY}=${token}; path=/`
+  },
+  remove: () => {
+    localStorage.removeItem(TOKEN_KEY)
+    document.cookie = `${TOKEN_KEY}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`
+  },
+  get: () => localStorage.getItem(TOKEN_KEY)
+}
+
+// 简化 AuthProvider 组件
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useRecoilState(userAtom)
+  const [user, setUser] = useState<User | undefined>(undefined)
   const router = useRouter()
   const pathname = usePathname()
 
@@ -40,47 +50,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (currentUser) {
       setUser(currentUser as unknown as User)
     }
-  }, [currentUser, setUser])
+  }, [currentUser])
 
   useEffect(() => {
-    if (error) {
-      console.error('Failed to fetch current user:', error)
-      if (!['/login', '/register'].includes(pathname)) {
-        router.push('/login')
-      }
+    const isAuthRoute = ['/login', '/register'].includes(pathname)
+    if (error && !tokenUtils.get() && !isAuthRoute) {
+      router.push('/login')
     }
   }, [error, pathname, router])
 
-  const login = (token: string) => {
-    localStorage.setItem('token', token)
-    // 设置cookie
-    document.cookie = `token=${token}; path=/`
+  const login = useCallback((token: string) => {
+    tokenUtils.set(token)
     router.push('/')
-  }
+  }, [router])
 
   const logout = useCallback(() => {
-    setUser(undefined) // 清除用户状态
-    // 清除localStorage
-    localStorage.removeItem('token')
-    // 正确清除cookie，设置过期时间为过去时间并保持相同的path
-    document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/'
+    setUser(undefined)
+    tokenUtils.remove()
     router.push('/login')
   }, [router])
 
   return (
     <AuthContext.Provider value={{ user, login, logout }}>
-        {children}
+      {children}
     </AuthContext.Provider>
   )
 }
 
+// 简化 useAuth hook，移除 Recoil
 export function useAuth() {
-  const { user, login, logout } = useContext(AuthContext)
-  const [recoilUser, setRecoilUser] = useRecoilState(userAtom)
-
-  useEffect(() => {
-    setRecoilUser(user)
-  }, [user, setRecoilUser])
-
-  return { user: recoilUser, login, logout }
+  return useContext(AuthContext)
 }
