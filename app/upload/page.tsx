@@ -1,4 +1,4 @@
- 'use client'
+'use client'
 
 import { useRouter } from 'next/navigation'
 import { trpc } from '@/utils/trpc/client'
@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { useAuth } from '../auth/AuthProvider'
 import { Upload, message } from 'antd'
 import { InboxOutlined } from '@ant-design/icons'
+import { DashboardLayout } from '../components/DashboardLayout'
 
 const { Dragger } = Upload
 
@@ -41,30 +42,34 @@ export default function UploadPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Upload Workflow
-          </h2>
+    <DashboardLayout>
+
+
+      <div className="flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8">
+          <div>
+            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+              Upload Workflow
+            </h2>
+          </div>
+          <Dragger
+            name="file"
+            multiple={false}
+            beforeUpload={handleUpload}
+            fileList={fileList}
+            onChange={(info) => setFileList(info.fileList)}
+          >
+            <p className="ant-upload-drag-icon">
+              <InboxOutlined />
+            </p>
+            <p className="ant-upload-text">Click or drag file to this area to upload</p>
+            <p className="ant-upload-hint">
+              Support for a single or bulk upload. Strictly prohibit from uploading company data or other
+              band files
+            </p>
+          </Dragger>
         </div>
-        <Dragger
-          name="file"
-          multiple={false}
-          beforeUpload={handleUpload}
-          fileList={fileList}
-          onChange={(info) => setFileList(info.fileList)}
-        >
-          <p className="ant-upload-drag-icon">
-            <InboxOutlined />
-          </p>
-          <p className="ant-upload-text">Click or drag file to this area to upload</p>
-          <p className="ant-upload-hint">
-            Support for a single or bulk upload. Strictly prohibit from uploading company data or other
-            band files
-          </p>
-        </Dragger>
       </div>
-    </div>
+    </DashboardLayout>
   )
 }
