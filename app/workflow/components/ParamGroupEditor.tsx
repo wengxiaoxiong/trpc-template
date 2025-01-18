@@ -15,6 +15,7 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [importText, setImportText] = useState('')
   const [currentParamIndex, setCurrentParamIndex] = useState<number | null>(null)
+  const [isCombinationsVisible, setIsCombinationsVisible] = useState(false) // 新增状态控制组合的显示
 
   const handleAddCombination = () => {
     const newGroups = paramGroups.map((g, index) => {
@@ -199,7 +200,13 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
               ))}
             </div>
             <Divider />
-            {group.combinations.map((combination, combinationIndex) => (
+            <Button
+              type="link"
+              onClick={() => setIsCombinationsVisible(!isCombinationsVisible)}
+            >
+              {isCombinationsVisible ? '隐藏组合' : '显示组合'}
+            </Button>
+            {isCombinationsVisible && group.combinations.map((combination, combinationIndex) => (
               <div key={combinationIndex} className="border p-4 rounded">
                 <div className="flex justify-between items-center mb-4">
                   <h4 className="font-bold">组合 {combinationIndex + 1}</h4>

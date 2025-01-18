@@ -44,12 +44,22 @@ export const ParamTree = () => {
     }
   }
 
-  // 当treeData变化时，自动展开所有节点
+  // 当treeData变化时，自动展开已选择字段的父元素
   useEffect(() => {
     if (treeData.length > 0) {
-      setExpandedKeys(getAllExpandableKeys())
+      const selectedKeys = paramGroups[currentGroupIndex].selectedKeys;
+      const parentKeys = new Set<string>();
+
+      selectedKeys.forEach(key => {
+        const parts = key.split('-');
+        if (parts.length > 1) {
+          parentKeys.add(parts[0]); // 假设父节点的key是nodeId
+        }
+      });
+
+      setExpandedKeys(Array.from(parentKeys));
     }
-  }, [treeData])
+  }, [treeData, paramGroups, currentGroupIndex]);
 
   const handleSelect = (newSelectedKeys: React.Key[], info: any) => {
     // 找出被点击的节点
@@ -92,15 +102,27 @@ export const ParamTree = () => {
             selectedKeys: [...group.selectedKeys, clickedKey]
           }
         } else {
-          // 移除参数
-          return {
-            ...group,
-            params: group.params.filter(p => !(p.nodeId === nodeId && p.paramKey === paramKey)),
-            combinations: group.combinations.map(combo => 
-              combo.filter(v => !(v.nodeId === nodeId && v.paramKey === paramKey))
-            ),
-            selectedKeys: group.selectedKeys.filter(k => k !== clickedKey)
-          }
+          // 移除参数，弹窗确认
+          Modal.confirm({
+            title: '确认删除',
+            content: '您确定要删除这个字段吗？',
+            onOk: () => {
+              const updatedGroup = {
+                ...group,
+                params: group.params.filter(p => !(p.nodeId === nodeId && p.paramKey === paramKey)),
+                combinations: group.combinations.map(combo => 
+                  combo.filter(v => !(v.nodeId === nodeId && v.paramKey === paramKey))
+                ),
+                selectedKeys: group.selectedKeys.filter(k => k !== clickedKey)
+              }
+              setParamGroups(prevGroups => {
+                const newGroups = [...prevGroups]
+                newGroups[index] = updatedGroup
+                return newGroups
+              })
+            }
+          });
+          return group; // 直接返回，不做其他处理
         }
       }
       return group
