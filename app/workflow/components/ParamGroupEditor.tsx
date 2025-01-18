@@ -267,7 +267,7 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
               </div>
             ))}
             {/* 添加组合 */}
-            {group.combinations.length > 0 && (
+            {group.combinations.length > 0 && isCombinationsVisible && (
               <div className="w-full p-4 border border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
                 <div 
                   className="flex justify-center items-center h-10 text-gray-400 hover:text-blue-500"
