@@ -13,11 +13,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <RecoilRoot>
-          <AuthProvider>
-            <TrpcProvider>{children}</TrpcProvider>
-          </AuthProvider>
-        </RecoilRoot>
+        <TrpcProvider>
+          <RecoilRoot>
+            <AuthProvider>
+              {children}
+            </AuthProvider>
+          </RecoilRoot>
+        </TrpcProvider>
       </body>
     </html>
   )

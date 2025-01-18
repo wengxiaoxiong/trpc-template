@@ -1,12 +1,19 @@
-import { Input, Button } from 'antd';
+import { Input, Button, Dropdown, Menu } from 'antd';
 import { SearchOutlined, SettingOutlined } from '@ant-design/icons';
 import { useAuth } from '../auth/AuthProvider';
 import { useRouter } from 'next/navigation';
 
 export const Header = () => {
-    const { user } = useAuth();
-
+    const { user, logout } = useAuth();
     const router = useRouter();
+
+    const menu = (
+        <Menu>
+            <Menu.Item key="logout" onClick={logout}>
+                退出登录
+            </Menu.Item>
+        </Menu>
+    );
 
     return (
         <header className="bg-white shadow-sm py-4 px-6 flex items-center justify-between mb-6">
@@ -20,12 +27,14 @@ export const Header = () => {
             </div>
             <div className="flex items-center space-x-4">
                 <Button type="text" icon={<SettingOutlined />} className="text-gray-500" />
-                <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white">
-                        A
+                <Dropdown overlay={menu} trigger={['click']}>
+                    <div className="flex items-center space-x-2 cursor-pointer">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white">
+                            A
+                        </div>
+                        <span className="text-gray-700">{user?.username}</span>
                     </div>
-                    <span className="text-gray-700">{user?.username}</span>
-                </div>
+                </Dropdown>
             </div>
         </header>
     );

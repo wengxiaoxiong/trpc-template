@@ -7,13 +7,14 @@ import { useAuth } from '../auth/AuthProvider'
 import { Upload, message } from 'antd'
 import { InboxOutlined } from '@ant-design/icons'
 import { DashboardLayout } from '../components/DashboardLayout'
+import type { UploadFile } from 'antd/es/upload/interface'
 
 const { Dragger } = Upload
 
 export default function UploadPage() {
   const router = useRouter()
   const { user } = useAuth()
-  const [fileList, setFileList] = useState([])
+  const [fileList, setFileList] = useState<UploadFile[]>([])
 
   const { mutateAsync: uploadWorkflow } = trpc.workflow.create.useMutation({
     onSuccess: () => {

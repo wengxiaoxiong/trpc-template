@@ -6,11 +6,12 @@ import { createContext, useContext, useState, useEffect, useCallback } from 'rea
 import { useRouter, usePathname } from 'next/navigation'
 import { atom, useRecoilState } from 'recoil'
 import { User } from '@prisma/client'
+import { trpc } from '@/utils/trpc/client'
 
 interface AuthContextType {
   login: (token: string) => void
   logout: () => void
-  user: User|undefined
+  user: User | undefined
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -19,7 +20,7 @@ const AuthContext = createContext<AuthContextType>({
   user: undefined,
 })
 
-export const userAtom = atom<User|undefined>({
+export const userAtom = atom<User | undefined>({
   key: 'user',
   default: undefined,
 })
@@ -29,15 +30,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const pathname = usePathname()
 
+  const { data: currentUser, error } = trpc.auth.getCurrentUser.useQuery(undefined, {
+    retry: false,
+    refetchOnWindowFocus: false,
+    refetchOnMount: true
+  })
+
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (token) {
-      // 这里可以添加解析token获取用户信息的逻辑
-    } else if (!['/login', '/register'].includes(pathname)) {
-      // 如果当前路径不是登录或注册页面，且没有token，则跳转到登录页面
-      router.push('/login')
+    if (currentUser) {
+      setUser(currentUser as unknown as User)
     }
-  }, [router, pathname])
+  }, [currentUser, setUser])
+
+  useEffect(() => {
+    if (error) {
+      console.error('Failed to fetch current user:', error)
+      if (!['/login', '/register'].includes(pathname)) {
+        router.push('/login')
+      }
+    }
+  }, [error, pathname, router])
 
   const login = (token: string) => {
     localStorage.setItem('token', token)
@@ -47,33 +59,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const logout = useCallback(() => {
+    setUser(undefined) // 清除用户状态
+    // 清除localStorage
     localStorage.removeItem('token')
+    // 正确清除cookie，设置过期时间为过去时间并保持相同的path
+    document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/'
     router.push('/login')
   }, [router])
-
-  // 处理 token 过期的情况
-  useEffect(() => {
-    const checkTokenExpiration = () => {
-      const token = localStorage.getItem('token')
-      if (token) {
-        const decodedToken = parseJwt(token)
-        if (decodedToken.exp * 1000 < Date.now()) {
-          logout()
-        }
-      }
-    }
-
-    const parseJwt = (token: string) => {
-      try {
-        return JSON.parse(atob(token.split('.')[1]))
-      } catch (e) {
-        return null
-      }
-    }
-
-    const interval = setInterval(checkTokenExpiration, 1000 * 60) // 每分钟检查一次
-    return () => clearInterval(interval)
-  }, [logout])
 
   return (
     <AuthContext.Provider value={{ user, login, logout }}>
