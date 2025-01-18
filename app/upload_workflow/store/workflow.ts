@@ -16,7 +16,7 @@ export interface WorkflowData {
 export interface ParamValue {
   nodeId: string
   paramKey: string
-  value: string | number
+  value: string | number | (string | number)[]
 }
 
 export interface SelectedParam {

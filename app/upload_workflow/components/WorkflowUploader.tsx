@@ -33,15 +33,25 @@ export const WorkflowUploader = () => {
       }
 
       Object.entries(node.inputs).forEach(([paramKey, value]) => {
+        // 如果value是数组则跳过
+        if (Array.isArray(value)) {
+          return
+        }
+
+        const displayValue = typeof value === 'string' ? `"${value}"` : value
+        
         const paramNode: DataNode = {
-          title: `${paramKey} (当前值: ${value})`,
+          title: `${paramKey} (当前值: ${displayValue})`,
           key: `${nodeId}-${paramKey}`,
           isLeaf: true,
         }
         nodeItem.children?.push(paramNode)
       })
 
-      result.push(nodeItem)
+      // 只有当nodeItem有子节点时才push到result中
+      if (nodeItem.children && nodeItem.children.length > 0) {
+        result.push(nodeItem)
+      }
     })
 
     return result

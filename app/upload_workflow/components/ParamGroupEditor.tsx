@@ -1,5 +1,5 @@
-import { Card, Button, Space, Divider, Input, InputNumber } from 'antd'
-import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons'
+import { Card, Button, Space, Divider, Input, InputNumber, Tag } from 'antd'
+import { PlusOutlined, MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { workflowDataState, paramGroupsState } from '../store/workflow'
 import type { ParamValue } from '../store/workflow'
@@ -47,7 +47,8 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
   const handleParamValueChange = (
     combinationIndex: number,
     paramIndex: number,
-    value: string | number
+    value: string | number,
+    arrayIndex?: number
   ) => {
     const newGroups = paramGroups.map((g, index) => {
       if (index === groupIndex) {
@@ -57,7 +58,72 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
             if (i === combinationIndex) {
               return combo.map((param, j) => {
                 if (j === paramIndex) {
+                  if (arrayIndex !== undefined && Array.isArray(param.value)) {
+                    const newArray = [...param.value]
+                    newArray[arrayIndex] = value
+                    return { ...param, value: newArray }
+                  }
                   return { ...param, value }
+                }
+                return param
+              })
+            }
+            return combo
+          })
+        }
+      }
+      return g
+    })
+    setParamGroups(newGroups)
+  }
+
+  const handleAddArrayValue = (
+    combinationIndex: number,
+    paramIndex: number
+  ) => {
+    const newGroups = paramGroups.map((g, index) => {
+      if (index === groupIndex) {
+        return {
+          ...g,
+          combinations: g.combinations.map((combo, i) => {
+            if (i === combinationIndex) {
+              return combo.map((param, j) => {
+                if (j === paramIndex) {
+                  const currentValue = Array.isArray(param.value) ? param.value : [param.value]
+                  return { 
+                    ...param, 
+                    value: [...currentValue, typeof currentValue[0] === 'string' ? '' : 0] 
+                  }
+                }
+                return param
+              })
+            }
+            return combo
+          })
+        }
+      }
+      return g
+    })
+    setParamGroups(newGroups)
+  }
+
+  const handleRemoveArrayValue = (
+    combinationIndex: number,
+    paramIndex: number,
+    arrayIndex: number
+  ) => {
+    const newGroups = paramGroups.map((g, index) => {
+      if (index === groupIndex) {
+        return {
+          ...g,
+          combinations: g.combinations.map((combo, i) => {
+            if (i === combinationIndex) {
+              return combo.map((param, j) => {
+                if (j === paramIndex && Array.isArray(param.value)) {
+                  return { 
+                    ...param, 
+                    value: param.value.filter((_, idx) => idx !== arrayIndex)
+                  }
                 }
                 return param
               })
@@ -142,22 +208,45 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {combination.map((paramValue, paramIndex) => (
-                    <div key={paramIndex} className="flex items-center gap-2">
+                    <div key={paramIndex} className="flex items-start gap-2">
                       <div className="flex-1">
                         <div className="text-sm text-gray-500 mb-1">
                           {`${workflowData[paramValue.nodeId]._meta.title} - ${paramValue.paramKey}`}
                         </div>
-                        {typeof group.params[paramIndex].currentValue === 'number' ? (
-                          <InputNumber
-                            value={paramValue.value}
-                            onChange={(value) => handleParamValueChange(combinationIndex, paramIndex, value || 0)}
-                            className="w-full"
-                          />
+                        {Array.isArray(paramValue.value) ? (
+                          <div className="space-y-2">
+                            {paramValue.value.map((val, arrayIndex) => (
+                              <div key={arrayIndex} className="flex items-center gap-2">
+                                <Tag color="blue">{arrayIndex + 1}</Tag>
+                                {typeof val === 'number' ? (
+                                  <InputNumber
+                                    value={val}
+                                    onChange={(value) => handleParamValueChange(combinationIndex, paramIndex, value || 0, arrayIndex)}
+                                    className="flex-1"
+                                  />
+                                ) : (
+                                  <Input
+                                    value={val}
+                                    onChange={(e) => handleParamValueChange(combinationIndex, paramIndex, e.target.value, arrayIndex)}
+                                    className="flex-1"
+                                  />
+                                )}
+                              </div>
+                            ))}
+                          </div>
                         ) : (
-                          <Input
-                            value={paramValue.value as string}
-                            onChange={(e) => handleParamValueChange(combinationIndex, paramIndex, e.target.value)}
-                          />
+                          typeof group.params[paramIndex].currentValue === 'number' ? (
+                            <InputNumber
+                              value={paramValue.value}
+                              onChange={(value) => handleParamValueChange(combinationIndex, paramIndex, value || 0)}
+                              className="w-full"
+                            />
+                          ) : (
+                            <Input
+                              value={paramValue.value as string}
+                              onChange={(e) => handleParamValueChange(combinationIndex, paramIndex, e.target.value)}
+                            />
+                          )
                         )}
                       </div>
                     </div>
