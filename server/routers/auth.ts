@@ -1,6 +1,5 @@
-
 import { z } from 'zod';
-import { publicProcedure, router } from '@/utils/trpc';
+import { protectedProcedure, publicProcedure, router } from '@/utils/trpc';
 import { prisma } from '@/utils/prisma';
 import bcrypt from 'bcrypt';
 import { generateToken } from '@/utils/jwt';
@@ -47,5 +46,24 @@ export const authRouter = router({
             const token = generateToken(user.id);
             const sanitizedUser = { ...user, password: undefined };
             return { token, user: sanitizedUser };
+        }),
+
+    getCurrentUser: protectedProcedure
+        .query(async ({ ctx }) => {
+
+            if (!ctx.user.id) {
+                throw new Error('Unauthorized')
+              }
+        
+            const userId = ctx.user?.id;
+            if (!userId) {
+                throw new Error('Not authenticated');
+            }
+            const user = await prisma.user.findUnique({ where: { id: userId } });
+            if (!user) {
+                throw new Error('User not found');
+            }
+            const sanitizedUser = { ...user, password: undefined };
+            return sanitizedUser;
         }),
 });

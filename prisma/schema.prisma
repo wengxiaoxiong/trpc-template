@@ -26,6 +26,7 @@ model User {
     updatedAt  DateTime @updatedAt
     username   String   @unique
     password   String 
+    avatar     String?
     isAdmin     Boolean  @default(false)
     servers    Server[]
     permissions Permission[]

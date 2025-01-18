@@ -59,10 +59,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [error, pathname, router])
 
+  const utils = trpc.useUtils()
+  
   const login = useCallback((token: string) => {
     tokenUtils.set(token)
+    // 立即获取用户信息
+    utils.auth.getCurrentUser.invalidate()
     router.push('/')
-  }, [router])
+  }, [router, utils])
 
   const logout = useCallback(() => {
     setUser(undefined)
