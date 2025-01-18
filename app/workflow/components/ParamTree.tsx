@@ -8,7 +8,7 @@ import {
   currentGroupIndexState,
   fileListState,
 } from '../store/workflow'
-import type { SelectedParam, ParamValue } from '../store/workflow'
+import type { SelectedParam } from '../store/workflow'
 import { useEffect } from 'react'
 
 export const ParamTree = () => {
@@ -149,20 +149,6 @@ export const ParamTree = () => {
                 </Radio.Button>
               ))}
             </Radio.Group>
-            <Button 
-              type="link" 
-              onClick={() => {
-                Modal.confirm({
-                  title: '确认重新上传',
-                  content: '这将清除所有当前配置，确定要继续吗？',
-                  okText: '确定',
-                  cancelText: '取消',
-                  onOk: resetAll
-                })
-              }}
-            >
-              重新上传
-            </Button>
           </Space>
         </div>
       }
