@@ -26,7 +26,7 @@ export const DataTable = ({ activeTab, data, columns }: DataTableProps) => {
           type="primary"
           icon={<PlusOutlined />}
           className="!rounded-button bg-gradient-to-r from-blue-500 to-indigo-600 border-none hover:opacity-90"
-          onClick={() => router.push('/upload')}
+          onClick={() => router.push('/upload_workflow')}
         >
           新建
         </Button>

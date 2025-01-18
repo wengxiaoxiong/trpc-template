@@ -26,15 +26,16 @@ export const Header = () => {
                 />
             </div>
             <div className="flex items-center space-x-4">
-                <Button type="text" icon={<SettingOutlined />} className="text-gray-500" />
+                {/* <Button type="text" icon={<SettingOutlined />} className="text-gray-500" /> */}
                 <Dropdown overlay={menu} trigger={['click']}>
                     <div className="flex items-center space-x-2 cursor-pointer">
                         <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white">
-                            {user?.avatar ? (
+                            {/* {user?.avatar ? (
                                 <img src={user.avatar} alt="用户头像" className="w-full h-full rounded-full object-cover" />
                             ) : (
                                 <span>{user?.username?.charAt(0).toUpperCase()}</span>
-                            )}
+                            )} */}
+                            <span>{user?.username?.charAt(0).toUpperCase()}</span>
                         </div>
                         <span className="text-gray-700">{user?.username}</span>
                     </div>

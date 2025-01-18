@@ -1,4 +1,4 @@
-import { Card, Tree, Radio, Space, Button } from 'antd'
+import { Card, Tree, Radio, Space, Button, Modal } from 'antd'
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import {
   workflowDataState,
@@ -9,6 +9,7 @@ import {
   fileListState,
 } from '../store/workflow'
 import type { SelectedParam, ParamValue } from '../store/workflow'
+import { useEffect } from 'react'
 
 export const ParamTree = () => {
   const [expandedKeys, setExpandedKeys] = useRecoilState(expandedKeysState)
@@ -18,6 +19,37 @@ export const ParamTree = () => {
   const treeData = useRecoilValue(treeDataState)
   const setFileList = useSetRecoilState(fileListState)
   const setWorkflowData = useSetRecoilState(workflowDataState)
+  const fileList = useRecoilValue(fileListState)
+
+  // 获取文件名
+  const workflowName = fileList.length > 0 ? fileList[0].name : '未命名工作流'
+
+  // 获取所有可展开的节点key
+  const getAllExpandableKeys = () => {
+    const keys: string[] = []
+    treeData.forEach(node => {
+      if (node.children && node.children.length > 0) {
+        keys.push(node.key as string)
+      }
+    })
+    return keys
+  }
+
+  // 处理展开/收起全部
+  const handleExpandAll = () => {
+    if (expandedKeys.length > 0) {
+      setExpandedKeys([]) // 收起全部
+    } else {
+      setExpandedKeys(getAllExpandableKeys()) // 展开全部
+    }
+  }
+
+  // 当treeData变化时，自动展开所有节点
+  useEffect(() => {
+    if (treeData.length > 0) {
+      setExpandedKeys(getAllExpandableKeys())
+    }
+  }, [treeData])
 
   const handleSelect = (newSelectedKeys: React.Key[], info: any) => {
     // 找出被点击的节点
@@ -93,8 +125,17 @@ export const ParamTree = () => {
     <Card 
       title={
         <div className="flex justify-between items-center">
-          <span>选择参数</span>
+          <div className="flex items-center gap-2">
+            <span>选择参数</span>
+            <span className="text-sm text-gray-500">({workflowName})</span>
+          </div>
           <Space>
+            <Button 
+              type="link"
+              onClick={handleExpandAll}
+            >
+              {expandedKeys.length > 0 ? '收起全部' : '展开全部'}
+            </Button>
             <Radio.Group 
               value={currentGroupIndex} 
               onChange={(e) => {
@@ -110,7 +151,15 @@ export const ParamTree = () => {
             </Radio.Group>
             <Button 
               type="link" 
-              onClick={resetAll}
+              onClick={() => {
+                Modal.confirm({
+                  title: '确认重新上传',
+                  content: '这将清除所有当前配置，确定要继续吗？',
+                  okText: '确定',
+                  cancelText: '取消',
+                  onOk: resetAll
+                })
+              }}
             >
               重新上传
             </Button>
