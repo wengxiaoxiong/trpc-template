@@ -1,36 +1,35 @@
 'use client'
 
 import { useRecoilValue } from 'recoil'
-import { workflowDataState, paramGroupsState, fileListState } from '../store/workflow'
+import { workflowDataState, fileListState } from '../store/workflow'
 import { DashboardLayout } from '../../components/DashboardLayout'
 import { WorkflowUploader } from '../components/WorkflowUploader'
-import { ParamTree } from '../components/ParamTree'
-import { ParamGroupEditor } from '../components/ParamGroupEditor'
-import { Button, message, Modal, Input } from 'antd'
+import { Button, message, Modal, Input, Checkbox } from 'antd'
 import { SaveOutlined } from '@ant-design/icons'
 import { trpc } from '@/utils/trpc/client'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 export default function UploadPage() {
   const workflowData = useRecoilValue(workflowDataState)
-  const paramGroups = useRecoilValue(paramGroupsState)
   const fileList = useRecoilValue(fileListState)
+  const router = useRouter()
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [workflowName, setWorkflowName] = useState('')
   const [workflowDesc, setWorkflowDesc] = useState('')
   const [isPublic, setIsPublic] = useState(false)
 
   const { mutateAsync: createWorkflow } = trpc.workflow.create.useMutation({
-    onSuccess: () => {
-      message.success('工作流保存成功')
-      setIsModalVisible(false)
+    onSuccess: (data) => {
+      message.success('工作流上传成功')
+      router.push(`/workflow/edit/${data.id}`)
     },
     onError: (error) => {
       message.error(error.message)
     },
   })
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!workflowData) {
       message.error('请先上传工作流')
       return
@@ -54,40 +53,30 @@ export default function UploadPage() {
     }
 
     try {
-      // 准备参数数据
-      const parameters = paramGroups.flatMap(group => 
-        group.params.map(param => ({
-          name: `${param.nodeId}-${param.paramKey}`,
-          type: typeof param.currentValue === 'number' ? 'number' : 'string',
-          description: `${group.name}: ${workflowData![param.nodeId]._meta.title} - ${param.paramKey}`,
-          default: JSON.stringify(param.currentValue),
-          nodeId: param.nodeId,
-          paramKey: param.paramKey
-        }))
-      )
-
-      // 保存工作流
+      // 创建一个基础的工作流记录
       await createWorkflow({
         name: workflowName,
         description: workflowDesc,
-        content: {
-          workflow: workflowData,
-          paramGroups: paramGroups
-        },
+        content: workflowData,
         workflow: workflowData,
         isPublic,
-        parameters,
-        paramGroups: paramGroups.map(group => ({
-          name: group.name,
-          params: group.params.map(param => ({
-            nodeId: param.nodeId,
-            paramKey: param.paramKey,
-            currentValue: param.currentValue,
-            path: param.path
-          })),
-          combinations: group.combinations,
-          selectedKeys: group.selectedKeys
-        }))
+        parameters: [],
+        paramGroups: [{
+          name: 'X轴',
+          params: [],
+          combinations: [],
+          selectedKeys: []
+        },{
+          name: 'Y轴',
+          params: [],
+          combinations: [],
+          selectedKeys: []
+        },{
+          name: 'Z轴',
+          params: [],
+          combinations: [],
+          selectedKeys: []
+        }]
       })
     } catch (error) {
       console.error('保存失败:', error)
@@ -98,28 +87,20 @@ export default function UploadPage() {
   return (
     <DashboardLayout>
       <div className="p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">上传并配置工作流</h2>
+        <div className="mb-4">
+          <h1 className="text-2xl font-bold mb-4">上传工作流</h1>
+          <WorkflowUploader />
+        </div>
+        {workflowData && (
           <Button 
-            type="primary"
-            icon={<SaveOutlined />}
+            type="primary" 
+            icon={<SaveOutlined />} 
             onClick={handleSave}
-            disabled={!workflowData}
+            className="mt-4"
           >
-            保存工作流配置
+            保存并继续编辑
           </Button>
-        </div>
-        <div className="w-full">
-          {!workflowData ? (
-            <WorkflowUploader />
-          ) : (
-            <ParamTree />
-          )}
-        </div>
-
-        {paramGroups.map((_, groupIndex) => (
-          <ParamGroupEditor key={groupIndex} groupIndex={groupIndex} />
-        ))}
+        )}
 
         <Modal
           title="保存工作流"
@@ -148,15 +129,12 @@ export default function UploadPage() {
               />
             </div>
             <div>
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={isPublic}
-                  onChange={(e) => setIsPublic(e.target.checked)}
-                  className="form-checkbox h-4 w-4 text-blue-600"
-                />
-                <span>公开此工作流（其他用户可见）</span>
-              </label>
+              <Checkbox
+                checked={isPublic}
+                onChange={(e) => setIsPublic(e.target.checked)}
+              >
+                公开此工作流（其他用户可见）
+              </Checkbox>
             </div>
           </div>
         </Modal>

@@ -13,7 +13,7 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
   const workflowData = useRecoilValue(workflowDataState)
   const group = paramGroups[groupIndex]
   const [isModalVisible, setIsModalVisible] = useState(false)
-  const [importJson, setImportJson] = useState('')
+  const [importText, setImportText] = useState('')
   const [currentParamIndex, setCurrentParamIndex] = useState<number | null>(null)
 
   const handleAddCombination = () => {
@@ -106,9 +106,12 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
 
   const handleImportConfirm = () => {
     try {
-      const values = JSON.parse(importJson)
-      if (!Array.isArray(values)) {
-        throw new Error('输入必须是数组')
+      const values = importText.trim().startsWith('[') ? 
+        JSON.parse(importText) : 
+        importText.split('\n').map(value => value.trim()).filter(value => value);
+      
+      if (!Array.isArray(values) || values.length === 0) {
+        throw new Error('输入不能为空或格式不正确')
       }
 
       setParamGroups(prevGroups => {
@@ -143,7 +146,7 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
       })
 
       setIsModalVisible(false)
-      setImportJson('')
+      setImportText('')
     } catch (error) {
       console.error('导入失败:', error)
       // 这里可以添加错误提示
@@ -183,7 +186,13 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
                       type="text"
                       danger
                       icon={<MinusCircleOutlined />}
-                      onClick={() => handleRemoveParam(paramIndex)}
+                      onClick={() => {
+                        Modal.confirm({
+                          title: '确认删除',
+                          content: '您确定要删除这个字段吗？',
+                          onOk: () => handleRemoveParam(paramIndex),
+                        });
+                      }}
                     >删除字段</Button>
                   </div>
                 </div>
@@ -278,9 +287,9 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
       >
         <Input.TextArea
           rows={10}
-          value={importJson}
-          onChange={(e) => setImportJson(e.target.value)}
-          placeholder='请输入JSON数组，例如：["value1", "value2"] 或 [1, 2, 3]'
+          value={importText}
+          onChange={(e) => setImportText(e.target.value)}
+          placeholder='请输入每行一个的值，或使用JSON数组，例如：["simple1", "simple2"] 或 simple1\nsimple2'
         />
       </Modal>
     </Card>
