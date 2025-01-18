@@ -1,7 +1,8 @@
-import { Card, Button, Space, Divider, Input, InputNumber, Tag } from 'antd'
+import { Card, Button, Space, Divider, Input, InputNumber, Tag, Modal } from 'antd'
 import { PlusOutlined, MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { workflowDataState, paramGroupsState } from '../store/workflow'
+import { useState } from 'react'
 
 interface ParamGroupEditorProps {
   groupIndex: number
@@ -11,6 +12,9 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
   const [paramGroups, setParamGroups] = useRecoilState(paramGroupsState)
   const workflowData = useRecoilValue(workflowDataState)
   const group = paramGroups[groupIndex]
+  const [isModalVisible, setIsModalVisible] = useState(false)
+  const [importJson, setImportJson] = useState('')
+  const [currentParamIndex, setCurrentParamIndex] = useState<number | null>(null)
 
   const handleAddCombination = () => {
     const newGroups = paramGroups.map((g, index) => {
@@ -76,8 +80,6 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
     setParamGroups(newGroups)
   }
 
-
-
   const handleRemoveParam = (paramIndex: number) => {
     const newGroups = paramGroups.map((g, index) => {
       if (index === groupIndex) {
@@ -86,7 +88,7 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
         return {
           ...g,
           params: g.params.filter((_, i) => i !== paramIndex),
-          combinations: g.combinations.map(combo => 
+          combinations: g.combinations.map(combo =>
             combo.filter((_, i) => i !== paramIndex)
           ),
           selectedKeys: g.selectedKeys.filter(key => key !== paramKey)
@@ -97,24 +99,68 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
     setParamGroups(newGroups)
   }
 
+  const handleBulkImport = (paramIndex: number) => {
+    setCurrentParamIndex(paramIndex)
+    setIsModalVisible(true)
+  }
+
+  const handleImportConfirm = () => {
+    try {
+      const values = JSON.parse(importJson)
+      if (!Array.isArray(values)) {
+        throw new Error('输入必须是数组')
+      }
+
+      setParamGroups(prevGroups => {
+        return prevGroups.map((g, index) => {
+          if (index === groupIndex) {
+            const neededCombinations = Math.max(values.length, g.combinations.length)
+            const newCombinations = Array.from({ length: neededCombinations }, (_, i) => {
+              const existingCombo = g.combinations[i] || g.params.map(param => ({
+                nodeId: param.nodeId,
+                paramKey: param.paramKey,
+                value: param.currentValue
+              }))
+
+              if (i < values.length && currentParamIndex !== null) {
+                const newCombo = [...existingCombo]
+                newCombo[currentParamIndex] = {
+                  ...newCombo[currentParamIndex],
+                  value: values[i]
+                }
+                return newCombo
+              }
+              return existingCombo
+            })
+
+            return {
+              ...g,
+              combinations: newCombinations
+            }
+          }
+          return g
+        })
+      })
+
+      setIsModalVisible(false)
+      setImportJson('')
+    } catch (error) {
+      console.error('导入失败:', error)
+      // 这里可以添加错误提示
+    }
+  }
+
   if (!workflowData) return null
 
   return (
-    <Card 
+    <Card
       key={groupIndex}
       title={
         <div className="flex justify-between items-center">
           <span>{group.name}</span>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={handleAddCombination}
-          >
-            添加组合
-          </Button>
         </div>
       }
-      className="mt-6"
+      className="mt-16"
     >
       <div className="space-y-6">
         {group.params.length > 0 ? (
@@ -125,12 +171,21 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
                   <span className="font-medium">
                     {`${workflowData[param.nodeId]._meta.title} - ${param.paramKey}`}
                   </span>
-                  <Button 
-                    type="text" 
-                    danger
-                    icon={<MinusCircleOutlined />}
-                    onClick={() => handleRemoveParam(paramIndex)}
-                  />
+                  <div className="flex gap-2">
+                    <Button
+                      type="text"
+                      onClick={() => handleBulkImport(paramIndex)}
+                      icon={<PlusCircleOutlined />}
+                    >
+                      批量导入
+                    </Button>
+                    <Button
+                      type="text"
+                      danger
+                      icon={<MinusCircleOutlined />}
+                      onClick={() => handleRemoveParam(paramIndex)}
+                    >删除字段</Button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -195,13 +250,39 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
                 </div>
               </div>
             ))}
+            {/* 添加组合 */}
+            {group.combinations.length > 0 && (
+              <div className="w-full p-4 border border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+                <div 
+                  className="flex justify-center items-center h-10 text-gray-400 hover:text-blue-500"
+                  onClick={handleAddCombination}
+                >
+                  <PlusOutlined />添加组合
+                </div>
+              </div>
+            )}
+
           </>
         ) : (
-          <div className="text-center text-gray-500">
+          <div className="flex text-center text-gray-500 min-h-20 items-center justify-center">
             请从右侧选择参数添加到此特征组
           </div>
         )}
       </div>
+
+      <Modal
+        title="批量导入"
+        visible={isModalVisible}
+        onOk={handleImportConfirm}
+        onCancel={() => setIsModalVisible(false)}
+      >
+        <Input.TextArea
+          rows={10}
+          value={importJson}
+          onChange={(e) => setImportJson(e.target.value)}
+          placeholder='请输入JSON数组，例如：["value1", "value2"] 或 [1, 2, 3]'
+        />
+      </Modal>
     </Card>
   )
 } 

@@ -3,14 +3,14 @@ import {
     type inferRouterOutputs,
 } from '@trpc/server'
 import { router } from '@/utils/trpc'
-import { batchTaskRouter } from './routers/task'
+// import { batchTaskRouter } from './routers/task'
 import { authRouter } from './routers/auth'
 import { workflowRouter } from './routers/workflow'
 
 export const appRouter = router({
-    batchTask: batchTaskRouter,
+    // batchTask: batchTaskRouter,
     auth: authRouter,
-    workflow:workflowRouter
+    workflow: workflowRouter
 })
 
 // export type definition of API

@@ -29,4 +29,31 @@ model User {
     avatar     String?
     isAdmin     Boolean  @default(false)
     servers    Server[]
+    workflows  Workflow[]
+}
+
+model Workflow {
+    id          Int      @id @default(autoincrement())
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+    name        String
+    description String?
+    content     Json     // 存储工作流的具体内容
+    isPublic    Boolean  @default(false)
+    owner       User     @relation(fields: [ownerId], references: [id])
+    ownerId     Int
+    parameters  WorkflowParameter[]
+}
+
+model WorkflowParameter {
+    id          Int      @id @default(autoincrement())
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+    name        String
+    type        String   // 参数类型：string, number, boolean 等
+    default     String?  // 默认值（JSON字符串）
+    description String?
+    required    Boolean  @default(false)
+    workflow    Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+    workflowId  Int
 }
