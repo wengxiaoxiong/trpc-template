@@ -38,11 +38,12 @@ model Workflow {
     updatedAt   DateTime @updatedAt
     name        String
     description String?
-    content     Json     // 存储工作流的具体内容
+    content     Json     // 存储原始工作流的具体内容
     isPublic    Boolean  @default(false)
     owner       User     @relation(fields: [ownerId], references: [id])
     ownerId     Int
     parameters  WorkflowParameter[]
+    paramGroups WorkflowParamGroup[]
 }
 
 model WorkflowParameter {
@@ -56,4 +57,37 @@ model WorkflowParameter {
     required    Boolean  @default(false)
     workflow    Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
     workflowId  Int
+    nodeId      String   // 存储节点ID
+    paramKey    String   // 存储参数键名
+}
+
+model WorkflowParamGroup {
+    id          Int      @id @default(autoincrement())
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+    name        String   // X轴、Y轴、Z轴
+    workflow    Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+    workflowId  Int
+    combinations WorkflowParamCombination[]
+    params      WorkflowParamGroupItem[]
+}
+
+model WorkflowParamGroupItem {
+    id            Int               @id @default(autoincrement())
+    createdAt     DateTime         @default(now())
+    updatedAt     DateTime         @updatedAt
+    nodeId        String           // 节点ID
+    paramKey      String           // 参数键名
+    currentValue  String           // JSON字符串形式的当前值
+    paramGroup    WorkflowParamGroup @relation(fields: [paramGroupId], references: [id], onDelete: Cascade)
+    paramGroupId  Int
+}
+
+model WorkflowParamCombination {
+    id            Int               @id @default(autoincrement())
+    createdAt     DateTime         @default(now())
+    updatedAt     DateTime         @updatedAt
+    paramValues   Json             // 存储参数值的组合
+    paramGroup    WorkflowParamGroup @relation(fields: [paramGroupId], references: [id], onDelete: Cascade)
+    paramGroupId  Int
 }

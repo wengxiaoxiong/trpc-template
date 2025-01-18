@@ -60,7 +60,9 @@ export default function UploadPage() {
           name: `${param.nodeId}-${param.paramKey}`,
           type: typeof param.currentValue === 'number' ? 'number' : 'string',
           description: `${group.name}: ${workflowData![param.nodeId]._meta.title} - ${param.paramKey}`,
-          default: JSON.stringify(param.currentValue)
+          default: JSON.stringify(param.currentValue),
+          nodeId: param.nodeId,
+          paramKey: param.paramKey
         }))
       )
 
@@ -72,8 +74,20 @@ export default function UploadPage() {
           workflow: workflowData,
           paramGroups: paramGroups
         },
+        workflow: workflowData,
         isPublic,
-        parameters
+        parameters,
+        paramGroups: paramGroups.map(group => ({
+          name: group.name,
+          params: group.params.map(param => ({
+            nodeId: param.nodeId,
+            paramKey: param.paramKey,
+            currentValue: param.currentValue,
+            path: param.path
+          })),
+          combinations: group.combinations,
+          selectedKeys: group.selectedKeys
+        }))
       })
     } catch (error) {
       console.error('保存失败:', error)

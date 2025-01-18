@@ -1,63 +1,117 @@
-
-import { BulbOutlined, CloudServerOutlined, DeploymentUnitOutlined, ScheduleOutlined } from '@ant-design/icons';
-
-import React from "react";
-
-interface StatCardProps {
-    title: string;
-    value: string | number;
-    icon: React.ReactNode;
-    bgColor: string;
-    iconColor: string;
-  }
-  
-  export const StatCard = ({ title, value, icon, bgColor, iconColor }: StatCardProps) => {
-    return (
-      <div className="bg-white rounded-lg p-6 shadow-sm">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-gray-500 text-sm">{title}</p>
-            <p className="text-2xl font-semibold text-gray-800 mt-1">{value}</p>
-          </div>
-          <div className={`w-10 h-10 rounded-lg ${bgColor} flex items-center justify-center`}>
-            {React.cloneElement(icon as React.ReactElement, { className: `text-xl ${iconColor}` })}
-          </div>
-        </div>
-      </div>
-    );
-  };
+import { Card, Table, Button, Tag, message } from 'antd'
+import { useRouter } from 'next/navigation'
+import { trpc } from '@/utils/trpc/client'
+import { formatDistanceToNow } from 'date-fns'
+import { zhCN } from 'date-fns/locale'
 
 export const StatCards = () => {
+  const router = useRouter()
+  const { data: workflows, isLoading, refetch } = trpc.workflow.list.useQuery()
+  const deleteWorkflow = trpc.workflow.delete.useMutation({
+    onSuccess: () => {
+      message.success('删除成功')
+      refetch() // 刷新列表
+    },
+    onError: () => {
+      message.error('删除失败')
+    }
+  })
+  const handleDelete = (id: string) => {
+    deleteWorkflow.mutate({ id: parseInt(id) })
+  }
+
+  const columns = [
+    {
+      title: '工作流名称',
+      dataIndex: 'name',
+      key: 'name',
+      render: (text: string) => <span className="font-medium">{text}</span>
+    },
+    {
+      title: '描述',
+      dataIndex: 'description',
+      key: 'description',
+      render: (text: string) => <span className="text-gray-500">{text || '-'}</span>
+    },
+    {
+      title: '创建者',
+      dataIndex: 'owner',
+      key: 'owner',
+      render: (owner: any) => <span>{owner.username}</span>
+    },
+    {
+      title: '参数配置',
+      key: 'params',
+      render: (record: any) => (
+        <div className="space-y-1">
+          {record.paramGroups.map((group: any, index: number) => {
+            const combinationCount = group.combinations?.length || 0
+            return (
+              <Tag 
+                key={index} 
+                color={index === 0 ? 'blue' : index === 1 ? 'green' : 'purple'}
+                className="whitespace-normal"
+              >
+                {group.name}: {group.params.length}个字段 {combinationCount > 0 ? `${combinationCount}个组合` : ''}
+              </Tag>
+            )
+          })}
+        </div>
+      )
+    },
+    {
+      title: '创建时间',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      render: (date: string) => (
+        <span className="text-gray-500">
+          {formatDistanceToNow(new Date(date), { addSuffix: true, locale: zhCN })}
+        </span>
+      )
+    },
+    {
+      title: '状态',
+      dataIndex: 'isPublic',
+      key: 'isPublic',
+      render: (isPublic: boolean) => (
+        <Tag color={isPublic ? 'green' : 'blue'}>
+          {isPublic ? '公开' : '私有'}
+        </Tag>
+      )
+    },
+    {
+      title: '操作',
+      key: 'action',
+      render: (record: any) => (
+        <div className="space-x-2">
+          <Button 
+            type="link" 
+            onClick={() => router.push(`/edit_workflow/${record.id}`)}
+          >
+            编辑
+          </Button>
+          <Button 
+            type="link"
+            danger
+            onClick={() => handleDelete(record.id)}
+          >
+            删除
+          </Button>
+        </div>
+      )
+    }
+  ]
+
   return (
-    <div className="grid grid-cols-4 gap-6">
-      <StatCard
-        title="特征模板"
-        value={24}
-        icon={<BulbOutlined />}
-        bgColor="bg-blue-100"
-        iconColor="text-blue-500"
-      />
-      <StatCard
-        title="服务器节点"
-        value={8}
-        icon={<CloudServerOutlined />}
-        bgColor="bg-indigo-100"
-        iconColor="text-indigo-500"
-      />
-      <StatCard
-        title="工作流"
-        value={16}
-        icon={<DeploymentUnitOutlined />}
-        bgColor="bg-green-100"
-        iconColor="text-green-500"
-      />
-      <StatCard
-        title="运行任务"
-        value={32}
-        icon={<ScheduleOutlined />}
-        bgColor="bg-purple-100"
-        iconColor="text-purple-500"
-      />
+    <div className="grid gap-6">
+      <Card title="我的工作流" className="col-span-full">
+        <Table
+          columns={columns}
+          dataSource={workflows}
+          rowKey="id"
+          loading={isLoading}
+        />
+      </Card>
     </div>
-  );
-};
+  )
+}

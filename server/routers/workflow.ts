@@ -9,14 +9,38 @@ const workflowParamSchema = z.object({
     default: z.string().optional(),
     description: z.string().optional(),
     required: z.boolean().optional(),
+    nodeId: z.string(),
+    paramKey: z.string(),
+})
+
+const paramGroupItemSchema = z.object({
+    nodeId: z.string(),
+    paramKey: z.string(),
+    currentValue: z.any(),
+    path: z.array(z.string())
+})
+
+const paramValueSchema = z.object({
+    nodeId: z.string(),
+    paramKey: z.string(),
+    value: z.any()
+})
+
+const paramGroupSchema = z.object({
+    name: z.string(),
+    params: z.array(paramGroupItemSchema),
+    combinations: z.array(z.array(paramValueSchema)),
+    selectedKeys: z.array(z.string())
 })
 
 const workflowInputSchema = z.object({
     name: z.string(),
     description: z.string().optional(),
-    content: z.any(), // 工作流内容
+    content: z.any(), // 原始工作流内容
+    workflow: z.any(), // 工作流数据
     isPublic: z.boolean().optional(),
-    parameters: z.array(workflowParamSchema).optional(),
+    parameters: z.array(workflowParamSchema),
+    paramGroups: z.array(paramGroupSchema)
 })
 
 export const workflowRouter = router({
@@ -28,15 +52,50 @@ export const workflowRouter = router({
                 data: {
                     name: input.name,
                     description: input.description,
-                    content: input.content,
+                    content: input.workflow, // 存储原始工作流数据
                     isPublic: input.isPublic ?? false,
                     ownerId: ctx.user.id,
-                    parameters: input.parameters ? {
-                        create: input.parameters
-                    } : undefined
+                    // 创建参数
+                    parameters: {
+                        create: input.parameters.map(param => ({
+                            name: param.name,
+                            type: param.type,
+                            default: param.default,
+                            description: param.description,
+                            required: param.required ?? false,
+                            nodeId: param.nodeId,
+                            paramKey: param.paramKey
+                        }))
+                    },
+                    // 创建参数组
+                    paramGroups: {
+                        create: input.paramGroups.map(group => ({
+                            name: group.name,
+                            // 创建参数组中的参数项
+                            params: {
+                                create: group.params.map(param => ({
+                                    nodeId: param.nodeId,
+                                    paramKey: param.paramKey,
+                                    currentValue: JSON.stringify(param.currentValue)
+                                }))
+                            },
+                            // 创建参数组合
+                            combinations: {
+                                create: group.combinations.map(combination => ({
+                                    paramValues: combination
+                                }))
+                            }
+                        }))
+                    }
                 },
                 include: {
-                    parameters: true
+                    parameters: true,
+                    paramGroups: {
+                        include: {
+                            params: true,
+                            combinations: true
+                        }
+                    }
                 }
             })
             return workflow
@@ -54,6 +113,12 @@ export const workflowRouter = router({
                 },
                 include: {
                     parameters: true,
+                    paramGroups: {
+                        include: {
+                            params: true,
+                            combinations: true
+                        }
+                    },
                     owner: {
                         select: {
                             id: true,
@@ -74,6 +139,12 @@ export const workflowRouter = router({
                 where: { id: input.id },
                 include: {
                     parameters: true,
+                    paramGroups: {
+                        include: {
+                            params: true,
+                            combinations: true
+                        }
+                    },
                     owner: {
                         select: {
                             id: true,
@@ -126,25 +197,61 @@ export const workflowRouter = router({
                 })
             }
 
-            // 删除旧的参数
-            await prisma.workflowParameter.deleteMany({
-                where: { workflowId: input.id }
-            })
+            // 删除旧的数据
+            await Promise.all([
+                prisma.workflowParameter.deleteMany({
+                    where: { workflowId: input.id }
+                }),
+                prisma.workflowParamGroup.deleteMany({
+                    where: { workflowId: input.id }
+                })
+            ])
 
-            // 更新工作流和参数
+            // 更新工作流和相关数据
             const updated = await prisma.workflow.update({
                 where: { id: input.id },
                 data: {
                     name: input.data.name,
                     description: input.data.description,
-                    content: input.data.content,
+                    content: input.data.workflow,
                     isPublic: input.data.isPublic,
-                    parameters: input.data.parameters ? {
-                        create: input.data.parameters
-                    } : undefined
+                    parameters: {
+                        create: input.data.parameters.map(param => ({
+                            name: param.name,
+                            type: param.type,
+                            default: param.default,
+                            description: param.description,
+                            required: param.required ?? false,
+                            nodeId: param.nodeId,
+                            paramKey: param.paramKey
+                        }))
+                    },
+                    paramGroups: {
+                        create: input.data.paramGroups.map(group => ({
+                            name: group.name,
+                            params: {
+                                create: group.params.map(param => ({
+                                    nodeId: param.nodeId,
+                                    paramKey: param.paramKey,
+                                    currentValue: JSON.stringify(param.currentValue)
+                                }))
+                            },
+                            combinations: {
+                                create: group.combinations.map(combination => ({
+                                    paramValues: combination
+                                }))
+                            }
+                        }))
+                    }
                 },
                 include: {
-                    parameters: true
+                    parameters: true,
+                    paramGroups: {
+                        include: {
+                            params: true,
+                            combinations: true
+                        }
+                    }
                 }
             })
 
