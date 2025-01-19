@@ -86,7 +86,7 @@ export const WorkflowList = () => {
         <div className="space-x-2">
           <Button 
             type="link" 
-            onClick={() => router.push(`/edit_workflow/${record.id}`)}
+            onClick={() => router.push(`/workflow/edit/${record.id}`)}
           >
             编辑
           </Button>

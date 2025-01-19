@@ -10,13 +10,13 @@ import {
   currentGroupIndexState,
   fileListState,
 } from '@/app/workflow/store/workflow'
-import { DashboardLayout } from '@/app/components/DashboardLayout'
 import { Button, message, notification } from 'antd'
 import { SaveOutlined } from '@ant-design/icons'
 import { trpc } from '@/utils/trpc/client'
 import { convertToTreeData } from '@/app/workflow/upload/utils'
 import { ParamGroupEditor } from '../../components/ParamGroupEditor'
 import { ParamTree } from '../../components/ParamTree'
+import { MainPageLayout } from '@/app/components/MainPageLayout'
 
 export default function EditWorkflowPage({ params }: { params: { id: string } }) {
   const [workflowData, setWorkflowData] = useRecoilState(workflowDataState)
@@ -131,7 +131,7 @@ export default function EditWorkflowPage({ params }: { params: { id: string } })
   }
 
   return (
-    <DashboardLayout>
+    <MainPageLayout>
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">编辑工作流: {workflow?.name}</h2>
@@ -152,6 +152,6 @@ export default function EditWorkflowPage({ params }: { params: { id: string } })
           <ParamGroupEditor key={groupIndex} groupIndex={groupIndex} />
         ))}
       </div>
-    </DashboardLayout>
+    </MainPageLayout>
   )
 } 
