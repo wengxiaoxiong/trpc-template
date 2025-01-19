@@ -86,7 +86,7 @@ export const ParamTree = () => {
     const newGroups = paramGroups.map((group, index) => {
       if (index === currentGroupIndex) {
         if (!isKeySelected) {
-          // 添加参数
+          // 添加字段
           const newParam: SelectedParam = {
             nodeId,
             paramKey,
@@ -148,7 +148,7 @@ export const ParamTree = () => {
       title={
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <span>选择参数</span>
+            <span>选择字段</span>
             <span className="text-sm text-gray-500">({workflowName})</span>
           </div>
           <Space>

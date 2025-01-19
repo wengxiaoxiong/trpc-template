@@ -107,10 +107,10 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
 
   const handleImportConfirm = () => {
     try {
-      const values = importText.trim().startsWith('[') ? 
-        JSON.parse(importText) : 
+      const values = importText.trim().startsWith('[') ?
+        JSON.parse(importText) :
         importText.split('\n').map(value => value.trim()).filter(value => value);
-      
+
       if (!Array.isArray(values) || values.length === 0) {
         throw new Error('输入不能为空或格式不正确')
       }
@@ -204,7 +204,7 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
               type="link"
               onClick={() => setIsCombinationsVisible(!isCombinationsVisible)}
             >
-              {isCombinationsVisible ? '隐藏组合' : '显示组合'}
+              {isCombinationsVisible ? '隐藏组合' : `显示组合 (${group.combinations.length})`}
             </Button>
             {isCombinationsVisible && group.combinations.map((combination, combinationIndex) => (
               <div key={combinationIndex} className="border p-4 rounded">
@@ -268,12 +268,15 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
             ))}
             {/* 添加组合 */}
             {group.combinations.length > 0 && isCombinationsVisible && (
-              <div className="w-full p-4 border border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
-                <div 
+              <div className="w-full p-4 border border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 transition-colors"
+                onClick={handleAddCombination}
+              >
+                <div
                   className="flex justify-center items-center h-10 text-gray-400 hover:text-blue-500"
-                  onClick={handleAddCombination}
+
                 >
-                  <PlusOutlined />添加组合
+                  <PlusOutlined />
+                  <span className="select-none">添加组合</span>
                 </div>
               </div>
             )}
@@ -281,7 +284,7 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
           </>
         ) : (
           <div className="flex text-center text-gray-500 min-h-20 items-center justify-center">
-            请从右侧选择参数添加到此特征组
+            请从上方选择字段添加到此特征组
           </div>
         )}
       </div>
