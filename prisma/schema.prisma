@@ -30,6 +30,7 @@ model User {
     isAdmin     Boolean  @default(false)
     servers    Server[]
     workflows  Workflow[]
+    files      UserFile[]
 }
 
 model Workflow {
@@ -90,4 +91,19 @@ model WorkflowParamCombination {
     paramValues   Json             // 存储参数值的组合
     paramGroup    WorkflowParamGroup @relation(fields: [paramGroupId], references: [id], onDelete: Cascade)
     paramGroupId  Int
+}
+
+model UserFile {
+    id          Int      @id @default(autoincrement())
+    name        String
+    size        Int
+    type        String
+    path        String
+    description String?
+    ownerId     Int
+    owner       User     @relation(fields: [ownerId], references: [id])
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    @@index([ownerId])
 }
