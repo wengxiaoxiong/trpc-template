@@ -54,7 +54,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const isAuthRoute = ['/login', '/register'].includes(pathname)
-    if (error && !tokenUtils.get() && !isAuthRoute) {
+    if (error && !isAuthRoute) {
+      tokenUtils.remove()
       router.push('/login')
     }
   }, [error, pathname, router])
