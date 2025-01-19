@@ -9,7 +9,7 @@ import { UserOutlined, LockOutlined } from '@ant-design/icons'
 
 export default function LoginPage() {
   const router = useRouter()
-  const { login } = useAuth()
+  const { login, logout, user } = useAuth()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -34,6 +34,44 @@ export default function LoginPage() {
     } catch (error) {
       setLoading(false)
     }
+  }
+
+  // 如果用户已登录，显示已登录状态
+  if (user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <div className="bg-white rounded-lg shadow-xl p-8 text-center">
+            <div className="text-2xl font-bold text-gray-800 mb-4">
+              您已登录
+            </div>
+            <div className="text-gray-600 mb-6">
+              当前登录账号：{user.username}
+            </div>
+            <Button
+              type="primary"
+              size="large"
+              className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 mb-4"
+              onClick={() => router.push('/')}
+            >
+              返回主页
+            </Button>
+            <Button
+              type="link"
+              size="large"
+              className="w-full"
+              onClick={() => {
+                logout()
+                setUsername('')
+                setPassword('')
+              }}
+            >
+              切换账号
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
