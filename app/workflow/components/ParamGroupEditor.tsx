@@ -1,8 +1,10 @@
-import { Card, Button, Divider, Input, InputNumber, Tag, Modal } from 'antd'
-import { PlusOutlined, MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons'
+import { Card, Button, Divider, Input, InputNumber, Tag, Modal, Upload } from 'antd'
+import { PlusOutlined, MinusCircleOutlined, PlusCircleOutlined, UploadOutlined } from '@ant-design/icons'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { workflowDataState, paramGroupsState } from '../store/workflow'
 import { useState } from 'react'
+import { useMinioUpload } from '@/utils/minio/useMinioUpload'
+import { trpc } from '@/utils/trpc/client'
 
 interface ParamGroupEditorProps {
   groupIndex: number
@@ -16,6 +18,15 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
   const [importText, setImportText] = useState('')
   const [currentParamIndex, setCurrentParamIndex] = useState<number | null>(null)
   const [isCombinationsVisible, setIsCombinationsVisible] = useState(false) // 新增状态控制组合的显示
+
+
+  const utils = trpc.useUtils()
+
+  const { uploadFile, isUploading } = useMinioUpload({
+    onSuccess: (pathName) => {
+      // 上传成功后的回调会在 handleImageUpload 中处理
+    }
+  })
 
   const handleAddCombination = () => {
     const newGroups = paramGroups.map((g, index) => {
@@ -154,6 +165,21 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
     }
   }
 
+  const handleImageUpload = async (combinationIndex: number, paramIndex: number, file: File) => {
+    try {
+      const pathName = await uploadFile(file)
+      handleParamValueChange(combinationIndex, paramIndex, pathName)
+      return true
+    } catch (error) {
+      return false
+    }
+  }
+
+  const isImageParam = (nodeId: string, paramKey: string) => {
+    const node = workflowData?.[nodeId]
+    return node?.class_type === 'LoadImage' && paramKey === 'image'
+  }
+
   if (!workflowData) return null
 
   return (
@@ -246,10 +272,34 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
                               </div>
                             ))}
                           </div>
+                        ) : isImageParam(paramValue.nodeId, paramValue.paramKey) ? (
+                          <Upload
+                            accept="image/*"
+                            showUploadList={false}
+                            customRequest={({ file }) => {
+                              if (file instanceof File) {
+                                handleImageUpload(combinationIndex, paramIndex, file)
+                                
+                              }
+                            }}
+                          >
+                            <Button 
+                              icon={<UploadOutlined />} 
+                              loading={isUploading}
+                              className="w-full"
+                            >
+                              {paramValue.value ? '更改图片' : '上传图片'}
+                              {paramValue.value && (
+                                <div className="text-xs text-gray-500 truncate">
+                                  {paramValue.value}
+                                </div>
+                              )}
+                            </Button>
+                          </Upload>
                         ) : (
                           typeof group.params[paramIndex].currentValue === 'number' ? (
                             <InputNumber
-                              value={paramValue.value}
+                              value={paramValue.value as number}
                               onChange={(value) => handleParamValueChange(combinationIndex, paramIndex, value || 0)}
                               className="w-full"
                             />
@@ -257,6 +307,7 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
                             <Input
                               value={paramValue.value as string}
                               onChange={(e) => handleParamValueChange(combinationIndex, paramIndex, e.target.value)}
+                              className="w-full"
                             />
                           )
                         )}
