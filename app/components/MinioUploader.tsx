@@ -3,9 +3,9 @@
 import { Upload, message } from 'antd';
 import type { UploadProps } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
-import { MinioUploader } from '@/utils/minio/uploader';
 import { trpc } from '@/utils/trpc/client';
 import { useState } from 'react';
+import { MinioUploader } from '@/utils/minio/uploader';
 
 const { Dragger } = Upload;
 
