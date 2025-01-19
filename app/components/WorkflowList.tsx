@@ -4,7 +4,7 @@ import { trpc } from '@/utils/trpc/client'
 import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 
-export const StatCards = () => {
+export const WorkflowList = () => {
   const router = useRouter()
   const { data: workflows, isLoading, refetch } = trpc.workflow.list.useQuery()
   const deleteWorkflow = trpc.workflow.delete.useMutation({

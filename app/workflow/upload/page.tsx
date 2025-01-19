@@ -2,7 +2,7 @@
 
 import { useRecoilValue } from 'recoil'
 import { workflowDataState, fileListState } from '../store/workflow'
-import { DashboardLayout } from '../../components/DashboardLayout'
+import { MainPageLayout } from '../../components/MainPageLayout'
 import { WorkflowUploader } from '../components/WorkflowUploader'
 import { Button, message, Modal, Input, Checkbox } from 'antd'
 import { SaveOutlined } from '@ant-design/icons'
@@ -85,7 +85,7 @@ export default function UploadPage() {
   }
 
   return (
-    <DashboardLayout>
+    <MainPageLayout>
       <div className="p-6">
         <div className="mb-4">
           <h1 className="text-2xl font-bold mb-4">上传工作流</h1>
@@ -139,6 +139,6 @@ export default function UploadPage() {
           </div>
         </Modal>
       </div>
-    </DashboardLayout>
+    </MainPageLayout>
   )
 }

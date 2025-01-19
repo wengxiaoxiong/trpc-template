@@ -1,18 +1,18 @@
 'use client'
 
 import React from 'react';
-import { DashboardLayout } from './components/DashboardLayout';
-import { StatCards } from './components/StatCards';
+import { MainPageLayout } from './components/MainPageLayout';
+import { WorkflowList } from './components/WorkflowList';
 
 const App: React.FC = () => {
 
   return (
-    <DashboardLayout>
+    <MainPageLayout>
       <div className="bg-white rounded-lg shadow-sm">
-        <StatCards />
+        <WorkflowList />
 
       </div>
-    </DashboardLayout>
+    </MainPageLayout>
   );
 };
 

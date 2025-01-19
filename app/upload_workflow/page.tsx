@@ -2,7 +2,7 @@
 
 import { useRecoilValue } from 'recoil'
 import { workflowDataState, paramGroupsState, fileListState } from './store/workflow'
-import { DashboardLayout } from '../components/DashboardLayout'
+import { MainPageLayout } from '../components/MainPageLayout'
 import { WorkflowUploader } from './components/WorkflowUploader'
 import { ParamTree } from './components/ParamTree'
 import { ParamGroupEditor } from './components/ParamGroupEditor'
@@ -96,7 +96,7 @@ export default function UploadPage() {
   }
 
   return (
-    <DashboardLayout>
+    <MainPageLayout>
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">上传并配置工作流</h2>
@@ -161,6 +161,6 @@ export default function UploadPage() {
           </div>
         </Modal>
       </div>
-    </DashboardLayout>
+    </MainPageLayout>
   )
 }
