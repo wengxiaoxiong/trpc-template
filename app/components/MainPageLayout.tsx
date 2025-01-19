@@ -14,16 +14,18 @@ interface DashboardLayoutProps {
 export const MainPageLayout = ({ children }: DashboardLayoutProps) => {
   const { data: filesCount, refetch: refetchFilesCount } = trpc.minio.countFiles.useQuery();
   const { data: workflowsCount, refetch: refetchWorkflowsCount } = trpc.workflow.countWorkflows.useQuery();
+  const { data: TasksCount, refetch: refetchTasksCount } = trpc.task.countTasks.useQuery();
 
   // 设置定时器，每分钟刷新一次数据
   useEffect(() => {
     const interval = setInterval(() => {
       refetchFilesCount();
       refetchWorkflowsCount();
+      refetchTasksCount();
     }, 60000); // 60000毫秒 = 1分钟
 
     return () => clearInterval(interval);
-  }, [refetchFilesCount, refetchWorkflowsCount]);
+  }, [refetchFilesCount, refetchWorkflowsCount, refetchTasksCount]);
 
   const router = useRouter()
 
@@ -32,7 +34,7 @@ export const MainPageLayout = ({ children }: DashboardLayoutProps) => {
       <div className="max-w-[1440px] mx-auto px-6">
         <Header />
         <main className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card className='cursor-pointer' onClick={() => { router.push("/files") }}>
               <Statistic
                 title="文件总数"
@@ -44,6 +46,13 @@ export const MainPageLayout = ({ children }: DashboardLayoutProps) => {
               <Statistic
                 title="工作流总数"
                 value={workflowsCount || 0}
+                valueStyle={{ color: '#3f8600' }}
+              />
+            </Card>
+            <Card className='cursor-pointer' onClick={() => { router.push("/tasks") }}>
+              <Statistic
+                title="任务总数总数"
+                value={TasksCount || 0}
                 valueStyle={{ color: '#3f8600' }}
               />
             </Card>
