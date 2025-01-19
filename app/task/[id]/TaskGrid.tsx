@@ -1,7 +1,8 @@
 import { TaskStatus } from '@prisma/client'
-import { Table, Tag, Image, Tooltip, Typography, Space } from 'antd'
+import { Table, Tag, Tooltip, Typography, Space } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { InfoCircleOutlined } from '@ant-design/icons'
+import { MinioImage } from '@/app/components/MinioImage'
 import { trpc } from '@/utils/trpc/client'
 
 const { Text } = Typography
@@ -130,17 +131,12 @@ function TaskItemCell({ item }: { item: TaskItem | undefined }) {
         </Tag>
       </div>
       {item.result?.imageUrl && (
-        <Image
-          src={item.result.imageUrl}
-          alt="结果"
+        <MinioImage
+          pathName={item.result.imageUrl}
           width={128}
           height={128}
           className="object-cover"
-          placeholder={
-            <div className="w-32 h-32 bg-gray-100 flex items-center justify-center">
-              加载中...
-            </div>
-          }
+          preview={true}
         />
       )}
       {item.error && (
@@ -157,24 +153,13 @@ function TaskItemCell({ item }: { item: TaskItem | undefined }) {
 
 // 图片预览组件
 function PreviewImage({ filename }: { filename: string }) {
-  const { data: url } = trpc.minio.getFileUrl.useQuery({ 
-    path: filename
-  })
-
-  if (!url?.url) return null
-
   return (
-    <Image
-      src={url.url}
-      alt={filename}
+    <MinioImage
+      pathName={filename}
       width={64}
       height={64}
       className="object-cover rounded"
-      placeholder={
-        <div className="w-16 h-16 bg-gray-100 flex items-center justify-center">
-          <Text type="secondary">加载中...</Text>
-        </div>
-      }
+      preview={true}
     />
   )
 }

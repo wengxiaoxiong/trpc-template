@@ -1,7 +1,9 @@
-import { Input, Button, Dropdown, Menu } from 'antd';
-import { SearchOutlined, SettingOutlined } from '@ant-design/icons';
+import { Input, Button, Dropdown, Menu, Upload, message } from 'antd';
+import { SearchOutlined, SettingOutlined, UploadOutlined } from '@ant-design/icons';
 import { useAuth } from '../auth/AuthProvider';
 import { useRouter } from 'next/navigation';
+import { useMinioUpload } from '@/utils/minio/useMinioUpload';
+import { useState } from 'react';
 
 const navItems = [
     { href: '/files', label: '文件' },
@@ -12,9 +14,42 @@ const navItems = [
 export const Header = () => {
     const { user, logout } = useAuth();
     const router = useRouter();
+    const [loading, setLoading] = useState(false);
+    const { uploadFile } = useMinioUpload({
+        onSuccess: (pathName) => {
+            message.success(`头像上传成功: ${pathName}`);
+            // 这里可以更新用户信息，保存头像路径
+        },
+        onError: (error) => {
+            message.error(`头像上传失败: ${error.message}`);
+        },
+    });
+
+    const handleUploadAvatar = async (file: File) => {
+        setLoading(true);
+        try {
+            await uploadFile(file);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const menu = (
         <Menu>
+            <Menu.Item key="upload" onClick={() => document.getElementById('avatarUpload')?.click()}>
+                <UploadOutlined /> 上传头像
+                <input
+                    id="avatarUpload"
+                    type="file"
+                    style={{ display: 'none' }}
+                    accept="image/*"
+                    onChange={(e) => {
+                        if (e.target.files) {
+                            handleUploadAvatar(e.target.files[0]);
+                        }
+                    }}
+                />
+            </Menu.Item>
             <Menu.Item key="logout" onClick={logout}>
                 退出登录
             </Menu.Item>

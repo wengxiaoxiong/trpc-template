@@ -1,4 +1,4 @@
-import { Card, Button, Divider, Input, InputNumber, Tag, Modal, Upload, Image } from 'antd'
+import { Card, Button, Divider, Input, InputNumber, Tag, Modal, Upload } from 'antd'
 import { PlusOutlined, MinusCircleOutlined, PlusCircleOutlined, UploadOutlined, InboxOutlined } from '@ant-design/icons'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { workflowDataState, paramGroupsState } from '../store/workflow'
@@ -9,6 +9,7 @@ import TextArea from 'antd/es/input/TextArea'
 import { message } from 'antd'
 import type { UploadFile } from 'antd/es/upload/interface'
 import { FileType } from '@prisma/client'
+import { MinioImage } from '@/app/components/MinioImage'
 
 interface ParamGroupEditorProps {
   groupIndex: number
@@ -271,9 +272,6 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
   }
 
   const renderImageUpload = (combinationIndex: number, paramIndex: number, paramValue: any) => {
-    const imageKey = `${combinationIndex}-${paramIndex}`;
-    const imageUrl = imageUrls[imageKey];
-
     return (
       <div>
         <Upload
@@ -295,23 +293,15 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
         </Upload>
         {paramValue.value && (
           <div className="mt-2">
-            {imageUrl ? (
-              <div className="text-xs text-gray-500 truncate flex flex-col space-y-3">
-                <Image
-                  src={imageUrl}
-                  alt="预览图片"
-                  width={100}
-                  height={100}
-                  className="object-cover rounded"
-                />
-                <div>{paramValue.value}</div>
-              </div>
-            ) : (
-              <div className="text-xs text-gray-500 truncate">
-                <Tag>无图像</Tag>
-                {paramValue.value}
-              </div>
-            )}
+            <div className="text-xs text-gray-500 truncate flex flex-col space-y-3">
+              <MinioImage
+                pathName={paramValue.value}
+                width={100}
+                height={100}
+                className="object-cover rounded"
+              />
+              <div>{paramValue.value}</div>
+            </div>
           </div>
         )}
       </div>
