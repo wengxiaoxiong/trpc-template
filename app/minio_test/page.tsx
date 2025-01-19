@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Upload, message, Table, Button, Image, Card } from 'antd';
 import type { UploadProps } from 'antd';
 import { InboxOutlined, DownloadOutlined, DeleteOutlined } from '@ant-design/icons';
+import { MinioFileUploader } from "../components/MinioUploader";
 
 const { Dragger } = Upload;
 
