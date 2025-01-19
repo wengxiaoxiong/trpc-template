@@ -1,9 +1,12 @@
-import { Input, Button, Dropdown, Menu, Upload, message } from 'antd';
-import { SearchOutlined, SettingOutlined, UploadOutlined } from '@ant-design/icons';
+import { Avatar, Button, Dropdown, Menu, Modal, Upload, message } from 'antd';
+import { SearchOutlined, SettingOutlined, UploadOutlined, UserOutlined, LogoutOutlined } from '@ant-design/icons';
 import { useAuth } from '../auth/AuthProvider';
 import { useRouter } from 'next/navigation';
-import { useMinioUpload } from '@/utils/minio/useMinioUpload';
+import { trpc } from '@/utils/trpc/client';
 import { useState } from 'react';
+import { FileType } from '@prisma/client';
+import { MinioImage } from './MinioImage';
+import { useMinioUpload } from '@/utils/minio/useMinioUpload';
 
 const navItems = [
     { href: '/files', label: '文件' },
@@ -11,46 +14,55 @@ const navItems = [
     { href: '/tasks', label: '任务列表' },
 ]
 
-export const Header = () => {
-    const { user, logout } = useAuth();
+export function Header() {
     const router = useRouter();
-    const [loading, setLoading] = useState(false);
+    const { data: user, refetch: refetchUser } = trpc.auth.getCurrentUser.useQuery();
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [uploading, setUploading] = useState(false);
+
     const { uploadFile } = useMinioUpload({
-        onSuccess: (pathName) => {
-            message.success(`头像上传成功: ${pathName}`);
-            // 这里可以更新用户信息，保存头像路径
+        onSuccess: () => {
+            setUploading(false);
         },
-        onError: (error) => {
-            message.error(`头像上传失败: ${error.message}`);
-        },
+        onError: () => {
+            setUploading(false);
+            message.error('上传失败');
+        }
     });
 
-    const handleUploadAvatar = async (file: File) => {
-        setLoading(true);
+    const { mutateAsync: updateAvatar } = trpc.auth.updateAvatar.useMutation({
+        onSuccess: () => {
+            message.success('头像更新成功');
+            refetchUser();
+            setIsModalVisible(false);
+        },
+        onError: () => {
+            message.error('头像更新失败');
+        }
+    });
+
+    const handleAvatarUpload = async (file: File) => {
         try {
-            await uploadFile(file);
+            setUploading(true);
+            const pathName = await uploadFile(file, FileType.USER_UPLOADED_FILE);
+            await updateAvatar({ avatarPath: pathName });
+        } catch (error) {
+            console.error('上传头像失败:', error);
+            message.error('上传头像失败');
         } finally {
-            setLoading(false);
+            setUploading(false);
         }
     };
 
     const menu = (
         <Menu>
-            <Menu.Item key="upload" onClick={() => document.getElementById('avatarUpload')?.click()}>
-                <UploadOutlined /> 上传头像
-                <input
-                    id="avatarUpload"
-                    type="file"
-                    style={{ display: 'none' }}
-                    accept="image/*"
-                    onChange={(e) => {
-                        if (e.target.files) {
-                            handleUploadAvatar(e.target.files[0]);
-                        }
-                    }}
-                />
+            <Menu.Item key="avatar" onClick={() => setIsModalVisible(true)}>
+                <UploadOutlined /> 更换头像
             </Menu.Item>
-            <Menu.Item key="logout" onClick={logout}>
+            <Menu.Item key="logout" onClick={() => {
+                localStorage.removeItem('token');
+                router.push('/login');
+            }}>
                 退出登录
             </Menu.Item>
         </Menu>
@@ -71,13 +83,45 @@ export const Header = () => {
             <div className="flex items-center space-x-4">
                 <Dropdown overlay={menu} trigger={['click']}>
                     <div className="flex items-center space-x-2 cursor-pointer">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white">
-                            <span>{user?.username?.charAt(0).toUpperCase()}</span>
-                        </div>
-                        <span className="text-gray-700">{user?.username}</span>
+                        {user && user.avatar ? (
+                            <MinioImage
+                                pathName={user.avatar}
+                                width={32}
+                                height={32}
+                                className="rounded-full"
+                                preview={false}
+                            />
+                        ) : (
+                            <Avatar icon={<UserOutlined />} />
+                        )}
+                        <span className="text-gray-800">{user?.username}</span>
                     </div>
                 </Dropdown>
             </div>
+
+            <Modal
+                title="更换头像"
+                open={isModalVisible}
+                onCancel={() => setIsModalVisible(false)}
+                footer={null}
+            >
+                <Upload.Dragger
+                    accept="image/*"
+                    showUploadList={false}
+                    customRequest={({ file }) => {
+                        if (file instanceof File) {
+                            handleAvatarUpload(file);
+                        }
+                    }}
+                >
+                    <p className="ant-upload-drag-icon">
+                        <UploadOutlined />
+                    </p>
+                    <p className="ant-upload-text">点击或拖拽图片到此区域上传</p>
+                    <p className="ant-upload-hint">支持 jpg、png 等常见图片格式</p>
+                </Upload.Dragger>
+                {uploading && <div className="text-center mt-4">上传中...</div>}
+            </Modal>
         </header>
     );
-};
+}

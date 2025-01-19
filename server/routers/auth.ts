@@ -3,6 +3,7 @@ import { protectedProcedure, publicProcedure, router } from '@/utils/trpc';
 import { prisma } from '@/utils/prisma';
 import bcrypt from 'bcrypt';
 import { generateToken } from '@/utils/jwt';
+import { FileType } from '@prisma/client';
 
 export const authRouter = router({
     register: publicProcedure
@@ -64,6 +65,26 @@ export const authRouter = router({
                 throw new Error('User not found');
             }
             const sanitizedUser = { ...user, password: undefined };
+            return sanitizedUser;
+        }),
+
+    updateAvatar: protectedProcedure
+        .input(
+            z.object({
+                avatarPath: z.string(),
+            })
+        )
+        .mutation(async ({ input, ctx }) => {
+            if (!ctx.user.id) {
+                throw new Error('Unauthorized');
+            }
+
+            const updatedUser = await prisma.user.update({
+                where: { id: ctx.user.id },
+                data: { avatar: input.avatarPath },
+            });
+
+            const sanitizedUser = { ...updatedUser, password: undefined };
             return sanitizedUser;
         }),
 });
