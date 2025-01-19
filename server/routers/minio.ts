@@ -7,7 +7,7 @@ import { Client } from 'minio'
 // Minio 客户端配置
 const minioClient = new Client({
     endPoint: 'localhost',
-    port: 9001,
+    port: 9000,
     useSSL: false,
     accessKey: process.env.MINIO_ACCESS_KEY || 'wsk779yxZAoghq5ExAwZ',
     secretKey: process.env.MINIO_SECRET_KEY || 'MLM2GXUuHenu08bL899pADzMNO7UZNAvl6Lo8ZCA'
@@ -24,42 +24,30 @@ const fileInfoSchema = z.object({
     description: z.string().optional()
 })
 
+// 分页参数 Schema
+const paginationSchema = z.object({
+    page: z.number().default(1),
+    pageSize: z.number().default(10)
+})
+
 export const minioRouter = router({
-    // 获取临时凭证
     // 获取临时凭证
     getCredentials: protectedProcedure
         .query(async ({ ctx }) => {
-            try {
-                const policy = {
-                    Version: '2012-10-17',
-                    Statement: [
-                        {
-                            Effect: 'Allow',
-                            Action: [
-                                's3:GetObject',
-                                's3:PutObject',
-                                's3:ListBucket'
-                            ],
-                            Resource: [
-                                `arn:aws:s3:::${BUCKET_NAME}/*`,
-                                `arn:aws:s3:::${BUCKET_NAME}`
-                            ]
-                        }
-                    ]
-                }
+            const pathName = `${ctx.user.id}/${crypto.randomUUID()}`
 
-                // MinIO 提供了一个更简单的方式来生成预签名 URL
-                // 对于临时上传，我们可以使用预签名 URL 的方式
+            try {
                 const presignedUrl = await minioClient.presignedPutObject(
                     BUCKET_NAME,
-                    '${filename}', // 这里使用模板字符串，客户端上传时需要替换实际的文件名
-                    3600 // 1小时有效期
+                    pathName,
+                    3600
                 );
 
                 return {
                     uploadUrl: presignedUrl,
-                    endPoint: 'localhost:9001',
-                    bucket: BUCKET_NAME
+                    endPoint: 'localhost:9000',
+                    bucket: BUCKET_NAME,
+                    pathName: pathName,
                 }
             } catch (error) {
                 console.error('获取上传凭证失败:', error);
@@ -69,6 +57,7 @@ export const minioRouter = router({
                 })
             }
         }),
+
     // 创建文件记录
     createFile: protectedProcedure
         .input(fileInfoSchema)
@@ -86,18 +75,58 @@ export const minioRouter = router({
             return file
         }),
 
-    // 获取文件列表
+    // 获取文件列表（带分页和下载地址）
     listFiles: protectedProcedure
-        .query(async ({ ctx }) => {
-            const files = await prisma.userFile.findMany({
-                where: {
-                    ownerId: ctx.user.id
-                },
-                orderBy: {
-                    createdAt: 'desc'
+        .input(paginationSchema)
+        .query(async ({ input, ctx }) => {
+            const { page, pageSize } = input
+            const skip = (page - 1) * pageSize
+
+            const [files, total] = await Promise.all([
+                prisma.userFile.findMany({
+                    where: {
+                        ownerId: ctx.user.id
+                    },
+                    orderBy: {
+                        createdAt: 'desc'
+                    },
+                    skip,
+                    take: pageSize
+                }),
+                prisma.userFile.count({
+                    where: {
+                        ownerId: ctx.user.id
+                    }
+                })
+            ])
+
+            // 为每个文件生成下载地址
+            const filesWithUrl = await Promise.all(files.map(async (file) => {
+                try {
+                    const url = await minioClient.presignedGetObject(
+                        BUCKET_NAME,
+                        file.path,
+                        60 * 60 // 1小时有效期
+                    )
+                    return {
+                        ...file,
+                        url
+                    }
+                } catch (error) {
+                    console.error('生成下载地址失败:', error)
+                    return {
+                        ...file,
+                        url: null
+                    }
                 }
-            })
-            return files
+            }))
+
+            return {
+                files: filesWithUrl,
+                total,
+                page,
+                pageSize
+            }
         }),
 
     // 获取文件下载地址
@@ -141,18 +170,16 @@ export const minioRouter = router({
                 })
             }
 
-            // 删除 Minio 中的文件
             try {
                 await minioClient.removeObject(BUCKET_NAME, file.path)
             } catch (error) {
                 console.error('删除 Minio 文件失败:', error)
             }
 
-            // 删除数据库记录
             await prisma.userFile.delete({
                 where: { id: input.id }
             })
 
             return { success: true }
         })
-}) 
+})
