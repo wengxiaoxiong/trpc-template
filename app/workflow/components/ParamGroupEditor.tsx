@@ -5,6 +5,7 @@ import { workflowDataState, paramGroupsState } from '../store/workflow'
 import { useState, useEffect } from 'react'
 import { useMinioUpload } from '@/utils/minio/useMinioUpload'
 import { trpc } from '@/utils/trpc/client'
+import TextArea from 'antd/es/input/TextArea'
 
 interface ParamGroupEditorProps {
   groupIndex: number
@@ -169,14 +170,14 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
     try {
       const pathName = await uploadFile(file)
       handleParamValueChange(combinationIndex, paramIndex, pathName)
-      
+
       // 获取并保存图片URL
       const result = await utils.client.minio.getFileUrl.query({ path: pathName });
       setImageUrls(prev => ({
         ...prev,
         [`${combinationIndex}-${paramIndex}`]: result.url
       }));
-      
+
       return true
     } catch (error) {
       return false
@@ -198,8 +199,8 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
             }
           }}
         >
-          <Button 
-            icon={<UploadOutlined />} 
+          <Button
+            icon={<UploadOutlined />}
             loading={isUploading}
             className="w-full mb-2"
           >
@@ -209,15 +210,20 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
         {paramValue.value && (
           <div className="mt-2">
             {imageUrl ? (
-              <Image
-                src={imageUrl}
-                alt="预览图片"
-                width={100}
-                height={100}
-                className="object-cover rounded"
-              />
+              <div className="text-xs text-gray-500 truncate flex flex-col space-y-3">
+                <Image
+                  src={imageUrl}
+                  alt="预览图片"
+                  width={100}
+                  height={100}
+                  className="object-cover rounded"
+                />
+                <div>{paramValue.value}</div>
+              </div>
+
             ) : (
               <div className="text-xs text-gray-500 truncate">
+                <Tag>无图像</Tag>
                 {paramValue.value}
               </div>
             )}
@@ -341,7 +347,7 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
                                     className="flex-1"
                                   />
                                 ) : (
-                                  <Input
+                                  <TextArea
                                     value={val}
                                     onChange={(e) => handleParamValueChange(combinationIndex, paramIndex, e.target.value, arrayIndex)}
                                     className="flex-1"
@@ -360,7 +366,7 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
                               className="w-full"
                             />
                           ) : (
-                            <Input
+                            <TextArea
                               value={paramValue.value as string}
                               onChange={(e) => handleParamValueChange(combinationIndex, paramIndex, e.target.value)}
                               className="w-full"
