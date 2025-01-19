@@ -11,7 +11,7 @@ const { Dragger } = Upload;
 export default function MinioTestPage() {
     const [uploading, setUploading] = useState(false);
     const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
-    const { data: credentials, isLoading } = trpc.minio.getCredentials.useQuery(undefined, {
+    const { data: credentials, isLoading, refetch: refetchCredentials } = trpc.minio.getCredentials.useQuery(undefined, {
         enabled: true
     });
 
@@ -54,9 +54,15 @@ export default function MinioTestPage() {
 
             try {
                 setUploading(true);
+                
+                // 为每个文件获取新的credentials
+                const newCredentials = await refetchCredentials();
+                if (!newCredentials.data) {
+                    throw new Error('无法获取上传凭证');
+                }
 
-                // 获取上传 URL
-                const uploadUrl = credentials?.uploadUrl || ''
+                // 使用新的上传URL
+                const uploadUrl = newCredentials.data.uploadUrl;
 
                 // 使用 fetch 上传
                 const response = await fetch(uploadUrl, {
@@ -71,14 +77,14 @@ export default function MinioTestPage() {
                     onSuccess?.(response);
                     await createFileMutation(
                         {
-                            path: credentials?.pathName || '',
+                            path: newCredentials.data.pathName,
                             type: uploadFile.type || 'application/octet-stream',
                             name: uploadFile.name,
                             size: uploadFile.size,
                             description: '通过Minio测试页面上传的文件'
                         }
                     )
-                    message.success(`${uploadFile.name} 文件上传成功, 文件名: ${credentials?.pathName}`);
+                    message.success(`${uploadFile.name} 文件上传成功, 文件名: ${newCredentials.data.pathName}`);
                     refetchFiles();  // 刷新文件列表
                 } else {
                     throw new Error('上传失败');
