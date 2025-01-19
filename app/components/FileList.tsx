@@ -1,7 +1,7 @@
-import { Button, Image, Select, Table } from 'antd';
+import { Button, Image, Select, Table, Tag } from 'antd';
 import { DownloadOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useState } from 'react';
-import { FileType } from '@prisma/client';
+import { FileType, UserFile } from '@prisma/client';
 
 interface FileListProps {
     fileListData: any;
@@ -48,6 +48,29 @@ export const FileList: React.FC<FileListProps> = ({
                     </>
                 )
             ),
+        },
+        {
+            title: '类型',
+            key: 'fileType',
+            render:(_:unknown, record: any)=>{
+                let typeText = '';
+                switch(record.fileType) {
+                    case FileType.AI_GENERATED_IMAGE:
+                        typeText = 'AI生成图片';
+                        break;
+                    case FileType.USER_UPLOADED_FILE:
+                        typeText = '用户上传文件';
+                        break;
+                    case FileType.PARAMETER_IMAGE:
+                        typeText = '参数图片';
+                        break;
+                    default:
+                        typeText = '未知类型';
+                }
+                return <>
+                <Tag>{typeText}</Tag>
+                </>
+            }
         },
         {
             title: '操作',

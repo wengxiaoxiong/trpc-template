@@ -8,6 +8,7 @@ import { trpc } from '@/utils/trpc/client'
 import TextArea from 'antd/es/input/TextArea'
 import { message } from 'antd'
 import type { UploadFile } from 'antd/es/upload/interface'
+import { FileType } from '@prisma/client'
 
 interface ParamGroupEditorProps {
   groupIndex: number
@@ -154,7 +155,7 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
               if (!fileInfo.originFileObj) {
                 throw new Error(`文件 ${fileInfo.name} 无效`)
               }
-              const pathName = await uploadFile(fileInfo.originFileObj)
+              const pathName = await uploadFile(fileInfo.originFileObj, FileType.PARAMETER_IMAGE)
               return { success: true as const, value: pathName }
             } catch (error) {
               return { success: false as const, error }
@@ -253,7 +254,7 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
 
   const handleImageUpload = async (combinationIndex: number, paramIndex: number, file: File) => {
     try {
-      const pathName = await uploadFile(file)
+      const pathName = await uploadFile(file, FileType.PARAMETER_IMAGE)
       handleParamValueChange(combinationIndex, paramIndex, pathName)
 
       // 获取并保存图片URL

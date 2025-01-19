@@ -7,6 +7,7 @@ import type { UploadProps } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
 import { MinioFileUploader } from "../components/MinioUploader";
 import { FileList } from "../components/FileList";
+import { FileType } from "@prisma/client";
 
 const { Dragger } = Upload;
 
@@ -82,6 +83,7 @@ export default function MinioTestPage() {
                             type: uploadFile.type || 'application/octet-stream',
                             name: uploadFile.name,
                             size: uploadFile.size,
+                            fileType: FileType.USER_UPLOADED_FILE,
                             description: '通过Minio测试页面上传的文件'
                         }
                     )

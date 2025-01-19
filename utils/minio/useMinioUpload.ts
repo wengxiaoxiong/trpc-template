@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { message } from 'antd';
 import { trpc } from '../trpc/client';
+import { FileType } from '@prisma/client';
 
 interface UseMinioUploadOptions {
   onSuccess?: (pathName: string) => void;
@@ -12,7 +13,7 @@ export function useMinioUpload(options: UseMinioUploadOptions = {}) {
   const [isUploading, setIsUploading] = useState(false);
   const utils = trpc.useUtils();
 
-  const uploadFile = async (file: File): Promise<string> => {
+  const uploadFile = async (file: File, fileType?: FileType): Promise<string> => {
     try {
       setIsUploading(true);
 
@@ -40,6 +41,7 @@ export function useMinioUpload(options: UseMinioUploadOptions = {}) {
         path: credentials.pathName,
         type: file.type || 'application/octet-stream',
         name: file.name,
+        fileType: fileType || FileType.USER_UPLOADED_FILE,
         size: file.size,
         description: options.description
       });
