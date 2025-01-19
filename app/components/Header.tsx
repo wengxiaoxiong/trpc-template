@@ -18,7 +18,7 @@ export const Header = () => {
     return (
         <header className="bg-white shadow-sm py-4 px-6 flex items-center justify-between mb-6">
             <div className="flex items-center space-x-8">
-                <h1 className="text-xl font-semibold text-gray-800" onClick={() => { router.push("/") }} >ComfXYZ 工作台</h1>
+                <h1 className="text-xl font-semibold text-gray-800 select-none cursor-pointer" onClick={() => { router.push("/") }} >ComfXYZ 工作台</h1>
             </div>
             <div className="flex items-center space-x-4">
                 {/* <Button type="text" icon={<SettingOutlined />} className="text-gray-500" /> */}

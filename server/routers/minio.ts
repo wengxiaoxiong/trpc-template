@@ -147,6 +147,16 @@ export const minioRouter = router({
                 })
             }
         }),
+        // 获取文件数量
+    countFiles: protectedProcedure
+        .query(async ({ ctx }) => {
+            const count = await prisma.userFile.count({
+                where: {
+                    ownerId: ctx.user.id
+                }
+            })
+            return count
+        }),
 
     // 删除文件
     deleteFile: protectedProcedure

@@ -257,7 +257,16 @@ export const workflowRouter = router({
 
             return updated
         }),
-
+    // 统计用户文件数
+    countWorkflows: protectedProcedure
+        .query(async ({ ctx }) => {
+            const count = await prisma.workflow.count({
+                where: {
+                    ownerId: ctx.user.id
+                }
+            })
+            return count
+        }),
     // 删除工作流
     delete: protectedProcedure
         .input(z.object({ id: z.number() }))

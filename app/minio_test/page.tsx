@@ -2,16 +2,16 @@
 import { MainPageLayout } from "@/app/components/MainPageLayout"
 import { trpc } from "@/utils/trpc/client"
 import { useEffect, useState } from "react";
-import { Upload, message, Table, Button, Space, Image } from 'antd';
+import { Upload, message, Table, Button, Image } from 'antd';
 import type { UploadProps } from 'antd';
-import { InboxOutlined, EyeOutlined, DownloadOutlined, DeleteOutlined } from '@ant-design/icons';
+import { InboxOutlined, DownloadOutlined, DeleteOutlined } from '@ant-design/icons';
 
 const { Dragger } = Upload;
 
 export default function MinioTestPage() {
     const [uploading, setUploading] = useState(false);
     const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
-    const { data: credentials, isLoading, refetch: refetchCredentials } = trpc.minio.getCredentials.useQuery(undefined, {
+    const { refetch: refetchCredentials } = trpc.minio.getCredentials.useQuery(undefined, {
         enabled: true
     });
 
@@ -49,7 +49,7 @@ export default function MinioTestPage() {
         showUploadList: false,
         multiple: true,
         customRequest: async (options) => {
-            const { onSuccess, onError, file, onProgress } = options;
+            const { onSuccess, onError, file } = options;
             const uploadFile = file as File;
 
             try {
@@ -112,13 +112,6 @@ export default function MinioTestPage() {
         },
     };
 
-    const handlePreview = (file: any) => {
-        if (!file.type.startsWith('image/')) {
-            message.info('该文件类型不支持预览');
-            return;
-        }
-        setSelectedPath(file.path);
-    };
 
     const handleDownload = async (file: any) => {
         try {
@@ -193,10 +186,10 @@ export default function MinioTestPage() {
                 <div className="w-full ">
                     <div className="bg-white rounded-lg shadow-xl p-8 text-center">
                         <div className="text-2xl font-bold text-gray-800 mb-4">
-                            Minio测试页面
+                            文件上传
                         </div>
                         <div className="text-gray-600 mb-6">
-                            上传文件到Minio
+                            支持图片和非图片格式
                         </div>
                         <Dragger {...uploadProps}>
                             <p className="ant-upload-drag-icon">
