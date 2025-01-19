@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { useAuth } from '../auth/AuthProvider'
 import { Input, Button, message, Form } from 'antd'
 import { UserOutlined, LockOutlined } from '@ant-design/icons'
+import { MinioImage } from '../components/MinioImage'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -45,7 +46,8 @@ export default function LoginPage() {
             <div className="text-2xl font-bold text-gray-800 mb-4">
               您已登录
             </div>
-            <div className="text-gray-600 mb-6">
+            <div className="text-gray-600 mb-6 text-center flex items-center justify-evenly flex-col space-y-4 h-36">
+              <MinioImage pathName={user.avatar || ''} className="rounded-full mx-auto" />
               当前登录账号：{user.username}
             </div>
             <Button
