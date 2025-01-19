@@ -1,8 +1,8 @@
-import { Card, Button, Divider, Input, InputNumber, Tag, Modal, Upload } from 'antd'
+import { Card, Button, Divider, Input, InputNumber, Tag, Modal, Upload, Image } from 'antd'
 import { PlusOutlined, MinusCircleOutlined, PlusCircleOutlined, UploadOutlined } from '@ant-design/icons'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { workflowDataState, paramGroupsState } from '../store/workflow'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useMinioUpload } from '@/utils/minio/useMinioUpload'
 import { trpc } from '@/utils/trpc/client'
 
@@ -18,7 +18,7 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
   const [importText, setImportText] = useState('')
   const [currentParamIndex, setCurrentParamIndex] = useState<number | null>(null)
   const [isCombinationsVisible, setIsCombinationsVisible] = useState(false) // 新增状态控制组合的显示
-
+  const [imageUrls, setImageUrls] = useState<Record<string, string>>({})
 
   const utils = trpc.useUtils()
 
@@ -169,16 +169,94 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
     try {
       const pathName = await uploadFile(file)
       handleParamValueChange(combinationIndex, paramIndex, pathName)
+      
+      // 获取并保存图片URL
+      const result = await utils.client.minio.getFileUrl.query({ path: pathName });
+      setImageUrls(prev => ({
+        ...prev,
+        [`${combinationIndex}-${paramIndex}`]: result.url
+      }));
+      
       return true
     } catch (error) {
       return false
     }
   }
 
+  const renderImageUpload = (combinationIndex: number, paramIndex: number, paramValue: any) => {
+    const imageKey = `${combinationIndex}-${paramIndex}`;
+    const imageUrl = imageUrls[imageKey];
+
+    return (
+      <div>
+        <Upload
+          accept="image/*"
+          showUploadList={false}
+          customRequest={({ file }) => {
+            if (file instanceof File) {
+              handleImageUpload(combinationIndex, paramIndex, file)
+            }
+          }}
+        >
+          <Button 
+            icon={<UploadOutlined />} 
+            loading={isUploading}
+            className="w-full mb-2"
+          >
+            {paramValue.value ? '更改图片' : '上传图片'}
+          </Button>
+        </Upload>
+        {paramValue.value && (
+          <div className="mt-2">
+            {imageUrl ? (
+              <Image
+                src={imageUrl}
+                alt="预览图片"
+                width={100}
+                height={100}
+                className="object-cover rounded"
+              />
+            ) : (
+              <div className="text-xs text-gray-500 truncate">
+                {paramValue.value}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const isImageParam = (nodeId: string, paramKey: string) => {
     const node = workflowData?.[nodeId]
     return node?.class_type === 'LoadImage' && paramKey === 'image'
   }
+
+  // 在组件加载时获取已有图片的URL
+  useEffect(() => {
+    const loadImageUrls = async () => {
+      for (let i = 0; i < group.combinations.length; i++) {
+        for (let j = 0; j < group.combinations[i].length; j++) {
+          const param = group.combinations[i][j];
+          if (isImageParam(param.nodeId, param.paramKey) && param.value) {
+            try {
+              if (typeof param.value === 'string' && !param.value.includes('.') && param.value.includes('/')) {
+                const result = await utils.client.minio.getFileUrl.query({ path: param.value });
+                setImageUrls(prev => ({
+                  ...prev,
+                  [`${i}-${j}`]: result.url
+                }));
+              }
+            } catch (error) {
+              console.error('获取图片URL失败:', error);
+            }
+          }
+        }
+      }
+    };
+
+    loadImageUrls();
+  }, [group.combinations]);
 
   if (!workflowData) return null
 
@@ -273,29 +351,7 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
                             ))}
                           </div>
                         ) : isImageParam(paramValue.nodeId, paramValue.paramKey) ? (
-                          <Upload
-                            accept="image/*"
-                            showUploadList={false}
-                            customRequest={({ file }) => {
-                              if (file instanceof File) {
-                                handleImageUpload(combinationIndex, paramIndex, file)
-                                
-                              }
-                            }}
-                          >
-                            <Button 
-                              icon={<UploadOutlined />} 
-                              loading={isUploading}
-                              className="w-full"
-                            >
-                              {paramValue.value ? '更改图片' : '上传图片'}
-                              {paramValue.value && (
-                                <div className="text-xs text-gray-500 truncate">
-                                  {paramValue.value}
-                                </div>
-                              )}
-                            </Button>
-                          </Upload>
+                          renderImageUpload(combinationIndex, paramIndex, paramValue)
                         ) : (
                           typeof group.params[paramIndex].currentValue === 'number' ? (
                             <InputNumber
