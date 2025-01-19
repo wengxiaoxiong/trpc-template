@@ -1,11 +1,13 @@
 import { Card, Button, Divider, Input, InputNumber, Tag, Modal, Upload, Image } from 'antd'
-import { PlusOutlined, MinusCircleOutlined, PlusCircleOutlined, UploadOutlined } from '@ant-design/icons'
+import { PlusOutlined, MinusCircleOutlined, PlusCircleOutlined, UploadOutlined, InboxOutlined } from '@ant-design/icons'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { workflowDataState, paramGroupsState } from '../store/workflow'
 import { useState, useEffect } from 'react'
 import { useMinioUpload } from '@/utils/minio/useMinioUpload'
 import { trpc } from '@/utils/trpc/client'
 import TextArea from 'antd/es/input/TextArea'
+import { message } from 'antd'
+import type { UploadFile } from 'antd/es/upload/interface'
 
 interface ParamGroupEditorProps {
   groupIndex: number
@@ -20,6 +22,7 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
   const [currentParamIndex, setCurrentParamIndex] = useState<number | null>(null)
   const [isCombinationsVisible, setIsCombinationsVisible] = useState(false) // 新增状态控制组合的显示
   const [imageUrls, setImageUrls] = useState<Record<string, string>>({})
+  const [uploadFiles, setUploadFiles] = useState<UploadFile[]>([])
 
   const utils = trpc.useUtils()
 
@@ -115,54 +118,117 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
   const handleBulkImport = (paramIndex: number) => {
     setCurrentParamIndex(paramIndex)
     setIsModalVisible(true)
+    setImportText('')  // 清空文本输入
   }
 
-  const handleImportConfirm = () => {
+  const handleImportConfirm = async () => {
     try {
-      const values = importText.trim().startsWith('[') ?
-        JSON.parse(importText) :
-        importText.split('\n').map(value => value.trim()).filter(value => value);
+      const param = group.params[currentParamIndex!]
+      const isImageParameter = isImageParam(param.nodeId, param.paramKey)
 
-      if (!Array.isArray(values) || values.length === 0) {
-        throw new Error('输入不能为空或格式不正确')
-      }
-
-      setParamGroups(prevGroups => {
-        return prevGroups.map((g, index) => {
-          if (index === groupIndex) {
-            const neededCombinations = Math.max(values.length, g.combinations.length)
-            const newCombinations = Array.from({ length: neededCombinations }, (_, i) => {
-              const existingCombo = g.combinations[i] || g.params.map(param => ({
-                nodeId: param.nodeId,
-                paramKey: param.paramKey,
-                value: param.currentValue
-              }))
-
-              if (i < values.length && currentParamIndex !== null) {
-                const newCombo = [...existingCombo]
-                newCombo[currentParamIndex] = {
-                  ...newCombo[currentParamIndex],
-                  value: values[i]
-                }
-                return newCombo
+      if (isImageParameter) {
+        // 处理文件上传列表
+        const fileList = await Promise.all(
+          uploadFiles.map(async fileInfo => {
+            try {
+              // 确保 originFileObj 存在
+              if (!fileInfo.originFileObj) {
+                throw new Error(`文件 ${fileInfo.name} 无效`)
               }
-              return existingCombo
-            })
-
-            return {
-              ...g,
-              combinations: newCombinations
+              const pathName = await uploadFile(fileInfo.originFileObj)
+              return { success: true as const, value: pathName }
+            } catch (error) {
+              return { success: false as const, error }
             }
-          }
-          return g
+          })
+        )
+
+        const successfulUploads = fileList.filter((result): result is { success: true, value: string } => 
+          result.success
+        ).map(result => result.value)
+
+        if (successfulUploads.length === 0) {
+          throw new Error('没有文件上传成功')
+        }
+
+        setParamGroups(prevGroups => {
+          return prevGroups.map((g, index) => {
+            if (index === groupIndex) {
+              const neededCombinations = Math.max(successfulUploads.length, g.combinations.length)
+              const newCombinations = Array.from({ length: neededCombinations }, (_, i) => {
+                const existingCombo = g.combinations[i] || g.params.map(param => ({
+                  nodeId: param.nodeId,
+                  paramKey: param.paramKey,
+                  value: param.currentValue
+                }))
+
+                if (i < successfulUploads.length && currentParamIndex !== null) {
+                  const newCombo = [...existingCombo]
+                  newCombo[currentParamIndex] = {
+                    ...newCombo[currentParamIndex],
+                    value: successfulUploads[i]
+                  }
+                  return newCombo
+                }
+                return existingCombo
+              })
+
+              return {
+                ...g,
+                combinations: newCombinations
+              }
+            }
+            return g
+          })
         })
-      })
+      } else {
+        // 处理文本导入（保持原有逻辑）
+        const values = importText.trim().startsWith('[') ?
+          JSON.parse(importText) :
+          importText.split('\n').map(value => value.trim()).filter(value => value);
+
+        if (!Array.isArray(values) || values.length === 0) {
+          throw new Error('输入不能为空或格式不正确')
+        }
+
+        setParamGroups(prevGroups => {
+          return prevGroups.map((g, index) => {
+            if (index === groupIndex) {
+              const neededCombinations = Math.max(values.length, g.combinations.length)
+              const newCombinations = Array.from({ length: neededCombinations }, (_, i) => {
+                const existingCombo = g.combinations[i] || g.params.map(param => ({
+                  nodeId: param.nodeId,
+                  paramKey: param.paramKey,
+                  value: param.currentValue
+                }))
+
+                if (i < values.length && currentParamIndex !== null) {
+                  const newCombo = [...existingCombo]
+                  newCombo[currentParamIndex] = {
+                    ...newCombo[currentParamIndex],
+                    value: values[i]
+                  }
+                  return newCombo
+                }
+                return existingCombo
+              })
+
+              return {
+                ...g,
+                combinations: newCombinations
+              }
+            }
+            return g
+          })
+        })
+      }
 
       setIsModalVisible(false)
       setImportText('')
+      setUploadFiles([])
     } catch (error) {
       console.error('导入失败:', error)
-      // 这里可以添加错误提示
+      message.error('导入失败: ' + (error as Error).message)
     }
   }
 
@@ -220,7 +286,6 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
                 />
                 <div>{paramValue.value}</div>
               </div>
-
             ) : (
               <div className="text-xs text-gray-500 truncate">
                 <Tag>无图像</Tag>
@@ -406,14 +471,44 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
         title="批量导入"
         visible={isModalVisible}
         onOk={handleImportConfirm}
-        onCancel={() => setIsModalVisible(false)}
+        onCancel={() => {
+          setIsModalVisible(false)
+          setImportText('')
+          setUploadFiles([])
+        }}
       >
-        <Input.TextArea
-          rows={10}
-          value={importText}
-          onChange={(e) => setImportText(e.target.value)}
-          placeholder='请输入每行一个的值，或使用JSON数组，例如：["simple1", "simple2"] 或 simple1\nsimple2'
-        />
+        {currentParamIndex !== null && isImageParam(group.params[currentParamIndex].nodeId, group.params[currentParamIndex].paramKey) ? (
+          <Upload.Dragger
+            multiple
+            beforeUpload={(file) => {
+              setUploadFiles(prev => [...prev, {
+                uid: file.uid || `${Date.now()}-${file.name}`,
+                name: file.name,
+                status: 'done',
+                originFileObj: file
+              }])
+              return false
+            }}
+            onRemove={(file) => {
+              setUploadFiles(prev => prev.filter(f => f.uid !== file.uid))
+            }}
+            fileList={uploadFiles}
+            accept="image/*"
+          >
+            <p className="ant-upload-drag-icon">
+              <InboxOutlined />
+            </p>
+            <p className="ant-upload-text">点击或拖拽图片文件到此区域</p>
+            <p className="ant-upload-hint">支持批量上传图片</p>
+          </Upload.Dragger>
+        ) : (
+          <Input.TextArea
+            rows={10}
+            value={importText}
+            onChange={(e) => setImportText(e.target.value)}
+            placeholder='请输入每行一个的值，或使用JSON数组，例如：["simple1", "simple2"] 或 simple1\nsimple2'
+          />
+        )}
       </Modal>
     </Card>
   )
