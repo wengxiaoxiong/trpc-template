@@ -2,7 +2,7 @@
 import { MainPageLayout } from "@/app/components/MainPageLayout"
 import { trpc } from "@/utils/trpc/client"
 import { useEffect, useState } from "react";
-import { Upload, message, Table, Button, Image } from 'antd';
+import { Upload, message, Table, Button, Image, Card } from 'antd';
 import type { UploadProps } from 'antd';
 import { InboxOutlined, DownloadOutlined, DeleteOutlined } from '@ant-design/icons';
 
@@ -112,7 +112,6 @@ export default function MinioTestPage() {
         },
     };
 
-
     const handleDownload = async (file: any) => {
         try {
             setSelectedPath(null); // 先重置状态
@@ -157,70 +156,60 @@ export default function MinioTestPage() {
             ),
         },
         {
-            title: '下载',
-            key: 'download',
+            title: '操作',
+            key: 'action',
             render: (_: unknown, record: any) => (
-                <Button
-                    type="link"
-                    icon={<DownloadOutlined />}
-                    onClick={() => handleDownload(record)}
-                />
-            ),
-        },
-        {
-            title: '删除',
-            key: 'delete',
-            render: (_: unknown, record: any) => (
-                <Button
-                    type="link"
-                    icon={<DeleteOutlined />}
-                    onClick={() => handleDelete(record)}
-                />
+                <div className="space-x-2">
+                    <Button
+                        type="link"
+                        icon={<DownloadOutlined />}
+                        onClick={() => handleDownload(record)}
+                    />
+                    <Button
+                        type="link"
+                        danger
+                        icon={<DeleteOutlined />}
+                        onClick={() => handleDelete(record)}
+                    />
+                </div>
             ),
         },
     ];
 
     return (
         <MainPageLayout>
-            <div className="flex flex-col items-center justify-center h-full">
-                <div className="w-full ">
-                    <div className="bg-white rounded-lg shadow-xl p-8 text-center">
-                        <div className="text-2xl font-bold text-gray-800 mb-4">
-                            文件上传
-                        </div>
-                        <div className="text-gray-600 mb-6">
-                            支持图片和非图片格式
-                        </div>
-                        <Dragger {...uploadProps}>
-                            <p className="ant-upload-drag-icon">
-                                <InboxOutlined />
-                            </p>
-                            <p className="ant-upload-text">点击或拖拽文件到此区域上传</p>
-                            <p className="ant-upload-hint">支持单个或批量上传，上传后自动创建文件记录</p>
-                        </Dragger>
-                        {uploading && <div className="text-gray-600 mt-4">上传中...</div>}
+            <div className="space-y-6">
+                <h1 className="text-2xl font-bold">文件管理</h1>
+                
+                <Card title="文件上传" className="w-full">
+                    <div className="text-gray-600 mb-6">
+                        支持图片和非图片格式
                     </div>
-                </div>
-                <div className="w-full  mt-8">
-                    <div className="bg-white rounded-lg shadow-xl p-8 text-center">
-                        <div className="text-2xl font-bold text-gray-800 mb-4">
-                            文件列表
-                        </div>
-                        <Table
-                            dataSource={fileListData?.files}
-                            columns={columns}
-                            rowKey="id"
-                            pagination={{
-                                current: pagination.current,
-                                pageSize: pagination.pageSize,
-                                total: fileListData?.total,
-                                showSizeChanger: true,
-                                pageSizeOptions: ['10', '20', '50', '100']
-                            }}
-                            onChange={handleTableChange}
-                        />
-                    </div>
-                </div>
+                    <Dragger {...uploadProps}>
+                        <p className="ant-upload-drag-icon">
+                            <InboxOutlined />
+                        </p>
+                        <p className="ant-upload-text">点击或拖拽文件到此区域上传</p>
+                        <p className="ant-upload-hint">支持单个或批量上传，上传后自动创建文件记录</p>
+                    </Dragger>
+                    {uploading && <div className="text-gray-600 mt-4">上传中...</div>}
+                </Card>
+
+                <Card title="文件列表" className="w-full">
+                    <Table
+                        dataSource={fileListData?.files}
+                        columns={columns}
+                        rowKey="id"
+                        pagination={{
+                            current: pagination.current,
+                            pageSize: pagination.pageSize,
+                            total: fileListData?.total,
+                            showSizeChanger: true,
+                            pageSizeOptions: ['10', '20', '50', '100']
+                        }}
+                        onChange={handleTableChange}
+                    />
+                </Card>
             </div>
         </MainPageLayout>
     );

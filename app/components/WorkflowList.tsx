@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation'
 import { trpc } from '@/utils/trpc/client'
 import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 
 export const WorkflowList = () => {
   const router = useRouter()
@@ -86,17 +87,15 @@ export const WorkflowList = () => {
         <div className="space-x-2">
           <Button 
             type="link" 
+            icon={<EditOutlined />}
             onClick={() => router.push(`/workflow/edit/${record.id}`)}
-          >
-            编辑
-          </Button>
+          />
           <Button 
             type="link"
             danger
+            icon={<DeleteOutlined />}
             onClick={() => handleDelete(record.id)}
-          >
-            删除
-          </Button>
+          />
         </div>
       )
     }

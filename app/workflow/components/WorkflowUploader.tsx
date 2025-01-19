@@ -13,7 +13,11 @@ import { convertToTreeData } from '../upload/utils'
 
 const { Dragger } = Upload
 
-export const WorkflowUploader = () => {
+interface WorkflowUploaderProps {
+  children: React.ReactNode
+}
+
+export const WorkflowUploader: React.FC<WorkflowUploaderProps> = ({ children }) => {
   const [fileList, setFileList] = useRecoilState(fileListState)
   const setWorkflowData = useSetRecoilState(workflowDataState)
   const setTreeData = useSetRecoilState(treeDataState)
@@ -62,7 +66,9 @@ export const WorkflowUploader = () => {
         <p className="ant-upload-hint">
           请上传有效的 ComfyUI 工作流 JSON 文件
         </p>
+        
       </Dragger>
+      {children}
     </Card>
   )
 } 

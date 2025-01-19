@@ -9,6 +9,7 @@ import { SaveOutlined } from '@ant-design/icons'
 import { trpc } from '@/utils/trpc/client'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { WorkflowList } from '@/app/components/WorkflowList'
 
 export default function UploadPage() {
   const workflowData = useRecoilValue(workflowDataState)
@@ -36,10 +37,10 @@ export default function UploadPage() {
     }
 
     // 获取文件名（不包含扩展名）作为默认工作流名称
-    const defaultName = fileList.length > 0 
+    const defaultName = fileList.length > 0
       ? fileList[0].name.replace(/\.json$/, '')
       : '未命名工作流'
-    
+
     setWorkflowName(defaultName)
     setWorkflowDesc('')
     setIsPublic(false)
@@ -66,12 +67,12 @@ export default function UploadPage() {
           params: [],
           combinations: [],
           selectedKeys: []
-        },{
+        }, {
           name: 'Y轴',
           params: [],
           combinations: [],
           selectedKeys: []
-        },{
+        }, {
           name: 'Z轴',
           params: [],
           combinations: [],
@@ -86,58 +87,62 @@ export default function UploadPage() {
 
   return (
     <MainPageLayout>
-      <div className="p-6">
-        <div className="mb-4">
-          <h1 className="text-2xl font-bold mb-4">上传工作流</h1>
-          <WorkflowUploader />
-        </div>
-        {workflowData && (
-          <Button 
-            type="primary" 
-            icon={<SaveOutlined />} 
-            onClick={handleSave}
-            className="mt-4"
-          >
-            保存并继续编辑
-          </Button>
-        )}
 
-        <Modal
-          title="保存工作流"
-          open={isModalVisible}
-          onOk={handleConfirmSave}
-          onCancel={() => setIsModalVisible(false)}
-          okText="保存"
-          cancelText="取消"
-        >
-          <div className="space-y-4">
-            <div>
-              <div className="mb-2">工作流名称</div>
-              <Input
-                value={workflowName}
-                onChange={(e) => setWorkflowName(e.target.value)}
-                placeholder="请输入工作流名称"
-              />
-            </div>
-            <div>
-              <div className="mb-2">描述（可选）</div>
-              <Input.TextArea
-                value={workflowDesc}
-                onChange={(e) => setWorkflowDesc(e.target.value)}
-                placeholder="请输入工作流描述"
-                rows={4}
-              />
-            </div>
-            <div>
-              <Checkbox
-                checked={isPublic}
-                onChange={(e) => setIsPublic(e.target.checked)}
-              >
-                公开此工作流（其他用户可见）
-              </Checkbox>
-            </div>
+      <div className="mb-4">
+        <h1 className="text-2xl font-bold mb-4">上传工作流</h1>
+        <WorkflowUploader >
+          {workflowData && (
+            <Button
+              type="primary"
+              icon={<SaveOutlined />}
+              onClick={handleSave}
+              className="mt-4"
+            >
+              保存并继续编辑
+            </Button>
+          )}
+        </WorkflowUploader>
+      </div>
+
+
+      <Modal
+        title="保存工作流"
+        open={isModalVisible}
+        onOk={handleConfirmSave}
+        onCancel={() => setIsModalVisible(false)}
+        okText="保存"
+        cancelText="取消"
+      >
+        <div className="space-y-4">
+          <div>
+            <div className="mb-2">工作流名称</div>
+            <Input
+              value={workflowName}
+              onChange={(e) => setWorkflowName(e.target.value)}
+              placeholder="请输入工作流名称"
+            />
           </div>
-        </Modal>
+          <div>
+            <div className="mb-2">描述（可选）</div>
+            <Input.TextArea
+              value={workflowDesc}
+              onChange={(e) => setWorkflowDesc(e.target.value)}
+              placeholder="请输入工作流描述"
+              rows={4}
+            />
+          </div>
+          <div>
+            <Checkbox
+              checked={isPublic}
+              onChange={(e) => setIsPublic(e.target.checked)}
+            >
+              公开此工作流（其他用户可见）
+            </Checkbox>
+          </div>
+        </div>
+      </Modal>
+      <div className='mt-12'>
+        <WorkflowList />
       </div>
     </MainPageLayout>
   )
