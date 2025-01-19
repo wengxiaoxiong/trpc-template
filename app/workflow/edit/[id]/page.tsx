@@ -17,6 +17,7 @@ import { convertToTreeData } from '@/app/workflow/upload/utils'
 import { ParamGroupEditor } from '../../components/ParamGroupEditor'
 import { ParamTree } from '../../components/ParamTree'
 import { MainPageLayout } from '@/app/components/MainPageLayout'
+import { ExecuteButton } from '../../components/ExecuteButton'
 
 export default function EditWorkflowPage({ params }: { params: { id: string } }) {
   const [workflowData, setWorkflowData] = useRecoilState(workflowDataState)
@@ -143,6 +144,9 @@ export default function EditWorkflowPage({ params }: { params: { id: string } })
           >
             保存修改
           </Button>
+        </div>
+        <div className="flex justify-between items-center mb-4">
+          <ExecuteButton workflowId={parseInt(params.id)} />
         </div>
         <div className="w-full">
           {workflowData && <ParamTree />}

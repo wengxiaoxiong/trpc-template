@@ -7,10 +7,12 @@ import { router } from '@/utils/trpc'
 import { authRouter } from './routers/auth'
 import { workflowRouter } from './routers/workflow'
 import { minioRouter } from './routers/minio'
+import { taskRouter } from './routers/task'
 
 export const appRouter = router({
     // batchTask: batchTaskRouter,
     auth: authRouter,
+    task: taskRouter,
     workflow: workflowRouter,
     minio: minioRouter
 })

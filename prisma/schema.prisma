@@ -27,10 +27,11 @@ model User {
     username   String   @unique
     password   String 
     avatar     String?
-    isAdmin     Boolean  @default(false)
+    isAdmin    Boolean  @default(false)
     servers    Server[]
     workflows  Workflow[]
     files      UserFile[]
+    tasks      Task[]
 }
 
 model Workflow {
@@ -45,6 +46,7 @@ model Workflow {
     ownerId     Int
     parameters  WorkflowParameter[]
     paramGroups WorkflowParamGroup[]
+    tasks       Task[]
 }
 
 model WorkflowParameter {
@@ -117,4 +119,40 @@ model UserFile {
     fileType    FileType @default(USER_UPLOADED_FILE)
 
     @@index([ownerId])
+}
+
+enum TaskStatus {
+    PENDING
+    RUNNING
+    COMPLETED
+    FAILED
+    CANCELLED
+}
+
+model Task {
+    id          Int         @id @default(autoincrement())
+    createdAt   DateTime    @default(now())
+    updatedAt   DateTime    @updatedAt
+    status      TaskStatus  @default(PENDING)
+    workflow    Workflow    @relation(fields: [workflowId], references: [id])
+    workflowId  Int
+    owner       User        @relation(fields: [ownerId], references: [id])
+    ownerId     Int
+    name        String?     
+    items       TaskItem[]
+}
+
+model TaskItem {
+    id          Int         @id @default(autoincrement())
+    createdAt   DateTime    @default(now())
+    updatedAt   DateTime    @updatedAt
+    status      TaskStatus  @default(PENDING)
+    task        Task        @relation(fields: [taskId], references: [id])
+    taskId      Int
+    params      Json        // 完整的参数配置
+    result      Json?       // 执行结果
+    error       String?     
+    xValue      Json?       
+    yValue      Json?       
+    zValue      Json?       
 }
