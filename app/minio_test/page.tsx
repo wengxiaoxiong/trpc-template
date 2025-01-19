@@ -46,6 +46,7 @@ export default function MinioTestPage() {
 
     const uploadProps: UploadProps = {
         name: 'file',
+        showUploadList: false,
         multiple: true,
         customRequest: async (options) => {
             const { onSuccess, onError, file, onProgress } = options;
