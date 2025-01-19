@@ -63,36 +63,55 @@ export const ParamGroupEditor = ({ groupIndex }: ParamGroupEditorProps) => {
     setParamGroups(newGroups)
   }
 
+  /**
+   * 处理参数值变化的回调函数
+   * @param combinationIndex 组合的索引
+   * @param paramIndex 参数的索引
+   * @param value 新的参数值
+   * @param arrayIndex 如果是数组参数，指定要修改的数组索引
+   */
   const handleParamValueChange = (
     combinationIndex: number,
     paramIndex: number,
     value: string | number,
     arrayIndex?: number
   ) => {
+    // 更新参数组状态
     const newGroups = paramGroups.map((g, index) => {
+      // 只处理当前编辑的参数组
       if (index === groupIndex) {
         return {
           ...g,
+          // 更新组合列表
           combinations: g.combinations.map((combo, i) => {
+            // 找到要修改的组合
             if (i === combinationIndex) {
               return combo.map((param, j) => {
+                // 找到要修改的参数
                 if (j === paramIndex) {
+                  // 如果是数组参数且指定了数组索引
                   if (arrayIndex !== undefined && Array.isArray(param.value)) {
+                    // 创建新的数组并更新指定索引的值
                     const newArray = [...param.value]
                     newArray[arrayIndex] = value
                     return { ...param, value: newArray }
                   }
+                  // 普通参数直接更新值
                   return { ...param, value }
                 }
+                // 不是目标参数则保持不变
                 return param
               })
             }
+            // 不是目标组合则保持不变
             return combo
           })
         }
       }
+      // 不是当前编辑的参数组则保持不变
       return g
     })
+    // 更新全局状态
     setParamGroups(newGroups)
   }
 

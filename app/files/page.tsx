@@ -2,23 +2,26 @@
 import { MainPageLayout } from "@/app/components/MainPageLayout"
 import { trpc } from "@/utils/trpc/client"
 import { useEffect, useState } from "react";
-import { Upload, message, Table, Button, Image, Card } from 'antd';
+import { Upload, message, Card } from 'antd';
 import type { UploadProps } from 'antd';
-import { InboxOutlined, DownloadOutlined, DeleteOutlined } from '@ant-design/icons';
+import { InboxOutlined } from '@ant-design/icons';
 import { MinioFileUploader } from "../components/MinioUploader";
+import { FileList } from "../components/FileList";
 
 const { Dragger } = Upload;
 
 export default function MinioTestPage() {
     const [uploading, setUploading] = useState(false);
     const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
+    const [selectedFileType, setSelectedFileType] = useState<'AI_GENERATED_IMAGE' | 'USER_UPLOADED_FILE' | 'PARAMETER_IMAGE' | undefined>(undefined);
     const { refetch: refetchCredentials } = trpc.minio.getCredentials.useQuery(undefined, {
         enabled: true
     });
 
     const { data: fileListData, refetch: refetchFiles } = trpc.minio.listFiles.useQuery({
         page: pagination.current,
-        pageSize: pagination.pageSize
+        pageSize: pagination.pageSize,
+        fileType: selectedFileType
     });
     const { mutateAsync: deleteFileMutation } = trpc.minio.deleteFile.useMutation();
 
@@ -56,16 +59,13 @@ export default function MinioTestPage() {
             try {
                 setUploading(true);
                 
-                // 为每个文件获取新的credentials
                 const newCredentials = await refetchCredentials();
                 if (!newCredentials.data) {
                     throw new Error('无法获取上传凭证');
                 }
 
-                // 使用新的上传URL
                 const uploadUrl = newCredentials.data.uploadUrl;
 
-                // 使用 fetch 上传
                 const response = await fetch(uploadUrl, {
                     method: 'PUT',
                     body: uploadFile,
@@ -86,7 +86,7 @@ export default function MinioTestPage() {
                         }
                     )
                     message.success(`${uploadFile.name} 文件上传成功, 文件名: ${newCredentials.data.pathName}`);
-                    refetchFiles();  // 刷新文件列表
+                    refetchFiles();
                 } else {
                     throw new Error('上传失败');
                 }
@@ -115,8 +115,8 @@ export default function MinioTestPage() {
 
     const handleDownload = async (file: any) => {
         try {
-            setSelectedPath(null); // 先重置状态
-            await new Promise(resolve => setTimeout(resolve, 100)); // 等待状态更新
+            setSelectedPath(null);
+            await new Promise(resolve => setTimeout(resolve, 100));
             setSelectedPath(file.path);
         } catch (error) {
             message.error('下载失败');
@@ -133,49 +133,10 @@ export default function MinioTestPage() {
         }
     };
 
-    const columns = [
-        {
-            title: '文件名',
-            dataIndex: 'name',
-            key: 'name',
-        },
-        {
-            title: '预览',
-            key: 'preview',
-            render: (_: unknown, record: any) => (
-                record.type.startsWith('image/') && (
-                    <>
-                        <Image
-                            width={40}
-                            src={record.url} // 假设record中有url字段
-                            preview={{
-                                src: record.url,
-                            }}
-                        />
-                    </>
-                )
-            ),
-        },
-        {
-            title: '操作',
-            key: 'action',
-            render: (_: unknown, record: any) => (
-                <div className="space-x-2">
-                    <Button
-                        type="link"
-                        icon={<DownloadOutlined />}
-                        onClick={() => handleDownload(record)}
-                    />
-                    <Button
-                        type="link"
-                        danger
-                        icon={<DeleteOutlined />}
-                        onClick={() => handleDelete(record)}
-                    />
-                </div>
-            ),
-        },
-    ];
+    const handleFileTypeChange = (value: 'AI_GENERATED_IMAGE' | 'USER_UPLOADED_FILE' | 'PARAMETER_IMAGE' | undefined) => {
+        setSelectedFileType(value);
+        setPagination({ ...pagination, current: 1 });
+    };
 
     return (
         <MainPageLayout>
@@ -197,18 +158,14 @@ export default function MinioTestPage() {
                 </Card>
 
                 <Card title="文件列表" className="w-full">
-                    <Table
-                        dataSource={fileListData?.files}
-                        columns={columns}
-                        rowKey="id"
-                        pagination={{
-                            current: pagination.current,
-                            pageSize: pagination.pageSize,
-                            total: fileListData?.total,
-                            showSizeChanger: true,
-                            pageSizeOptions: ['10', '20', '50', '100']
-                        }}
-                        onChange={handleTableChange}
+                    <FileList
+                        fileListData={fileListData}
+                        onDownload={handleDownload}
+                        onDelete={handleDelete}
+                        onPaginationChange={handleTableChange}
+                        pagination={pagination}
+                        selectedFileType={selectedFileType}
+                        onFileTypeChange={handleFileTypeChange}
                     />
                 </Card>
             </div>

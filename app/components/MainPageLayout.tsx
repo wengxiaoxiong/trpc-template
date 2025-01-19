@@ -33,7 +33,7 @@ export const MainPageLayout = ({ children }: DashboardLayoutProps) => {
         <Header />
         <main className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className='cursor-pointer' onClick={() => { router.push("/minio_test") }}>
+            <Card className='cursor-pointer' onClick={() => { router.push("/files") }}>
               <Statistic
                 title="文件总数"
                 value={filesCount || 0}

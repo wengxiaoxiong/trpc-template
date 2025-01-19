@@ -8,9 +8,10 @@ const createContext = (req?: NextApiRequest): Context => {
 
   for (const key in headers) {
     if (typeof headers[key] === 'string') {
-      formattedHeaders[key] = headers[key];
+      formattedHeaders[key] = headers[key] as string;
+    } else if (Array.isArray(headers[key])) {
+      formattedHeaders[key] = (headers[key] as string[]).join(', ');
     }
-    // you can add another if for header with array type if you need it
   }
 
   return {

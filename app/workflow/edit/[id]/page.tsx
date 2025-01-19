@@ -10,7 +10,7 @@ import {
   currentGroupIndexState,
   fileListState,
 } from '@/app/workflow/store/workflow'
-import { Button, message, notification } from 'antd'
+import { Button, message } from 'antd'
 import { SaveOutlined } from '@ant-design/icons'
 import { trpc } from '@/utils/trpc/client'
 import { convertToTreeData } from '@/app/workflow/upload/utils'

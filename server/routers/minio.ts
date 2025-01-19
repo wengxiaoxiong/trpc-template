@@ -3,6 +3,7 @@ import { router, publicProcedure, protectedProcedure } from '@/utils/trpc'
 import { prisma } from '@/utils/prisma'
 import { TRPCError } from '@trpc/server'
 import { Client } from 'minio'
+import { FileType } from '@prisma/client'
 
 // Minio 客户端配置
 const minioClient = new Client({
@@ -21,14 +22,18 @@ const fileInfoSchema = z.object({
     size: z.number(),
     type: z.string(),
     path: z.string(),
-    description: z.string().optional()
+    description: z.string().optional(),
+    fileType: z.enum([FileType.AI_GENERATED_IMAGE, FileType.USER_UPLOADED_FILE, FileType.PARAMETER_IMAGE]).default(FileType.USER_UPLOADED_FILE)
 })
 
-// 分页参数 Schema
+// 修改分页参数 Schema，添加fileType过滤条件
 const paginationSchema = z.object({
     page: z.number().default(1),
-    pageSize: z.number().default(10)
+    pageSize: z.number().default(10),
+    fileType: z.enum([FileType.AI_GENERATED_IMAGE, FileType.USER_UPLOADED_FILE, FileType.PARAMETER_IMAGE]).optional()
 })
+
+
 
 export const minioRouter = router({
     // 获取临时凭证
@@ -67,6 +72,7 @@ export const minioRouter = router({
                     name: input.name,
                     size: input.size,
                     type: input.type,
+                    fileType: input.fileType,
                     path: input.path,
                     description: input.description,
                     ownerId: ctx.user.id
@@ -79,14 +85,18 @@ export const minioRouter = router({
     listFiles: protectedProcedure
         .input(paginationSchema)
         .query(async ({ input, ctx }) => {
-            const { page, pageSize } = input
+            const { page, pageSize, fileType } = input
             const skip = (page - 1) * pageSize
+
+            // 构建查询条件
+            const whereCondition = {
+                ownerId: ctx.user.id,
+                ...(fileType ? { fileType } : {})
+            }
 
             const [files, total] = await Promise.all([
                 prisma.userFile.findMany({
-                    where: {
-                        ownerId: ctx.user.id
-                    },
+                    where: whereCondition,
                     orderBy: {
                         createdAt: 'desc'
                     },
@@ -94,9 +104,7 @@ export const minioRouter = router({
                     take: pageSize
                 }),
                 prisma.userFile.count({
-                    where: {
-                        ownerId: ctx.user.id
-                    }
+                    where: whereCondition
                 })
             ])
 
