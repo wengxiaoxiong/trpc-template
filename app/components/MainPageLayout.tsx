@@ -15,6 +15,7 @@ export const MainPageLayout = ({ children }: DashboardLayoutProps) => {
   const { data: filesCount, refetch: refetchFilesCount } = trpc.minio.countFiles.useQuery();
   const { data: workflowsCount, refetch: refetchWorkflowsCount } = trpc.workflow.countWorkflows.useQuery();
   const { data: TasksCount, refetch: refetchTasksCount } = trpc.task.countTasks.useQuery();
+  const { data: serversCount, refetch: refetchServersCount } = trpc.server.countServers.useQuery();
 
   // 设置定时器，每分钟刷新一次数据
   useEffect(() => {
@@ -22,10 +23,11 @@ export const MainPageLayout = ({ children }: DashboardLayoutProps) => {
       refetchFilesCount();
       refetchWorkflowsCount();
       refetchTasksCount();
+      refetchServersCount();
     }, 60000); // 60000毫秒 = 1分钟
 
     return () => clearInterval(interval);
-  }, [refetchFilesCount, refetchWorkflowsCount, refetchTasksCount]);
+  }, [refetchFilesCount, refetchWorkflowsCount, refetchTasksCount, refetchServersCount]);
 
   const router = useRouter()
 
@@ -34,7 +36,7 @@ export const MainPageLayout = ({ children }: DashboardLayoutProps) => {
       <div className="max-w-[1440px] mx-auto px-6">
         <Header />
         <main className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card className='cursor-pointer' onClick={() => { router.push("/files") }}>
               <Statistic
                 title="文件总数"
@@ -51,8 +53,15 @@ export const MainPageLayout = ({ children }: DashboardLayoutProps) => {
             </Card>
             <Card className='cursor-pointer' onClick={() => { router.push("/tasks") }}>
               <Statistic
-                title="任务总数总数"
+                title="任务总数"
                 value={TasksCount || 0}
+                valueStyle={{ color: '#3f8600' }}
+              />
+            </Card>
+            <Card className='cursor-pointer' onClick={() => { router.push("/servers") }}>
+              <Statistic
+                title="服务器总数"
+                value={serversCount || 0}
                 valueStyle={{ color: '#3f8600' }}
               />
             </Card>

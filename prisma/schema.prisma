@@ -15,6 +15,7 @@ model Server {
     name       String
     address    String
     isActive   Boolean  @default(true)
+    isPublic   Boolean  @default(false)
     description String
     owner      User     @relation(fields: [ownerId], references: [id])
     ownerId    Int

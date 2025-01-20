@@ -8,13 +8,15 @@ import { authRouter } from './routers/auth'
 import { workflowRouter } from './routers/workflow'
 import { minioRouter } from './routers/minio'
 import { taskRouter } from './routers/task'
+import { serverRouter } from './routers/server'
 
 export const appRouter = router({
     // batchTask: batchTaskRouter,
     auth: authRouter,
     task: taskRouter,
     workflow: workflowRouter,
-    minio: minioRouter
+    minio: minioRouter,
+    server: serverRouter
 })
 
 // export type definition of API
