@@ -89,7 +89,6 @@ export default function UploadPage() {
     <MainPageLayout>
 
       <div className="mb-4">
-        <h1 className="text-2xl font-bold mb-4">上传工作流</h1>
         <WorkflowUploader >
           {workflowData && (
             <Button

@@ -1,6 +1,6 @@
 'use client'
 
-import { Table } from 'antd';
+import { Card, Table } from 'antd';
 import { MainPageLayout } from '../components/MainPageLayout';
 import { trpc } from '@/utils/trpc/client';
 import Link from 'antd/es/typography/Link';
@@ -52,15 +52,18 @@ export default function TasksPage() {
 
   return (
     <MainPageLayout>
-      <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">任务列表</h1>
+      <Card
+        title="任务列表"
+      >
         <Table 
           columns={columns} 
           dataSource={tasks} 
           rowKey="id" 
           pagination={false} 
         />
-      </div>
+
+      </Card>
+
     </MainPageLayout>
   );
 } 

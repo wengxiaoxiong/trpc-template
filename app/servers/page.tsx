@@ -20,7 +20,6 @@ const ServerPage = () => {
     const createServer = trpc.server.create.useMutation({
         onSuccess: async (newServer) => {
             message.success('服务器创建成功')
-            await handleCheckStatus(newServer)
             utils.server.list.invalidate()
             setIsModalOpen(false)
             form.resetFields()
@@ -30,7 +29,6 @@ const ServerPage = () => {
     const updateServer = trpc.server.update.useMutation({
         onSuccess: async (updatedServer) => {
             message.success('服务器更新成功')
-            await handleCheckStatus(updatedServer)
             utils.server.list.invalidate()
             setIsModalOpen(false)
             form.resetFields()
@@ -44,40 +42,6 @@ const ServerPage = () => {
             utils.server.list.invalidate()
         }
     })
-
-    const { mutateAsync: checkServerStatus } = trpc.server.checkStatus.useMutation({
-        onSuccess: () => {
-            utils.server.list.invalidate()
-        }
-    })
-
-    const handleCheckStatus = async (server: any) => {
-        try {
-            setCheckingStatus(prev => ({ ...prev, [server.id]: true }))
-            await checkServerStatus({
-                id: server.id,
-                address: server.address
-            })
-        } catch (error: any) {
-            message.error(error.message || '检查状态失败')
-        } finally {
-            setCheckingStatus(prev => ({ ...prev, [server.id]: false }))
-        }
-    }
-
-    const handleCheckAll = async () => {
-        if (!servers || isCheckingAll) return
-        
-        setIsCheckingAll(true)
-        try {
-            for (const server of servers) {
-                await handleCheckStatus(server)
-            }
-            message.success('所有服务器状态已更新')
-        } finally {
-            setIsCheckingAll(false)
-        }
-    }
 
     const handleSubmit = async (values: any) => {
         try {
@@ -143,17 +107,10 @@ const ServerPage = () => {
             title: '状态',
             dataIndex: 'isActive',
             key: 'isActive',
-            render: (isActive: boolean, record: any) => (
-                <div className="flex items-center space-x-2">
-                    <Tag color={isActive ? 'success' : 'error'}>
-                        {isActive ? '在线' : '离线'}
-                    </Tag>
-                    <Button 
-                        type="text" 
-                        icon={<SyncOutlined spin={checkingStatus[record.id]} />} 
-                        onClick={() => handleCheckStatus(record)}
-                    />
-                </div>
+            render: (isActive: boolean) => (
+                <Tag color={isActive ? 'success' : 'error'}>
+                    {isActive ? '在线' : '离线'}
+                </Tag>
             )
         },
         {
@@ -199,12 +156,6 @@ const ServerPage = () => {
                 title="服务器管理" 
                 extra={
                     <div className="space-x-2">
-                        <Button
-                            onClick={handleCheckAll}
-                            icon={<SyncOutlined spin={isCheckingAll} />}
-                        >
-                            检查全部
-                        </Button>
                         <Button 
                             type="primary" 
                             onClick={() => {

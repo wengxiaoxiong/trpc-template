@@ -74,7 +74,6 @@ export default function FilesPage() {
     return (
         <MainPageLayout>
             <div className="space-y-6">
-                <h1 className="text-2xl font-bold">文件管理</h1>
                 
                 <Card title="文件上传" className="w-full">
                     <div className="text-gray-600 mb-6">
