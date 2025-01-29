@@ -14,7 +14,6 @@ async function checkServerStatus(url: string): Promise<boolean> {
         const ret = await response.json()
         console.log(ret)
         return response.ok;
-        return true
     } catch (error) {
         return false;
     }
@@ -74,9 +73,13 @@ export const serverRouter = router({
                 }
             });
 
-            // 并行检查每个服务器的状态
+            // 并行检查每个服务器的状态，设置超时为2秒
             const updatePromises = servers.map(async (server) => {
-                const isActive = await checkServerStatus(server.address);
+                const isActive = await Promise.race([
+                    checkServerStatus(server.address),
+                    new Promise<boolean>((_, reject) => setTimeout(() => reject(new Error('Timeout')), 2000))
+                ]).catch(() => false); // 超时返回false
+
                 if (isActive !== server.isActive) {
                     await prisma.server.update({
                         where: { id: server.id },
@@ -110,9 +113,13 @@ export const serverRouter = router({
                 }
             });
 
-            // 检查每个服务器的状态
-            for (const server of servers) {
-                const isActive = await checkServerStatus(server.address);
+            // 并行检查每个服务器的状态，设置超时为2秒
+            const updatePromises = servers.map(async (server) => {
+                const isActive = await Promise.race([
+                    checkServerStatus(server.address),
+                    new Promise<boolean>((_, reject) => setTimeout(() => reject(new Error('Timeout')), 2000))
+                ]).catch(() => false); // 超时返回false
+
                 if (isActive !== server.isActive) {
                     await prisma.server.update({
                         where: { id: server.id },
@@ -120,11 +127,12 @@ export const serverRouter = router({
                     });
                     server.isActive = isActive;
                 }
-            }
+            });
+
+            await Promise.all(updatePromises);
 
             return servers;
         }),
-
     // 获取单个服务器详情
     getById: protectedProcedure
         .input(z.number())
@@ -139,7 +147,7 @@ export const serverRouter = router({
                     }
                 }
             })
-            
+
             if (!server) {
                 throw new Error('Server not found')
             }
@@ -183,12 +191,12 @@ export const serverRouter = router({
         }))
         .mutation(async ({ ctx, input }) => {
             const { id, ...updateData } = input
-            
+
             // 检查权限
             const server = await prisma.server.findUnique({
                 where: { id }
             })
-            
+
             if (!server || server.ownerId !== ctx.user.id) {
                 throw new Error('No permission to update this server')
             }
@@ -207,7 +215,7 @@ export const serverRouter = router({
             const server = await prisma.server.findUnique({
                 where: { id: input }
             })
-            
+
             if (!server || server.ownerId !== ctx.user.id) {
                 throw new Error('No permission to delete this server')
             }
