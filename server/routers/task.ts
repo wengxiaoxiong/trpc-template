@@ -85,7 +85,7 @@ export const taskRouter = router({
                         status: TaskStatus.INIT,
                         items: {
                             create: [{
-                                status: TaskStatus.INIT,
+                            status: TaskStatus.INIT,
                                 params: workflow.content as Prisma.InputJsonValue,
                                 xValue: Prisma.JsonNull,
                                 yValue: Prisma.JsonNull,
