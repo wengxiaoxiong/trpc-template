@@ -82,10 +82,10 @@ export const taskRouter = router({
                         workflowId: workflow.id,
                         ownerId: ctx.user.id,
                         name: input.name,
-                        status: 'PENDING',
+                        status: TaskStatus.INIT,
                         items: {
                             create: [{
-                                status: 'PENDING',
+                                status: TaskStatus.INIT,
                                 params: workflow.content as Prisma.InputJsonValue,
                                 xValue: Prisma.JsonNull,
                                 yValue: Prisma.JsonNull,
@@ -103,10 +103,10 @@ export const taskRouter = router({
                     workflowId: workflow.id,
                     ownerId: ctx.user.id,
                     name: input.name,
-                    status: 'PENDING',
+                    status: TaskStatus.INIT,
                     items: {
                         create: combinations.map(combo => ({
-                            status: 'PENDING',
+                            status: TaskStatus.INIT,
                             params: mergeParams(workflow.content, combo),
                             xValue: combo.x?.paramValues || Prisma.JsonNull,
                             yValue: combo.y?.paramValues || Prisma.JsonNull,

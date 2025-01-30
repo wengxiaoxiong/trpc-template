@@ -123,6 +123,7 @@ model UserFile {
 }
 
 enum TaskStatus {
+    INIT    
     PENDING
     RUNNING
     COMPLETED
