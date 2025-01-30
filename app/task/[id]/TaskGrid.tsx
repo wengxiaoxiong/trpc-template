@@ -126,8 +126,8 @@ function TaskItemCell({ item }: { item: TaskItem | undefined }) {
   return (
     <div className="text-center p-2">
       <div className="mb-2">
-        <Tag color={statusConfig[item.status].color}>
-          {statusConfig[item.status].text}
+        <Tag color={statusConfig[item.status as keyof typeof statusConfig].color}>
+          {statusConfig[item.status as keyof typeof statusConfig].text}
         </Tag>
       </div>
       {item.result?.imageUrl && (

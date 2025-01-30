@@ -49,8 +49,8 @@ export default function TaskPage({ params }: { params: { id: string } }) {
                     <div className="flex justify-between items-center mb-6">
                         <Space direction="vertical" size="small">
                             <Title level={4}>{task.name || '未命名任务'}</Title>
-                            <Tag color={statusConfig[task.status].color}>
-                                {statusConfig[task.status].text}
+                            <Tag color={statusConfig[task.status as keyof typeof statusConfig]?.color || 'default'}>
+                                {statusConfig[task.status as keyof typeof statusConfig]?.text || '未知状态'}
                             </Tag>
                         </Space>
                         <Space>
