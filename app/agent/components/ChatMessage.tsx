@@ -61,7 +61,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
           onClick={() => toggleSection('keywords')}
         >
           <FireOutlined className="text-orange-500 mr-2 text-xs" />
-          <span className="text-xs font-medium">热点词汇</span>
+          <span className="text-xs font-medium">水晶球热点词汇</span>
           {isSectionExpanded('keywords') ? (
             <CaretUpOutlined className="text-gray-400 ml-1 text-xs" />
           ) : (
@@ -97,7 +97,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
           onClick={() => toggleSection('trends')}
         >
           <LineChartOutlined className="text-blue-500 mr-2 text-xs" />
-          <span className="text-xs font-medium">市场趋势</span>
+          <span className="text-xs font-medium">水晶球市场趋势数据</span>
           {isSectionExpanded('trends') ? (
             <CaretUpOutlined className="text-gray-400 ml-1 text-xs" />
           ) : (
@@ -224,7 +224,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
           onClick={() => toggleSection('userComments')}
         >
           <CommentOutlined className="text-yellow-500 mr-2 text-xs" />
-          <span className="text-xs font-medium">用户评论分析</span>
+          <span className="text-xs font-medium">水晶球社媒评论分析</span>
           {isSectionExpanded('userComments') ? (
             <CaretUpOutlined className="text-gray-400 ml-1 text-xs" />
           ) : (
