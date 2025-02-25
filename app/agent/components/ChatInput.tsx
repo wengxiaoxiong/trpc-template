@@ -36,10 +36,20 @@ const ChatInput: React.FC = () => {
       // 模拟机器人回复
       setTimeout(() => {
         const conceptName = selectedConcept ? selectedConcept.name : inputMessage.split('\n')[0];
+        
+        // 模拟思考链路数据
+        const thoughtProcess = [
+          `分析用户提出的"${conceptName}"概念`,
+          `检索相关市场数据和竞品信息`,
+          `评估"${conceptName}"的市场潜力和可行性`,
+          `生成初步实施方案和建议`
+        ];
+        
         const botMessage = {
           type: 'bot' as const,
           content: `我收到了您关于"${conceptName}"的讨论请求。让我们深入分析这个方案的可行性和实施步骤。`,
-          timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+          timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+          thoughtProcess: thoughtProcess
         };
         setMessages(prev => [...prev, botMessage]);
       }, 1000);

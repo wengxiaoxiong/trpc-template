@@ -69,6 +69,7 @@ export interface Message {
   content: string;
   timestamp: string;
   conceptData?: Concept;
+  thoughtProcess?: string[]; // 添加思考链路字段，用于展示机器人的思考过程
   dataSources?: {
     keywords?: string[];
     insights?: string[];

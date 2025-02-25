@@ -12,7 +12,8 @@ import {
   CaretUpOutlined,
   CaretDownOutlined,
   ExpandAltOutlined,
-  ShrinkOutlined
+  ShrinkOutlined,
+  BulbOutlined
 } from '@ant-design/icons';
 import { Message, WebSource, SkuItem, UserCommentNLP } from '../types';
 import ConceptCard from './ConceptCard';
@@ -258,6 +259,42 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
     );
   };
 
+  // 渲染思考链路
+  const renderThoughtProcess = () => {
+    const thoughts = message.thoughtProcess;
+    if (!thoughts?.length) return null;
+    
+    return (
+      <div className="mb-2">
+        <div 
+          className="flex items-center cursor-pointer hover:bg-gray-50 rounded p-1"
+          onClick={() => toggleSection('thoughtProcess')}
+        >
+          <BulbOutlined className="text-amber-500 mr-2 text-xs" />
+          <span className="text-xs font-medium">思考链路</span>
+          {isSectionExpanded('thoughtProcess') ? (
+            <CaretUpOutlined className="text-gray-400 ml-1 text-xs" />
+          ) : (
+            <CaretDownOutlined className="text-gray-400 ml-1 text-xs" />
+          )}
+        </div>
+        
+        {isSectionExpanded('thoughtProcess') && (
+          <div className="ml-5 mt-1 space-y-2">
+            {thoughts.map((thought, idx) => (
+              <div key={idx} className="bg-amber-50 border border-amber-100 rounded-md p-2">
+                <div className="flex items-start">
+                  <span className="text-amber-600 font-medium text-xs mr-2">{idx + 1}.</span>
+                  <p className="text-xs text-gray-700">{thought}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   // 检查是否有数据来源可以展示
   const hasDataSources = () => {
     const ds = message.dataSources;
@@ -270,6 +307,11 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       (ds.skuList && ds.skuList.length > 0) ||
       (ds.userCommentAnalysis && ds.userCommentAnalysis.length > 0)
     );
+  };
+
+  // 检查是否有思考链路或数据来源可以展示
+  const hasSupplementaryData = () => {
+    return hasDataSources() || (message.thoughtProcess && message.thoughtProcess.length > 0);
   };
 
   return (
@@ -287,10 +329,10 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
             )}
           </div>
           
-          {message.type === 'bot' && message.dataSources && hasDataSources() && (
+          {message.type === 'bot' && hasSupplementaryData() && (
             <div className="mt-2 bg-white border border-gray-200 rounded-lg p-2">
               <div className="flex justify-between items-center mb-1">
-                <span className="text-xs font-medium text-gray-600">数据支持</span>
+                <span className="text-xs font-medium text-gray-600">辅助信息</span>
                 <button 
                   onClick={toggleExpandAll}
                   className="text-xs text-indigo-600 hover:text-indigo-800 flex items-center"
@@ -309,6 +351,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                 </button>
               </div>
               
+              {renderThoughtProcess()}
               {renderKeywords()}
               {renderMarketTrends()}
               {renderWebSources()}
