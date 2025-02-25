@@ -131,6 +131,214 @@
 ## 示例数据结构
 
 请参考代码中的`exampleStages`变量，它展示了一个完整的、符合上述规则的数据结构示例。
+```
+    // 示例数据，展示完整的数据结构
+    const exampleStages: Stage[] = [
+        {
+            id: 1,
+            name: 'Market Research',
+            description: 'Analyze market trends and consumer preferences',
+            status: 'completed',
+            currentConceptId: 101,
+            order: 1,
+            requiredPreviousStage: null,
+            completionCriteria: '至少选择一个市场分析方向',
+            estimatedTimeInMinutes: 30,
+            concepts: [
+                {
+                    id: 101,
+                    name: 'Premium Chocolate Market Analysis',
+                    description: 'Analysis of high-end chocolate consumer preferences',
+                    score: 85,
+                    selected: true,
+                    createdAt: '2024-05-01T10:00:00Z',
+                    updatedAt: '2024-05-01T11:30:00Z',
+                    tags: ['premium', 'market-analysis', 'consumer-behavior'],
+                    metrics: {
+                        marketPotential: 90,
+                        feasibility: 85,
+                        innovationLevel: 70,
+                        costEfficiency: 75
+                    },
+                    dataPoints: [
+                        { 
+                            type: '水晶球', 
+                            description: '高端巧克力市场年增长率达15%',
+                            confidence: 92,
+                            source: '市场研究报告A-2024',
+                            timestamp: '2024-04-15T00:00:00Z'
+                        },
+                        { 
+                            type: '外网', 
+                            description: '社交媒体上高端巧克力讨论热度上升40%',
+                            confidence: 85,
+                            source: '社交媒体分析平台',
+                            timestamp: '2024-04-20T00:00:00Z'
+                        }
+                    ],
+                    nextStage: {
+                        id: 2,
+                        name: 'Product Concept Development',
+                        description: 'Develop initial product concepts based on market research',
+                        status: 'current',
+                        currentConceptId: null,
+                        order: 2,
+                        requiredPreviousStage: 1,
+                        completionCriteria: '选择一个产品概念进行深入开发',
+                        estimatedTimeInMinutes: 45,
+                        concepts: [
+                            {
+                                id: 201,
+                                name: 'Artisanal Gift Box Collection',
+                                description: 'Premium handcrafted chocolate gift boxes with sustainable packaging',
+                                score: 92,
+                                selected: false,
+                                createdAt: '2024-05-02T09:00:00Z',
+                                updatedAt: '2024-05-02T10:15:00Z',
+                                tags: ['gift', 'artisanal', 'sustainable'],
+                                metrics: {
+                                    marketPotential: 95,
+                                    feasibility: 80,
+                                    innovationLevel: 85,
+                                    costEfficiency: 70
+                                },
+                                dataPoints: [
+                                    { 
+                                        type: '水晶球', 
+                                        description: '礼盒类巧克力在节日季销量增长25%',
+                                        confidence: 90,
+                                        source: '销售数据分析',
+                                        timestamp: '2024-04-25T00:00:00Z'
+                                    },
+                                    { 
+                                        type: 'PIM', 
+                                        description: '手工制作包装材料供应链已建立',
+                                        confidence: 95,
+                                        source: '供应链管理系统',
+                                        timestamp: '2024-04-28T00:00:00Z'
+                                    }
+                                ],
+                                nextStage: {
+                                    id: 3,
+                                    name: 'Packaging Design',
+                                    description: 'Design sustainable and premium packaging for the product',
+                                    status: 'pending',
+                                    currentConceptId: null,
+                                    order: 3,
+                                    requiredPreviousStage: 2,
+                                    completionCriteria: '确定最终包装设计方案',
+                                    estimatedTimeInMinutes: 60,
+                                    concepts: [
+                                        {
+                                            id: 301,
+                                            name: 'Minimalist Eco-Luxury Design',
+                                            description: 'Simple, elegant design using biodegradable materials',
+                                            score: 88,
+                                            selected: false,
+                                            tags: ['minimalist', 'eco-friendly', 'luxury'],
+                                            metrics: {
+                                                marketPotential: 85,
+                                                feasibility: 90,
+                                                innovationLevel: 80,
+                                                costEfficiency: 85
+                                            },
+                                            dataPoints: [
+                                                { 
+                                                    type: '外网', 
+                                                    description: '极简主义包装在高端市场受欢迎程度提升',
+                                                    confidence: 88,
+                                                    source: '设计趋势报告',
+                                                    timestamp: '2024-05-01T00:00:00Z'
+                                                }
+                                            ],
+                                            nextStage: null
+                                        },
+                                        {
+                                            id: 302,
+                                            name: 'Interactive Packaging Experience',
+                                            description: 'Packaging that transforms into a serving platter or display',
+                                            score: 90,
+                                            selected: false,
+                                            tags: ['interactive', 'innovative', 'experience'],
+                                            metrics: {
+                                                marketPotential: 92,
+                                                feasibility: 75,
+                                                innovationLevel: 95,
+                                                costEfficiency: 65
+                                            },
+                                            dataPoints: [
+                                                { 
+                                                    type: '水晶球', 
+                                                    description: '互动式包装提升品牌记忆度30%',
+                                                    confidence: 85,
+                                                    source: '用户体验研究',
+                                                    timestamp: '2024-05-02T00:00:00Z'
+                                                }
+                                            ],
+                                            nextStage: null
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                id: 202,
+                                name: 'Single Origin Collection',
+                                description: 'Premium chocolates showcasing distinct flavors from specific regions',
+                                score: 88,
+                                selected: false,
+                                createdAt: '2024-05-02T09:30:00Z',
+                                updatedAt: '2024-05-02T11:00:00Z',
+                                tags: ['single-origin', 'authentic', 'gourmet'],
+                                metrics: {
+                                    marketPotential: 88,
+                                    feasibility: 85,
+                                    innovationLevel: 80,
+                                    costEfficiency: 75
+                                },
+                                dataPoints: [
+                                    { 
+                                        type: '外网', 
+                                        description: '产地溯源巧克力在美食爱好者中讨论度高',
+                                        confidence: 92,
+                                        source: '美食论坛分析',
+                                        timestamp: '2024-04-22T00:00:00Z'
+                                    }
+                                ],
+                                nextStage: null
+                            }
+                        ]
+                    }
+                },
+                {
+                    id: 102,
+                    name: 'Sustainable Chocolate Trends',
+                    description: 'Analysis of eco-friendly and sustainable chocolate products',
+                    score: 80,
+                    selected: false,
+                    createdAt: '2024-05-01T10:15:00Z',
+                    updatedAt: '2024-05-01T12:00:00Z',
+                    tags: ['sustainable', 'eco-friendly', 'trends'],
+                    metrics: {
+                        marketPotential: 85,
+                        feasibility: 80,
+                        innovationLevel: 75,
+                        costEfficiency: 70
+                    },
+                    dataPoints: [
+                        { 
+                            type: 'PIM', 
+                            description: '可持续原料供应增长20%',
+                            confidence: 90,
+                            source: '供应链数据',
+                            timestamp: '2024-04-18T00:00:00Z'
+                        }
+                    ],
+                    nextStage: null
+                }
+            ]
+        }
+    ];
+```
 
 ## 注意事项
 
