@@ -1,60 +1,80 @@
 'use client';
 
-import React from 'react';
-import { StarFilled } from '@ant-design/icons';
-import { TopProduct } from '../types';
-
-const topProducts: TopProduct[] = [
-  {
-    name: 'Dark Chocolate Truffles',
-    brand: 'Godiva',
-    rating: 4.8,
-    reviews: 1250,
-    keywords: ['premium', 'smooth', 'rich']
-  },
-  {
-    name: 'Sea Salt Caramel Chocolate',
-    brand: 'Lindt',
-    rating: 4.7,
-    reviews: 980,
-    keywords: ['sweet-salty', 'creamy', 'luxurious']
-  },
-  {
-    name: 'Hazelnut Praline Bar',
-    brand: 'Ferrero',
-    rating: 4.9,
-    reviews: 2100,
-    keywords: ['nutty', 'crunchy', 'indulgent']
-  }
-];
+import React, { useState } from 'react';
+import { EditOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
+import { UserRequirement } from '../types';
+import { initialUserRequirements } from '../recoil/initialData';
 
 const DataSources: React.FC = () => {
+  const [requirements, setRequirements] = useState<UserRequirement[]>(initialUserRequirements);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editContent, setEditContent] = useState<string>('');
+
+  const handleEdit = (req: UserRequirement) => {
+    setEditingId(req.id);
+    setEditContent(req.content);
+  };
+
+  const handleSave = (id: number) => {
+    setRequirements(requirements.map(req => 
+      req.id === id 
+        ? { ...req, content: editContent, edited: true } 
+        : req
+    ));
+    setEditingId(null);
+  };
+
+  const handleCancel = () => {
+    setEditingId(null);
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow-sm p-4 flex-shrink-0">
-      <h3 className="text-lg font-semibold mb-4">数据源</h3>
+    <div className="w-full">
       <div className="p-3 bg-gray-50 rounded-lg mb-4">
-        <h4 className="text-sm font-medium text-gray-700 mb-2">热门关键词</h4>
-        <div className="flex flex-wrap gap-2">
-          {['Premium', 'Organic', 'Sustainable', 'Luxury', 'Natural'].map((keyword) => (
-            <span key={keyword} className="!rounded-button bg-white px-3 py-1 text-xs font-medium text-gray-600 border">
-              {keyword}
-            </span>
-          ))}
-        </div>
-      </div>
-      <div className="p-3 bg-gray-50 rounded-lg">
-        <h4 className="text-sm font-medium text-gray-700 mb-2">热门产品</h4>
+        <h4 className="text-sm font-medium text-gray-700 mb-2">您的需求与喜好</h4>
+        <p className="text-xs text-gray-500 mb-3">
+          这是AI总结出您的需求喜好，您可以做一个参考，如果和您的想法不一致您可以任意编辑这个描述
+        </p>
         <div className="space-y-3">
-          {topProducts.map((product) => (
-            <div key={product.name} className="flex items-center justify-between">
-              <div>
-                <div className="text-sm font-medium text-gray-900">{product.name}</div>
-                <div className="text-xs text-gray-500">{product.brand}</div>
-              </div>
-              <div className="flex items-center">
-                <StarFilled className="text-yellow-400 mr-1" />
-                <span className="text-sm text-gray-600">{product.rating}</span>
-              </div>
+          {requirements.map((req) => (
+            <div key={req.id} className="bg-white p-3 rounded border">
+              {editingId === req.id ? (
+                <div className="flex flex-col space-y-2">
+                  <textarea
+                    className="p-2 border rounded text-sm w-full"
+                    value={editContent}
+                    onChange={(e) => setEditContent(e.target.value)}
+                    rows={2}
+                  />
+                  <div className="flex justify-end space-x-2">
+                    <button 
+                      onClick={() => handleCancel()} 
+                      className="p-1 text-red-500 hover:bg-red-50 rounded"
+                    >
+                      <CloseOutlined />
+                    </button>
+                    <button 
+                      onClick={() => handleSave(req.id)} 
+                      className="p-1 text-green-500 hover:bg-green-50 rounded"
+                    >
+                      <CheckOutlined />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex justify-between items-start">
+                  <div className="text-sm text-gray-800 flex-1">{req.content}</div>
+                  <button
+                    onClick={() => handleEdit(req)}
+                    className="ml-2 p-1 text-gray-400 hover:text-indigo-500 hover:bg-gray-100 rounded"
+                  >
+                    <EditOutlined />
+                  </button>
+                </div>
+              )}
+              {req.edited && (
+                <div className="mt-1 text-xs text-indigo-500">已编辑</div>
+              )}
             </div>
           ))}
         </div>

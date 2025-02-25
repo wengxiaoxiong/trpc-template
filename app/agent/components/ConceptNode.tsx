@@ -92,53 +92,6 @@ const ConceptNode: React.FC<ConceptNodeProps> = ({
         {isSelected && <CheckCircleOutlined className="text-indigo-500 text-lg ml-2 absolute top-2 right-2" />}
       </div>
 
-      {/* 评估指标可视化 */}
-      {concept.metrics && (
-        <div className="mt-2 pt-2 border-t border-gray-100">
-          <div className="grid grid-cols-4 gap-1 text-xs">
-            <div className="flex flex-col items-center">
-              <div className="h-1.5 w-full bg-gray-200 rounded-full mb-1">
-                <div 
-                  className="h-full bg-blue-500 rounded-full" 
-                  style={{width: `${concept.metrics.marketPotential}%`}}
-                ></div>
-              </div>
-              <span className="text-gray-600">市场潜力</span>
-              <span className="font-medium">{concept.metrics.marketPotential}</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <div className="h-1.5 w-full bg-gray-200 rounded-full mb-1">
-                <div 
-                  className="h-full bg-green-500 rounded-full" 
-                  style={{width: `${concept.metrics.feasibility}%`}}
-                ></div>
-              </div>
-              <span className="text-gray-600">可行性</span>
-              <span className="font-medium">{concept.metrics.feasibility}</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <div className="h-1.5 w-full bg-gray-200 rounded-full mb-1">
-                <div 
-                  className="h-full bg-purple-500 rounded-full" 
-                  style={{width: `${concept.metrics.innovationLevel}%`}}
-                ></div>
-              </div>
-              <span className="text-gray-600">创新度</span>
-              <span className="font-medium">{concept.metrics.innovationLevel}</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <div className="h-1.5 w-full bg-gray-200 rounded-full mb-1">
-                <div 
-                  className="h-full bg-yellow-500 rounded-full" 
-                  style={{width: `${concept.metrics.costEfficiency}%`}}
-                ></div>
-              </div>
-              <span className="text-gray-600">成本效益</span>
-              <span className="font-medium">{concept.metrics.costEfficiency}</span>
-            </div>
-          </div>
-        </div>
-      )}
 
       {concept.dataPoints && concept.dataPoints.length > 0 && (
         <div className="mt-2">

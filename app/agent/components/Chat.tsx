@@ -11,12 +11,14 @@ const Chat: React.FC = () => {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex-1 overflow-y-auto mb-4 border rounded-lg p-4">
+      <div className="flex-1 overflow-y-auto mb-4">
         {messages.map((message, index) => (
           <ChatMessage key={index} message={message} />
         ))}
       </div>
-      <ChatInput />
+      <div className="mt-auto">
+        <ChatInput />
+      </div>
     </div>
   );
 };

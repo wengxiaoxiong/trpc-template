@@ -72,4 +72,13 @@ export interface TopProduct {
   rating: number;
   reviews: number;
   keywords: string[];
+}
+
+export interface UserRequirement {
+  id: number;
+  content: string;
+  sourceMessage?: string;  // 源自哪条用户消息
+  confidence: number;      // AI的置信度，0-100
+  timestamp: string;       // 创建时间
+  edited?: boolean;        // 是否被用户编辑过
 } 

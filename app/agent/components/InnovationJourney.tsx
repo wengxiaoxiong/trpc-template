@@ -2,7 +2,6 @@
 
 import React, { useCallback } from 'react';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import { RightOutlined } from '@ant-design/icons';
 import { stagesState, selectedConceptIdsState, inputMessageState } from '../recoil/atoms';
 import StageNode from './StageNode';
 import { Stage } from '../types';
@@ -140,18 +139,12 @@ const InnovationJourney: React.FC = () => {
   }, [setInputMessage]);
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
-      <h3 className="text-lg font-semibold mb-4 flex items-center">
-        <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center mr-2">
-          <RightOutlined className="text-indigo-500" />
-        </div>
-        创新旅程
-      </h3>
+    <div className="w-full">
       <div className="bg-gray-50 p-3 rounded-lg mb-4 text-xs text-gray-600">
         各阶段的选择将引导您完成整个产品创新过程。每个阶段选择一个最合适的方案来继续。
       </div>
       {/* 只渲染第一个阶段，其他阶段会通过树形结构递归渲染 */}
-      <div className="stage-container max-h-[calc(100vh-500px)] overflow-y-auto pr-2">
+      <div className="stage-container max-h-[calc(100vh-180px)] overflow-y-auto pr-2">
         {stages.length > 0 && (
           <StageNode
             key={stages[0].id}
