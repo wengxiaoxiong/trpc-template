@@ -68,6 +68,7 @@ export interface Message {
   type: 'bot' | 'user';
   content: string;
   timestamp: string;
+  conceptData?: Concept;
   dataSources?: {
     keywords?: string[];
     insights?: string[];

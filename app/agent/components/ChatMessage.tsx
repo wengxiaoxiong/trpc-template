@@ -15,6 +15,7 @@ import {
   ShrinkOutlined
 } from '@ant-design/icons';
 import { Message, WebSource, SkuItem, UserCommentNLP } from '../types';
+import ConceptCard from './ConceptCard';
 
 interface ChatMessageProps {
   message: Message;
@@ -272,21 +273,27 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   };
 
   return (
-    <div className="flex items-start mb-4">
-      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white mr-3 ${message.type === 'bot' ? 'bg-indigo-600' : 'bg-green-500'}`}>
-        {message.type === 'bot' ? <RobotOutlined /> : <UserOutlined />}
-      </div>
-      <div className="flex-1">
-        <div className={`rounded-lg p-3 ${message.type === 'bot' ? 'bg-gray-100' : 'bg-indigo-50'}`}>
-          <p className="text-gray-800">{message.content}</p>
+    <div className={`flex mb-4 ${message.type === 'bot' ? 'justify-start' : 'justify-end'}`}>
+      <div className={`flex ${message.type === 'bot' ? 'flex-row' : 'flex-row-reverse'} max-w-[80%]`}>
+        <div className={`flex items-center justify-center h-8 w-8 rounded-full ${message.type === 'bot' ? 'bg-indigo-100 text-indigo-600' : 'bg-green-100 text-green-600'} flex-shrink-0`}>
+          {message.type === 'bot' ? <RobotOutlined /> : <UserOutlined />}
+        </div>
+        <div className={`mx-2 ${message.type === 'bot' ? 'order-last' : 'order-first'}`}>
+          <div className={`px-4 py-2 rounded-lg ${message.type === 'bot' ? 'bg-white border border-gray-200' : 'bg-green-50 border border-green-200'}`}>
+            {message.conceptData ? (
+              <ConceptCard concept={message.conceptData} isInChat={true} />
+            ) : (
+              <div className="text-sm whitespace-pre-wrap">{message.content}</div>
+            )}
+          </div>
           
-          {message.type === 'bot' && hasDataSources() && (
-            <div className="mt-3 pt-2 border-t border-gray-200">
-              <div className="flex justify-between items-center mb-2">
-                <div className="text-xs text-gray-500">数据来源</div>
+          {message.type === 'bot' && message.dataSources && hasDataSources() && (
+            <div className="mt-2 bg-white border border-gray-200 rounded-lg p-2">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-xs font-medium text-gray-600">数据支持</span>
                 <button 
-                  onClick={toggleExpandAll} 
-                  className="flex items-center text-xs text-indigo-600 hover:text-indigo-800 transition-colors"
+                  onClick={toggleExpandAll}
+                  className="text-xs text-indigo-600 hover:text-indigo-800 flex items-center"
                 >
                   {expandAll ? (
                     <>
@@ -301,6 +308,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                   )}
                 </button>
               </div>
+              
               {renderKeywords()}
               {renderMarketTrends()}
               {renderWebSources()}
@@ -309,7 +317,9 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
             </div>
           )}
           
-          <div className="text-xs text-gray-500 mt-2">{message.timestamp}</div>
+          <div className="text-xs text-gray-400 mt-1 text-right">
+            {message.timestamp}
+          </div>
         </div>
       </div>
     </div>

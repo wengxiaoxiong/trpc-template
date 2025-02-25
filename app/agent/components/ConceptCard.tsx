@@ -1,48 +1,15 @@
 'use client';
 
 import React from 'react';
-import { InfoCircleOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { InfoCircleOutlined } from '@ant-design/icons';
 import { Concept } from '../types';
-import { useRecoilState } from 'recoil';
-import { inputMessageState, messagesState, selectedConceptForInputState } from '../recoil/atoms';
 
-interface ConceptNodeProps {
+interface ConceptCardProps {
   concept: Concept;
-  onConceptSelect: (conceptId: number) => void;
-  isSelected: boolean;
+  isInChat?: boolean;
 }
 
-const ConceptNode: React.FC<ConceptNodeProps> = ({ 
-  concept, 
-  onConceptSelect, 
-  isSelected
-}) => {
-  const [messages, setMessages] = useRecoilState(messagesState);
-  const [inputMessage, setInputMessage] = useRecoilState(inputMessageState);
-  const [selectedConceptForInput, setSelectedConceptForInput] = useRecoilState(selectedConceptForInputState);
-
-  const handleConceptClick = () => {
-    // 如果nextStage为null，将概念添加到输入区域
-    if (concept.nextStage === null) {
-      // 设置选中的概念到输入区域
-      setSelectedConceptForInput(concept);
-      
-      // 可以设置一个默认的讨论文本
-      setInputMessage(`我想基于这个方案进行讨论：`);
-      
-      // 聚焦到输入框
-      setTimeout(() => {
-        const chatInput = document.getElementById('chat-input') as HTMLTextAreaElement;
-        if (chatInput) {
-          chatInput.focus();
-        }
-      }, 100);
-    } else {
-      // 正常选择概念
-      onConceptSelect(concept.id);
-    }
-  };
-
+const ConceptCard: React.FC<ConceptCardProps> = ({ concept, isInChat = false }) => {
   // 根据得分返回颜色
   const getScoreColor = (score: number) => {
     if (score >= 90) return 'text-green-600';
@@ -53,10 +20,10 @@ const ConceptNode: React.FC<ConceptNodeProps> = ({
 
   return (
     <div
-      className={`p-3 border rounded-md shadow-sm cursor-pointer transition-all duration-200
-          ${isSelected ? 'bg-indigo-50 border-indigo-400 ring-1 ring-indigo-300' : 'bg-white border-gray-200 hover:bg-gray-50'}
+      className={`p-3 border rounded-md shadow-sm transition-all duration-200
+          ${isInChat ? 'bg-indigo-50 border-indigo-300' : 'bg-white border-gray-200'}
+          ${isInChat ? 'max-w-md' : 'w-full'}
       `}
-      onClick={handleConceptClick}
     >
       <div className="flex items-start justify-between">
         <div className="flex-1">
@@ -83,9 +50,28 @@ const ConceptNode: React.FC<ConceptNodeProps> = ({
           </div>
           <div className="text-xs text-gray-500">评分</div>
         </div>
-        {isSelected && <CheckCircleOutlined className="text-indigo-500 text-lg ml-2 absolute top-2 right-2" />}
       </div>
 
+      {concept.metrics && (
+        <div className="mt-2 grid grid-cols-2 gap-2">
+          <div className="text-xs">
+            <span className="text-gray-500">市场潜力:</span> 
+            <span className="ml-1 font-medium">{concept.metrics.marketPotential}</span>
+          </div>
+          <div className="text-xs">
+            <span className="text-gray-500">可行性:</span> 
+            <span className="ml-1 font-medium">{concept.metrics.feasibility}</span>
+          </div>
+          <div className="text-xs">
+            <span className="text-gray-500">创新度:</span> 
+            <span className="ml-1 font-medium">{concept.metrics.innovationLevel}</span>
+          </div>
+          <div className="text-xs">
+            <span className="text-gray-500">成本效益:</span> 
+            <span className="ml-1 font-medium">{concept.metrics.costEfficiency}</span>
+          </div>
+        </div>
+      )}
 
       {concept.dataPoints && concept.dataPoints.length > 0 && (
         <div className="mt-2">
@@ -106,4 +92,4 @@ const ConceptNode: React.FC<ConceptNodeProps> = ({
   );
 };
 
-export default ConceptNode; 
+export default ConceptCard; 

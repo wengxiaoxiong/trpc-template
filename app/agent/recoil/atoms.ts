@@ -1,5 +1,5 @@
 import { atom } from 'recoil';
-import { Stage, Message } from '../types';
+import { Stage, Message, Concept } from '../types';
 import { initialStages, initialMessages } from './initialData';
 
 // 存储所有阶段信息
@@ -24,4 +24,10 @@ export const messagesState = atom<Message[]>({
 export const inputMessageState = atom<string>({
   key: 'inputMessageState',
   default: '',
+});
+
+// 存储选中的概念（用于输入框）
+export const selectedConceptForInputState = atom<Concept | null>({
+  key: 'selectedConceptForInputState',
+  default: null,
 }); 
