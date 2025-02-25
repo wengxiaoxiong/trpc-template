@@ -42,12 +42,12 @@ const StageNode: React.FC<StageNodeProps> = ({
   const getStatusText = () => {
     if (stage.status === 'completed') {
       return '已完成';
-    } else if (stage.status === 'current' && stage.concepts.length === 3) {
+    } else if (stage.status === 'current') {
       return '当前阶段';
     } else if (stage.status === 'pending') {
       return '待处理';
     }
-    return stage.status === 'current' ? '当前阶段' : '待处理';
+    return '待处理'; // 默认情况
   };
 
   return (
