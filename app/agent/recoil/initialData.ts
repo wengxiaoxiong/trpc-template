@@ -1142,28 +1142,23 @@ export const initialStages: Stage[] = [
 export const initialUserRequirements: UserRequirement[] = [
   {
     id: 1,
-    content: '需要开发高端巧克力产品系列',
-    sourceMessage: '我想开发一个高端巧克力产品系列。',
+    content: "我想开发一种高端环保的巧克力产品线，针对年轻的高收入消费者",
     confidence: 95,
-    timestamp: '09:01 AM'
+    timestamp: "2023-06-20 10:30 AM",
+    edited: false
   },
   {
     id: 2,
-    content: '重视产品的可持续包装设计',
-    sourceMessage: '对的，我想主打可持续发展的包装设计。',
-    confidence: 92,
-    timestamp: '09:03 AM'
+    content: "产品应该采用可持续包装，强调有机成分和公平贸易",
+    confidence: 85,
+    timestamp: "2023-06-20 10:32 AM",
+    edited: true
   },
   {
     id: 3,
-    content: '目标市场为追求高品质的消费者',
-    confidence: 85,
-    timestamp: '09:05 AM'
-  },
-  {
-    id: 4,
-    content: '关注环保和可持续发展理念',
+    content: "希望能够通过社交媒体和网红推广，主要定位25-40岁的都市白领",
     confidence: 90,
-    timestamp: '09:05 AM'
+    timestamp: "2023-06-20 10:35 AM",
+    edited: false
   }
 ];

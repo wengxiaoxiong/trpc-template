@@ -46,6 +46,24 @@ export interface WebSource {
   summary: string;
 }
 
+export interface SkuItem {
+  id: string;
+  name: string;
+  image?: string;
+  price?: number;
+  brandName?: string;
+  category?: string;
+  tags?: string[];
+}
+
+export interface UserCommentNLP {
+  sentiment: 'positive' | 'negative' | 'neutral';
+  aspect: string;
+  count: number;
+  examples?: string[];
+  percentage?: number;
+}
+
 export interface Message {
   type: 'bot' | 'user';
   content: string;
@@ -56,6 +74,8 @@ export interface Message {
     marketTrends?: {
       growth: string;
       category: string;
+      periodChange?: string;
+      trendDirection?: 'up' | 'down' | 'stable';
     };
     webSources?: WebSource[];
     products?: Array<{
@@ -63,6 +83,8 @@ export interface Message {
       brand: string;
       rating: number;
     }>;
+    skuList?: SkuItem[];
+    userCommentAnalysis?: UserCommentNLP[];
   };
 }
 
