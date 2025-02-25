@@ -28,7 +28,7 @@ const MainLayout: React.FC = () => {
           className={`transition-all duration-300 flex flex-col ${
             leftPanelCollapsed 
               ? 'w-12 min-w-12' 
-              : 'w-1/4 min-w-[300px] max-w-[400px]'
+              : 'w-1/4 min-w-[300px]'
           }`}
         >
           <div className="bg-white rounded-lg shadow flex-1 flex flex-col overflow-hidden">
@@ -67,7 +67,7 @@ const MainLayout: React.FC = () => {
           className={`transition-all duration-300 flex flex-col ${
             rightPanelCollapsed 
               ? 'w-12 min-w-12' 
-              : 'w-1/4 min-w-[300px] max-w-[400px]'
+              : 'w-1/3 min-w-[300px] max-w-[400px]'
           }`}
         >
           <div className="bg-white rounded-lg shadow flex-1 flex flex-col overflow-hidden">
