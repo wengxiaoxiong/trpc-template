@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { 
   RobotOutlined, 
   UserOutlined, 
@@ -325,7 +327,26 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
             {message.conceptData ? (
               <ConceptCard concept={message.conceptData} isInChat={true} />
             ) : (
-              <div className="text-sm whitespace-pre-wrap">{message.content}</div>
+              <div className="text-sm">
+                {message.type === 'bot' ? (
+                  <ReactMarkdown 
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      p: ({node, ...props}) => <p className="mb-1" {...props} />,
+                      h3: ({node, ...props}) => <h3 className="mt-2 mb-1 font-bold" {...props} />,
+                      h4: ({node, ...props}) => <h4 className="mt-2 mb-1 font-semibold" {...props} />,
+                      hr: ({node, ...props}) => <hr className="my-1" {...props} />,
+                      ul: ({node, ...props}) => <ul className="mt-0.5 mb-1 pl-5" {...props} />,
+                      ol: ({node, ...props}) => <ol className="mt-0.5 mb-1 pl-5" {...props} />,
+                      li: ({node, ...props}) => <li className="mb-0.5" {...props} />
+                    }}
+                  >
+                    {message.content}
+                  </ReactMarkdown>
+                ) : (
+                  message.content
+                )}
+              </div>
             )}
           </div>
           
