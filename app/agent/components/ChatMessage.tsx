@@ -333,8 +333,10 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                     remarkPlugins={[remarkGfm]}
                     components={{
                       p: ({node, ...props}) => <p className="mb-1" {...props} />,
-                      h3: ({node, ...props}) => <h3 className="mt-2 mb-1 font-bold" {...props} />,
-                      h4: ({node, ...props}) => <h4 className="mt-2 mb-1 font-semibold" {...props} />,
+                      h1: ({node, ...props}) => <h1 className="text-2xl font-bold mt-3 mb-2" {...props} />,
+                      h2: ({node, ...props}) => <h2 className="text-xl font-bold mt-3 mb-1.5" {...props} />,
+                      h3: ({node, ...props}) => <h3 className="text-lg font-semibold mt-2 mb-1" {...props} />,
+                      h4: ({node, ...props}) => <h4 className="text-base font-semibold mt-2 mb-1" {...props} />,
                       hr: ({node, ...props}) => <hr className="my-1" {...props} />,
                       ul: ({node, ...props}) => <ul className="mt-0.5 mb-1 pl-5" {...props} />,
                       ol: ({node, ...props}) => <ol className="mt-0.5 mb-1 pl-5" {...props} />,
