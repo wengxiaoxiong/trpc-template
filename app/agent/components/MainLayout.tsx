@@ -20,9 +20,9 @@ const MainLayout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
       <Header />
-      <main className="flex-1 flex relative p-4">
+      <main className="flex-1 flex relative p-4 overflow-hidden">
         {/* 左侧栏 - 创新旅程 */}
         <div 
           className={`transition-all duration-300 flex flex-col ${
