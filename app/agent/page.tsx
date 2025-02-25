@@ -79,20 +79,116 @@ interface Message {
       category: string;
     };
     webSources?: WebSource[];
+    products?: Array<{
+      name: string;
+      brand: string;
+      rating: number;
+    }>;
   };
 }
 
-const ConceptNode: React.FC<{ concept: Concept, onConceptSelect: (conceptId: number) => void, isSelected: boolean }> = ({ concept, onConceptSelect, isSelected }) => {
+// 将chatMessages定义移动到组件外部
+const chatMessages: Message[] = [
+    {
+        type: 'bot',
+        content: '欢迎来到 Product Innovation Workbench！让我们从了解您的目标市场开始。您想开发什么类型的产品？',
+        timestamp: '09:00 AM'
+    },
+    {
+        type: 'user',
+        content: '我想开发一个高端巧克力产品系列。',
+        timestamp: '09:01 AM'
+    },
+    {
+        type: 'bot',
+        content: '根据我们的数据分析，高端巧克力市场确实存在很大机会。从Popular Keywords中可以看到，"Premium"、"Organic"和"Luxury"都是当前市场的热点。',
+        timestamp: '09:02 AM',
+        dataSources: {
+            keywords: ['Premium', 'Organic', 'Luxury'],
+            products: [
+                {
+                    name: 'Dark Chocolate Truffles',
+                    brand: 'Godiva',
+                    rating: 4.8
+                }
+            ],
+            webSources: [
+                {
+                    title: '高端巧克力市场分析报告',
+                    url: 'https://example.com/premium-chocolate-market',
+                    summary: '2024年高端巧克力市场预计增长15%，消费者更注重品质和独特性。'
+                },
+                {
+                    title: '有机巧克力消费趋势',
+                    url: 'https://example.com/organic-chocolate-trends',
+                    summary: '有机巧克力在高收入人群中的接受度提高，价格敏感度降低。'
+                }
+            ]
+        }
+    },
+    {
+        type: 'user',
+        content: '对的，我想主打可持续发展的包装设计。',
+        timestamp: '09:03 AM'
+    },
+    {
+        type: 'bot',
+        content: '很好的方向！我注意到"Sustainable"是一个重要的关键词。从市场数据来看，结合高端和可持续性的产品越来越受欢迎。Godiva和Lindt等品牌的高评分产品都采用了环保包装。',
+        timestamp: '09:04 AM',
+        dataSources: {
+            insights: ['可持续包装', '高端市场', '环保理念'],
+            marketTrends: {
+                growth: '23%',
+                category: '高端可持续包装'
+            },
+            webSources: [
+                {
+                    title: '可持续包装在巧克力行业的应用',
+                    url: 'https://example.com/sustainable-packaging-chocolate',
+                    summary: '可生物降解材料在高端巧克力包装中的应用案例和消费者反馈。'
+                },
+                {
+                    title: '环保包装对品牌价值的影响',
+                    url: 'https://example.com/eco-packaging-brand-value',
+                    summary: '研究表明，环保包装能提升品牌形象，增加消费者忠诚度。'
+                },
+                {
+                    title: '2024巧克力包装设计趋势',
+                    url: 'https://example.com/chocolate-packaging-trends-2024',
+                    summary: '可持续性、极简主义和高级感是2024年巧克力包装的主要设计趋势。'
+                }
+            ]
+        }
+    }
+];
+
+const ConceptNode: React.FC<{ concept: Concept, onConceptSelect: (conceptId: number) => void, isSelected: boolean, setInputMessage?: (message: string) => void }> = ({ concept, onConceptSelect, isSelected, setInputMessage }) => {
 
     const handleConceptClick = () => {
         // 如果nextStage为null，将概念放到聊天框输入
         if (concept.nextStage === null) {
-            // 模拟将概念内容放到聊天框输入
-            const chatInput = document.getElementById('chat-input') as HTMLTextAreaElement;
-            if (chatInput) {
-                // 创建卡片式的输入
-                chatInput.value = `我想讨论这个方案: ${concept.name}\n${concept.description}`;
-                chatInput.focus();
+            // 创建详细的讨论提示
+            const metricsInfo = concept.metrics ? 
+                `评分：${concept.score}（市场潜力：${concept.metrics.marketPotential}，可行性：${concept.metrics.feasibility}，创新度：${concept.metrics.innovationLevel}，成本效益：${concept.metrics.costEfficiency}）` : 
+                `评分：${concept.score}`;
+            
+            const dataPointsInfo = concept.dataPoints && concept.dataPoints.length > 0 ?
+                `\n数据支持：${concept.dataPoints.map(dp => `${dp.type}: ${dp.description}`).join('、')}` :
+                '';
+            
+            // 组装最终消息
+            const message = `我想讨论这个实施方案: ${concept.name}\n${concept.description}\n${metricsInfo}${dataPointsInfo}`;
+            
+            // 使用父组件传递的setInputMessage函数或直接修改DOM
+            if (setInputMessage) {
+                setInputMessage(message);
+            } else {
+                // 回退方案，直接操作DOM
+                const chatInput = document.getElementById('chat-input') as HTMLInputElement;
+                if (chatInput) {
+                    chatInput.value = message;
+                    chatInput.focus();
+                }
             }
         } else {
             // 正常选择概念
@@ -211,7 +307,7 @@ const ConceptNode: React.FC<{ concept: Concept, onConceptSelect: (conceptId: num
 };
 
 
-const StageNode: React.FC<{ stage: Stage, onConceptSelect: (stageId: number, conceptId: number) => void, selectedConceptIds: number[] }> = ({ stage, onConceptSelect, selectedConceptIds }) => {
+const StageNode: React.FC<{ stage: Stage, onConceptSelect: (stageId: number, conceptId: number) => void, selectedConceptIds: number[], setInputMessage?: (message: string) => void }> = ({ stage, onConceptSelect, selectedConceptIds, setInputMessage }) => {
 
     const handleConceptSelect = (conceptId: number) => {
         onConceptSelect(stage.id, conceptId);
@@ -286,6 +382,7 @@ const StageNode: React.FC<{ stage: Stage, onConceptSelect: (stageId: number, con
                                 concept={selectedConcept}
                                 onConceptSelect={handleConceptSelect}
                                 isSelected={true}
+                                setInputMessage={setInputMessage}
                             />
                             
                             {/* 以折叠形式显示其他概念 */}
@@ -336,6 +433,7 @@ const StageNode: React.FC<{ stage: Stage, onConceptSelect: (stageId: number, con
                                 concept={concept}
                                 onConceptSelect={handleConceptSelect}
                                 isSelected={selectedConceptIds.includes(concept.id)}
+                                setInputMessage={setInputMessage}
                             />
                         ))
                     )}
@@ -360,6 +458,7 @@ const StageNode: React.FC<{ stage: Stage, onConceptSelect: (stageId: number, con
                         stage={selectedConcept.nextStage}
                         onConceptSelect={onConceptSelect}
                         selectedConceptIds={selectedConceptIds}
+                        setInputMessage={setInputMessage}
                     />
                 </div>
             )}
@@ -1435,6 +1534,44 @@ const App: React.FC = () => {
 
     const [stages, setStages] = useState<Stage[]>(initialStages);
     const [selectedConceptIds, setSelectedConceptIds] = useState<number[]>([]);
+    const [inputMessage, setInputMessage] = useState<string>('');
+    const [messages, setMessages] = useState<Message[]>(chatMessages);
+
+    // 发送消息函数
+    const sendMessage = useCallback(() => {
+        if (inputMessage.trim()) {
+            // 添加用户消息
+            const userMessage: Message = {
+                type: 'user',
+                content: inputMessage,
+                timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+            };
+            
+            setMessages(prev => [...prev, userMessage]);
+            
+            // 清空输入
+            setInputMessage('');
+            
+            // 这里可以添加机器人回复逻辑
+            // 模拟机器人回复
+            setTimeout(() => {
+                const botMessage: Message = {
+                    type: 'bot',
+                    content: `我收到了您关于"${inputMessage.split('\n')[0]}"的讨论请求。让我们深入分析这个方案的可行性和实施步骤。`,
+                    timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                };
+                setMessages(prev => [...prev, botMessage]);
+            }, 1000);
+        }
+    }, [inputMessage]);
+
+    // 处理按Enter键发送消息
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    };
 
     const onConceptSelect = useCallback((stageId: number, conceptId: number) => {
         // 更新当前阶段的选中概念
@@ -1558,80 +1695,6 @@ const App: React.FC = () => {
         });
     }, [stages]);
 
-    const chatMessages = [
-        {
-            type: 'bot',
-            content: '欢迎来到 Product Innovation Workbench！让我们从了解您的目标市场开始。您想开发什么类型的产品？',
-            timestamp: '09:00 AM'
-        },
-        {
-            type: 'user',
-            content: '我想开发一个高端巧克力产品系列。',
-            timestamp: '09:01 AM'
-        },
-        {
-            type: 'bot',
-            content: '根据我们的数据分析，高端巧克力市场确实存在很大机会。从Popular Keywords中可以看到，"Premium"、"Organic"和"Luxury"都是当前市场的热点。',
-            timestamp: '09:02 AM',
-            dataSources: {
-                keywords: ['Premium', 'Organic', 'Luxury'],
-                products: [
-                    {
-                        name: 'Dark Chocolate Truffles',
-                        brand: 'Godiva',
-                        rating: 4.8
-                    }
-                ],
-                webSources: [
-                    {
-                        title: '高端巧克力市场分析报告',
-                        url: 'https://example.com/premium-chocolate-market',
-                        summary: '2024年高端巧克力市场预计增长15%，消费者更注重品质和独特性。'
-                    },
-                    {
-                        title: '有机巧克力消费趋势',
-                        url: 'https://example.com/organic-chocolate-trends',
-                        summary: '有机巧克力在高收入人群中的接受度提高，价格敏感度降低。'
-                    }
-                ]
-            }
-        },
-        {
-            type: 'user',
-            content: '对的，我想主打可持续发展的包装设计。',
-            timestamp: '09:03 AM'
-        },
-        {
-            type: 'bot',
-            content: '很好的方向！我注意到"Sustainable"是一个重要的关键词。从市场数据来看，结合高端和可持续性的产品越来越受欢迎。Godiva和Lindt等品牌的高评分产品都采用了环保包装。',
-            timestamp: '09:04 AM',
-            dataSources: {
-                insights: ['可持续包装', '高端市场', '环保理念'],
-                marketTrends: {
-                    growth: '23%',
-                    category: '高端可持续包装'
-                },
-                webSources: [
-                    {
-                        title: '可持续包装在巧克力行业的应用',
-                        url: 'https://example.com/sustainable-packaging-chocolate',
-                        summary: '可生物降解材料在高端巧克力包装中的应用案例和消费者反馈。'
-                    },
-                    {
-                        title: '环保包装对品牌价值的影响',
-                        url: 'https://example.com/eco-packaging-brand-value',
-                        summary: '研究表明，环保包装能提升品牌形象，增加消费者忠诚度。'
-                    },
-                    {
-                        title: '2024巧克力包装设计趋势',
-                        url: 'https://example.com/chocolate-packaging-trends-2024',
-                        summary: '可持续性、极简主义和高级感是2024年巧克力包装的主要设计趋势。'
-                    }
-                ]
-            }
-        }
-    ];
-
     const topProducts = [
         {
             name: 'Dark Chocolate Truffles',
@@ -1655,6 +1718,11 @@ const App: React.FC = () => {
             keywords: ['nutty', 'crunchy', 'indulgent']
         }
     ];
+
+    // 将setInputMessage函数传递给ConceptNode组件
+    const handleSetInputMessage = useCallback((message: string) => {
+        setInputMessage(message);
+    }, []);
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -1683,7 +1751,7 @@ const App: React.FC = () => {
                     <div className="col-span-8 bg-white rounded-lg shadow-sm p-4 overflow-hidden">
                         <div className="h-full flex flex-col">
                             <div className="flex-1 overflow-y-auto mb-4 border rounded-lg p-4">
-                                {chatMessages.map((message, index) => (
+                                {messages.map((message, index) => (
                                     <div key={index} className="flex items-start mb-4">
                                         <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white mr-3 ${message.type === 'bot' ? 'bg-indigo-600' : 'bg-green-500'}`}>
                                             {message.type === 'bot' ? <RobotOutlined /> : <UserOutlined />}
@@ -1736,7 +1804,11 @@ const App: React.FC = () => {
                             </div>
                             <div className="flex items-center space-x-2">
                                 <input
+                                    id="chat-input"
                                     type="text"
+                                    value={inputMessage}
+                                    onChange={(e) => setInputMessage(e.target.value)}
+                                    onKeyDown={handleKeyDown}
                                     className="flex-1 border-none bg-gray-100 rounded-lg px-4 py-2 text-sm"
                                     placeholder="Type your message here..."
                                 />
@@ -1767,6 +1839,7 @@ const App: React.FC = () => {
                                         stage={stages[0]}
                                         onConceptSelect={onConceptSelect}
                                         selectedConceptIds={selectedConceptIds}
+                                        setInputMessage={handleSetInputMessage}
                                     />
                                 )}
                             </div>
