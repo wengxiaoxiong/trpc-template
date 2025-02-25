@@ -10,15 +10,17 @@ interface ConceptNodeProps {
   concept: Concept;
   onConceptSelect: (conceptId: number) => void;
   isSelected: boolean;
+  setInputMessage?: (message: string) => void;
 }
 
 const ConceptNode: React.FC<ConceptNodeProps> = ({ 
   concept, 
   onConceptSelect, 
-  isSelected
+  isSelected,
+  setInputMessage
 }) => {
   const [messages, setMessages] = useRecoilState(messagesState);
-  const [inputMessage, setInputMessage] = useRecoilState(inputMessageState);
+  const [inputMessage, setInputMessageState] = useRecoilState(inputMessageState);
   const [selectedConceptForInput, setSelectedConceptForInput] = useRecoilState(selectedConceptForInputState);
 
   const handleConceptClick = () => {
@@ -28,7 +30,12 @@ const ConceptNode: React.FC<ConceptNodeProps> = ({
       setSelectedConceptForInput(concept);
       
       // 可以设置一个默认的讨论文本
-      setInputMessage(`我想基于这个方案进行讨论：`);
+      const defaultMessage = `我想基于这个方案进行讨论：`;
+      if (setInputMessage) {
+        setInputMessage(defaultMessage);
+      } else {
+        setInputMessageState(defaultMessage);
+      }
       
       // 聚焦到输入框
       setTimeout(() => {

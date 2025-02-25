@@ -1,10 +1,64 @@
 'use client';
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { stagesState, selectedConceptIdsState, inputMessageState } from '../recoil/atoms';
 import StageNode from './StageNode';
-import { Stage } from '../types';
+import { Stage, Concept } from '../types';
+
+// 递归查找最深路径的函数
+const findDeepestPath = (stage: Stage): { stageIds: number[], conceptIds: number[] } => {
+  let deepestPath = { stageIds: [stage.id], conceptIds: [] as number[] };
+  let maxDepth = 0;
+  
+  // 遍历当前阶段的所有概念
+  for (const concept of stage.concepts) {
+    if (concept.nextStage) {
+      // 递归查找该概念下的最深路径
+      const subPath = findDeepestPath(concept.nextStage);
+      const depth = subPath.stageIds.length;
+      
+      // 如果找到更深的路径，更新最深路径
+      if (depth > maxDepth) {
+        maxDepth = depth;
+        deepestPath = {
+          stageIds: [stage.id, ...subPath.stageIds],
+          conceptIds: [concept.id, ...subPath.conceptIds]
+        };
+      }
+    }
+  }
+  
+  // 如果没有找到更深的路径
+  if (maxDepth === 0) {
+    // 检查是否所有概念都没有nextStage
+    const allConceptsHaveNullNextStage = stage.concepts.every(c => c.nextStage === null);
+    
+    // 如果所有概念都没有nextStage，表示用户需要在此阶段做选择，不自动选择任何概念
+    if (allConceptsHaveNullNextStage) {
+      return { stageIds: [stage.id], conceptIds: [] };
+    }
+    
+    // 如果有些概念有nextStage，找出第一个有nextStage的概念
+    const conceptWithNextStage = stage.concepts.find(c => c.nextStage !== null);
+    if (conceptWithNextStage) {
+      return {
+        stageIds: [stage.id],
+        conceptIds: [conceptWithNextStage.id]
+      };
+    }
+    
+    // 如果没有找到有nextStage的概念（这种情况不应该发生），返回第一个概念
+    if (stage.concepts.length > 0) {
+      return {
+        stageIds: [stage.id],
+        conceptIds: [stage.concepts[0].id]
+      };
+    }
+  }
+  
+  return deepestPath;
+};
 
 const InnovationJourney: React.FC = () => {
   const [stages, setStages] = useRecoilState(stagesState);
@@ -137,6 +191,24 @@ const InnovationJourney: React.FC = () => {
   const handleSetInputMessage = useCallback((message: string) => {
     setInputMessage(message);
   }, [setInputMessage]);
+
+  // 在组件挂载时自动选择最深路径
+  useEffect(() => {
+    if (stages.length > 0 && selectedConceptIds.length === 0) {
+      // 查找最深路径
+      const deepestPath = findDeepestPath(stages[0]);
+      
+      // 依次选择路径上的每个概念
+      for (let i = 0; i < deepestPath.stageIds.length; i++) {
+        const stageId = deepestPath.stageIds[i];
+        const conceptId = deepestPath.conceptIds[i];
+        // 只有当conceptId存在时才进行选择
+        if (conceptId !== undefined) {
+          onConceptSelect(stageId, conceptId);
+        }
+      }
+    }
+  }, [stages, selectedConceptIds, onConceptSelect]);
 
   return (
     <div className="w-full">

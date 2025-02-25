@@ -136,15 +136,24 @@ const StageNode: React.FC<StageNodeProps> = ({
             </>
           ) : (
             // 如果没有选中的概念，显示所有可选择的概念
-            stage.concepts.map(concept => (
-              <ConceptNode
-                key={concept.id}
-                concept={concept}
-                onConceptSelect={handleConceptSelect}
-                isSelected={selectedConceptIds.includes(concept.id)}
-                setInputMessage={setInputMessage}
-              />
-            ))
+            stage.concepts.map(concept => {
+              // 检查当前阶段是否所有概念的nextStage都为null
+              const allConceptsHaveNullNextStage = stage.concepts.every(c => c.nextStage === null);
+              
+              // 如果所有概念的nextStage都为null，表示用户还没有选择，允许选择任何概念
+              // 否则，只有当前概念的nextStage不为null时才允许选择（表示这是用户之前选择的路径）
+              const isSelectable = allConceptsHaveNullNextStage || concept.nextStage !== null;
+              
+              return (
+                <ConceptNode
+                  key={concept.id}
+                  concept={concept}
+                  onConceptSelect={isSelectable ? handleConceptSelect : () => {}}
+                  isSelected={selectedConceptIds.includes(concept.id)}
+                  setInputMessage={setInputMessage}
+                />
+              );
+            })
           )}
         </div>
       </div>
