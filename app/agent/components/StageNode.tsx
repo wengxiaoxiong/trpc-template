@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { InfoCircleOutlined, RightOutlined } from '@ant-design/icons';
-import { Stage } from '../types';
+import { Stage, Concept } from '../types';
 import ConceptNode from './ConceptNode';
 
 interface StageNodeProps {
@@ -10,25 +10,29 @@ interface StageNodeProps {
   onConceptSelect: (stageId: number, conceptId: number) => void;
   selectedConceptIds: number[];
   setInputMessage?: (message: string) => void;
+  onStageChange?: (updatedStage: Stage) => void;
 }
 
 const StageNode: React.FC<StageNodeProps> = ({ 
   stage, 
   onConceptSelect, 
   selectedConceptIds, 
-  setInputMessage 
+  setInputMessage,
+  onStageChange 
 }) => {
+  const [currentStage, setCurrentStage] = useState<Stage>({...stage});
+
   const handleConceptSelect = (conceptId: number) => {
-    onConceptSelect(stage.id, conceptId);
+    onConceptSelect(currentStage.id, conceptId);
   };
 
   // 检查当前阶段是否有被选中的概念
-  const selectedConcept = stage.concepts.find(concept => selectedConceptIds.includes(concept.id));
+  const selectedConcept = currentStage.concepts.find(concept => selectedConceptIds.includes(concept.id));
   const hasSelectedConcept = !!selectedConcept;
 
   // 获取阶段状态颜色
   const getStatusColor = () => {
-    switch(stage.status) {
+    switch(currentStage.status) {
       case 'completed': return 'bg-green-100 text-green-700 border-green-200';
       case 'current': return 'bg-indigo-100 text-indigo-700 border-indigo-200';
       case 'pending': return 'bg-gray-100 text-gray-500 border-gray-200';
@@ -40,44 +44,66 @@ const StageNode: React.FC<StageNodeProps> = ({
   
   // 根据阶段状态和是否有三个方案可选择确定显示的状态文本
   const getStatusText = () => {
-    if (stage.status === 'completed') {
+    if (currentStage.status === 'completed') {
       return '已完成';
-    } else if (stage.status === 'current') {
+    } else if (currentStage.status === 'current') {
       return '当前阶段';
-    } else if (stage.status === 'pending') {
+    } else if (currentStage.status === 'pending') {
       return '待处理';
     }
     return '待处理'; // 默认情况
   };
 
+  // 添加概念更新处理函数
+  const handleConceptChange = (updatedConcept: Concept) => {
+    // 创建更新后的concepts数组，替换修改的concept
+    const updatedConcepts = currentStage.concepts.map(concept => 
+      concept.id === updatedConcept.id ? updatedConcept : concept
+    );
+    
+    // 创建更新后的stage
+    const updatedStage = {
+      ...currentStage,
+      concepts: updatedConcepts
+    };
+    
+    // 更新本地state
+    setCurrentStage(updatedStage);
+    
+    // 通知父组件stage已更新
+    if (onStageChange) {
+      onStageChange(updatedStage);
+    }
+  };
+
   return (
     <div className="mb-8">
-      <div className={`bg-white p-4 rounded-lg border ${stage.status === 'current' ? 'border-indigo-300 shadow-md' : 'border-gray-200'}`}>
+      <div className={`bg-white p-4 rounded-lg border ${currentStage.status === 'current' ? 'border-indigo-300 shadow-md' : 'border-gray-200'}`}>
         <div className="flex items-center mb-3">
           <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${statusColor}`}>
-            {stage.order || stage.id}
+            {currentStage.order || currentStage.id}
           </div>
           <div className="flex-1">
-            <h3 className="text-lg font-semibold">{stage.name}</h3>
+            <h3 className="text-lg font-semibold">{currentStage.name}</h3>
             <div className="flex items-center">
               <span className={`text-xs px-2 py-0.5 rounded-full ${statusColor} mr-2`}>
                 {getStatusText()}
               </span>
-              {stage.estimatedTimeInMinutes && (
+              {currentStage.estimatedTimeInMinutes && (
                 <span className="text-xs text-gray-500">
-                  预计用时: {stage.estimatedTimeInMinutes}分钟
+                  预计用时: {currentStage.estimatedTimeInMinutes}分钟
                 </span>
               )}
             </div>
           </div>
         </div>
         
-        <p className="text-gray-600 text-sm mb-4">{stage.description}</p>
+        <p className="text-gray-600 text-sm mb-4">{currentStage.description}</p>
         
-        {stage.completionCriteria && (
+        {currentStage.completionCriteria && (
           <div className="bg-yellow-50 text-yellow-700 text-xs p-2 rounded mb-3 flex items-start">
             <InfoCircleOutlined className="mr-1 mt-0.5" />
-            <span>完成标准: {stage.completionCriteria}</span>
+            <span>完成标准: {currentStage.completionCriteria}</span>
           </div>
         )}
         
@@ -92,6 +118,7 @@ const StageNode: React.FC<StageNodeProps> = ({
                 onConceptSelect={handleConceptSelect}
                 isSelected={true}
                 setInputMessage={setInputMessage}
+                onConceptChange={handleConceptChange}
               />
               
               {/* 以折叠形式显示其他概念 */}
@@ -101,10 +128,10 @@ const StageNode: React.FC<StageNodeProps> = ({
                     <div className="w-4 h-4 mr-1 flex items-center justify-center">
                       <RightOutlined className="text-xs" />
                     </div>
-                    查看其他方案 ({stage.concepts.length - 1})
+                    查看其他方案 ({currentStage.concepts.length - 1})
                   </summary>
                   <div className="mt-2 pl-2 space-y-2 border-l-2 border-gray-200">
-                    {stage.concepts
+                    {currentStage.concepts
                       .filter(concept => concept.id !== selectedConcept.id)
                       .map(concept => (
                         <div 
@@ -136,9 +163,9 @@ const StageNode: React.FC<StageNodeProps> = ({
             </>
           ) : (
             // 如果没有选中的概念，显示所有可选择的概念
-            stage.concepts.map(concept => {
+            currentStage.concepts.map(concept => {
               // 检查当前阶段是否所有概念的nextStage都为null
-              const allConceptsHaveNullNextStage = stage.concepts.every(c => c.nextStage === null);
+              const allConceptsHaveNullNextStage = currentStage.concepts.every(c => c.nextStage === null);
               
               // 如果所有概念的nextStage都为null，表示用户还没有选择，允许选择任何概念
               // 否则，只有当前概念的nextStage不为null时才允许选择（表示这是用户之前选择的路径）
@@ -151,6 +178,7 @@ const StageNode: React.FC<StageNodeProps> = ({
                   onConceptSelect={isSelectable ? handleConceptSelect : () => {}}
                   isSelected={selectedConceptIds.includes(concept.id)}
                   setInputMessage={setInputMessage}
+                  onConceptChange={handleConceptChange}
                 />
               );
             })
@@ -177,9 +205,11 @@ const StageNode: React.FC<StageNodeProps> = ({
             onConceptSelect={onConceptSelect}
             selectedConceptIds={selectedConceptIds}
             setInputMessage={setInputMessage}
+            onStageChange={onStageChange}
           />
         </div>
       )}
+
     </div>
   );
 };

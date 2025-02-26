@@ -25,6 +25,8 @@ export interface Concept {
   tags?: string[]; // 标签
   createdAt?: string; // 创建时间
   updatedAt?: string; // 更新时间
+  detailContent?: string; // 详情内容
+  reflectionContent?: string; // 反思内容
 }
 
 export interface Stage {
@@ -38,6 +40,8 @@ export interface Stage {
   requiredPreviousStage?: number | null; // 必须完成的前置阶段ID
   completionCriteria?: string; // 完成标准
   estimatedTimeInMinutes?: number; // 预计完成时间（分钟）
+  detailContent?: string; // 详情内容
+  reflectionContent?: string; // 反思内容
 }
 
 export interface WebSource {

@@ -192,6 +192,35 @@ const InnovationJourney: React.FC = () => {
     setInputMessage(message);
   }, [setInputMessage]);
 
+  // 在InnovationJourney组件中添加一个新函数用于处理Stage的更新
+  const handleStageChange = useCallback((updatedStage: Stage) => {
+    setStages(prevStages => {
+      // 递归函数，用于在嵌套的阶段结构中更新整个stage
+      const updateStageInTree = (stages: Stage[]): Stage[] => {
+        return stages.map(stage => {
+          if (stage.id === updatedStage.id) {
+            // 找到目标阶段，用更新后的stage替换
+            return updatedStage;
+          }
+          
+          // 检查该阶段的所有概念中的nextStage
+          const updatedConcepts = stage.concepts.map(concept => {
+            if (concept.nextStage) {
+              // 如果该概念有下一个阶段，递归更新
+              const updatedNextStage = updateStageInTree([concept.nextStage])[0];
+              return { ...concept, nextStage: updatedNextStage };
+            }
+            return concept;
+          });
+          
+          return { ...stage, concepts: updatedConcepts };
+        });
+      };
+      
+      return updateStageInTree(prevStages);
+    });
+  }, [setStages]);
+
   // 在组件挂载时自动选择最深路径
   useEffect(() => {
     if (stages.length > 0 && selectedConceptIds.length === 0) {
@@ -224,6 +253,7 @@ const InnovationJourney: React.FC = () => {
             onConceptSelect={onConceptSelect}
             selectedConceptIds={selectedConceptIds}
             setInputMessage={handleSetInputMessage}
+            onStageChange={handleStageChange}
           />
         )}
       </div>
