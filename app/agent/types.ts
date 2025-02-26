@@ -54,6 +54,7 @@ export interface SkuItem {
   brandName?: string;
   category?: string;
   tags?: string[];
+  link?: string;
 }
 
 export interface UserCommentNLP {

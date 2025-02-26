@@ -325,7 +325,9 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
         <div className={`mx-2 ${message.type === 'bot' ? 'order-last' : 'order-first'}`}>
           <div className={`px-4 py-2 rounded-lg ${message.type === 'bot' ? 'bg-white border border-gray-200' : 'bg-green-50 border border-green-200'}`}>
             {message.conceptData ? (
-              <ConceptCard concept={message.conceptData} isInChat={true} />
+              <><ConceptCard concept={message.conceptData} isInChat={true} />
+              <div className='mt-2'>{message.content}</div>
+              </>
             ) : (
               <div className="text-sm">
                 {message.type === 'bot' ? (
@@ -340,7 +342,13 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                       hr: ({node, ...props}) => <hr className="my-1" {...props} />,
                       ul: ({node, ...props}) => <ul className="mt-0.5 mb-1 pl-5" {...props} />,
                       ol: ({node, ...props}) => <ol className="mt-0.5 mb-1 pl-5" {...props} />,
-                      li: ({node, ...props}) => <li className="mb-0.5" {...props} />
+                      li: ({node, ...props}) => <li className="mb-0.5" {...props} />,
+                      table: ({node, ...props}) => <table className="border-collapse border border-gray-300 my-3 w-full" {...props} />,
+                      thead: ({node, ...props}) => <thead className="bg-gray-50" {...props} />,
+                      tbody: ({node, ...props}) => <tbody {...props} />,
+                      tr: ({node, ...props}) => <tr className="border-b border-gray-300" {...props} />,
+                      th: ({node, ...props}) => <th className="border border-gray-300 px-4 py-2 text-left" {...props} />,
+                      td: ({node, ...props}) => <td className="border border-gray-300 px-4 py-2" {...props} />
                     }}
                   >
                     {message.content}

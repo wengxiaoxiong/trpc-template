@@ -25,7 +25,7 @@ export const initialMessages: Message[] = [
   },
   {
     type: 'bot',
-    thoughtProcess:[
+    thoughtProcess: [
       "第一步：明确分析目标，分别从家长和小朋友的角度出发，确定核心需求的分析框架。",
       "第二步：调用水晶球API，获取小红书上关于儿童食品的评论数据，确保数据来源的广泛性和代表性。",
       "第三步：对于家长的核心需求，使用Copilot Agent进行文本预处理和关键词分析，提取出家长关注的主要关键词，如“健康”、“营养”、“安全”。",
@@ -105,69 +105,411 @@ export const initialMessages: Message[] = [
 `,
     timestamp: '09:02 AM',
     dataSources: {
-        "keywords": ["口味绝佳", "包装可爱", "营养丰富", "造型有趣", "添加剂", "价格实惠", "易用性", "创意设计"],
-        
-        "insights": ["卡通包装增加儿童产品吸引力", "造型设计影响儿童食用体验", "父母关注配料表的清洁度", "易开启包装是实用亮点"],
-        
-        "marketTrends": {
-          "growth": "18%",
-          "category": "儿童食品市场",
-          "periodChange": "营养价值导向产品增长率高出平均水平9%",
-          "trendDirection": "up"
+      "keywords": ["口味绝佳", "包装可爱", "营养丰富", "造型有趣", "添加剂", "价格实惠", "易用性", "创意设计"],
+
+      "insights": ["卡通包装增加儿童产品吸引力", "造型设计影响儿童食用体验", "父母关注配料表的清洁度", "易开启包装是实用亮点"],
+
+      "marketTrends": {
+        "growth": "18%",
+        "category": "儿童食品市场",
+        "periodChange": "营养价值导向产品增长率高出平均水平9%",
+        "trendDirection": "up"
+      },
+
+      "webSources": [
+        {
+          "title": "2024年儿童食品消费趋势分析",
+          "url": "https://example.com/children-food-trends-2024",
+          "summary": "调查显示，85%的父母在选购儿童食品时会优先考虑营养成分，其次是包装的趣味性和便利性。"
         },
-        
-        "webSources": [
-          {
-            "title": "2024年儿童食品消费趋势分析",
-            "url": "https://example.com/children-food-trends-2024",
-            "summary": "调查显示，85%的父母在选购儿童食品时会优先考虑营养成分，其次是包装的趣味性和便利性。"
-          },
-          {
-            "title": "卡通包装如何影响儿童食品选择",
-            "url": "https://example.com/cartoon-packaging-influence",
-            "summary": "研究表明，具有卡通形象的食品包装能提高儿童对产品的接受度，增加产品识别度和记忆点。"
-          }
-        ],
-        
-        "userCommentAnalysis": [
-          {
-            "sentiment": "positive",
-            "aspect": "口味体验",
-            "count": 486,
-            "examples": ["打开包装奶香味就扑鼻而来，吃起来酥酥脆脆", "酸酸甜甜的很开胃"],
-            "percentage": 92
-          },
-          {
-            "sentiment": "positive",
-            "aspect": "包装设计",
-            "count": 412,
-            "examples": ["包装上印着各种可爱的卡通形象", "设计了易撕口，宝宝自己就能轻松打开"],
-            "percentage": 89
-          },
-          {
-            "sentiment": "positive", 
-            "aspect": "互动性",
-            "count": 325,
-            "examples": ["做成了各种小动物的造型，宝宝吃的时候还能认识不同动物", "做成了拼图的形状，宝宝吃之前还能先玩一会拼图"],
-            "percentage": 87
-          },
-          {
-            "sentiment": "negative",
-            "aspect": "添加成分",
-            "count": 267,
-            "examples": ["看了配料表，添加剂有点多", "味道是不错，酸酸甜甜的，就是太甜了"],
-            "percentage": 78
-          },
-          {
-            "sentiment": "negative",
-            "aspect": "口感适配性",
-            "count": 198,
-            "examples": ["口感有点太Q弹了，对于我家年纪小的宝宝来说，不太好咀嚼", "发现不太好消化，宝宝吃完后有点积食"],
-            "percentage": 72
-          }
-        ]
-      }
+        {
+          "title": "卡通包装如何影响儿童食品选择",
+          "url": "https://example.com/cartoon-packaging-influence",
+          "summary": "研究表明，具有卡通形象的食品包装能提高儿童对产品的接受度，增加产品识别度和记忆点。"
+        }
+      ],
+
+      "userCommentAnalysis": [
+        {
+          "sentiment": "positive",
+          "aspect": "口味体验",
+          "count": 486,
+          "examples": ["打开包装奶香味就扑鼻而来，吃起来酥酥脆脆", "酸酸甜甜的很开胃"],
+          "percentage": 92
+        },
+        {
+          "sentiment": "positive",
+          "aspect": "包装设计",
+          "count": 412,
+          "examples": ["包装上印着各种可爱的卡通形象", "设计了易撕口，宝宝自己就能轻松打开"],
+          "percentage": 89
+        },
+        {
+          "sentiment": "positive",
+          "aspect": "互动性",
+          "count": 325,
+          "examples": ["做成了各种小动物的造型，宝宝吃的时候还能认识不同动物", "做成了拼图的形状，宝宝吃之前还能先玩一会拼图"],
+          "percentage": 87
+        },
+        {
+          "sentiment": "negative",
+          "aspect": "添加成分",
+          "count": 267,
+          "examples": ["看了配料表，添加剂有点多", "味道是不错，酸酸甜甜的，就是太甜了"],
+          "percentage": 78
+        },
+        {
+          "sentiment": "negative",
+          "aspect": "口感适配性",
+          "count": 198,
+          "examples": ["口感有点太Q弹了，对于我家年纪小的宝宝来说，不太好咀嚼", "发现不太好消化，宝宝吃完后有点积食"],
+          "percentage": 72
+        }
+      ]
+    }
   },
+  {
+    type: 'user',
+    conceptData: {
+      id: 1,
+      name: '营养建筑师·巧克力积木工坊',
+      description: '可拼搭的巧克力积木，结合营养可视化技术，为儿童提供趣味与健康兼具的食品体验。',
+      score: 88,
+      dataPoints: [
+        {
+          type: '水晶球',
+          description: '儿童食品市场增长率为15%',
+          confidence: 90
+        }
+      ],
+      metrics: {
+        marketPotential: 90,  // 市场潜力
+        feasibility: 85,      // 可行性
+        innovationLevel: 95,  // 创新度
+        costEfficiency: 80    // 成本效益
+      },
+      tags: ['儿童食品', '营养可视化', '模块化设计'],
+      createdAt: '2023-06-20',
+      updatedAt: '2023-06-20'
+    },
+    content: '我喜欢灵感1，可以详细说说吗？关于积木巧克力，可以给我更多的灵感么',
+    timestamp: '09:03 AM'
+  },
+  {
+    type: 'bot',
+    content: `### **细节方案1：智能营养地图·AR巧克力建造师**  
+**核心升级**：**增强现实技术+营养数据可视化**  
+- **产品设计**：  
+  - **AR任务扫描卡**：每块积木底部印有专属二维码，手机扫描后触发AR场景（如扫描绿色积木显示肠道健康动画）  
+  - **营养能量条系统**：儿童在AR界面拖动积木搭建时，实时显示蛋白质/钙/纤维的虚拟数值累计  
+- **技术创新**：  
+  - 采用可食用级大豆油墨打印导电图案，实现积木接触时自动传输营养数据到手机端  
+  - AR系统接入中国居民膳食指南数据库，自动评估搭建成果的营养均衡性  
+- **家长端工具**：  
+  - 微信小程序生成「周度营养报告」，对比膳食建议值与实际摄入量  
+- **传播策略**：  
+  - 与《我的世界》游戏联动，搭建作品可导入游戏地图  
+  - B站发起#虚拟现实营养师 创作大赛，奖励营养师咨询服务  
+
+---
+
+### **细节方案2：可持续建造计划·巧克力生态城**  
+**核心升级**：**环保闭环设计+社会责任绑定**  
+- **产品设计**：  
+  - **再生积木系统**：  
+    - 包装盒可改造成收纳架（内附折叠图纸）  
+    - 收集5个空盒可兑换「可可树认养证书」（联合非洲可可种植园）  
+  - **生态主题扩展包**：  
+    - 污染治理包：活性炭夹心黑巧（吸附体内毒素概念）  
+    - 清洁能源包：太阳能板造型白巧（含维生素D强化）  
+- **健康背书**：  
+  - 获得Carbon Trust碳中和认证  
+  - 每盒含1g赤藓糖醇=捐赠1分钟净水设备维护（公益合作）  
+- **传播策略**：  
+  - 小红书「传代计划」：妈妈晒自己与孩子相隔10年的搭建对比照  
+  - 抖音挑战赛#巧克力拯救地球，播放量达100万即种真实可可树  
+
+---
+
+### **细节方案3：神话食验室·巧克力封神榜**  
+**核心升级**：**国潮IP深度联动+跨学科知识融合**  
+- **产品设计**：  
+  - **神话角色技能系统**：  
+    | 角色   | 技能                 | 营养属性               |  
+    |--------|----------------------|-----------------------|  
+    | 哪吒   | 三头六臂             | 3倍维生素C释放        |  
+    | 杨戬   | 天眼洞察             | 叶黄素护眼配方        |  
+    | 姜子牙 | 封神台               | 益生菌群平衡系统      |  
+  - **跨学科任务卡**：  
+    - 数学：计算搭建鹿台需要的积木数量（对应商周历史）  
+    - 物理：测试不同地基结构的承重能力（对应建筑力学）  
+- **技术创新**：  
+  - 温变显色技术：用手掌温度摩擦积木显现金色符文（可食用金粉）  
+  - 音频芯片植入：特定组合触发《封神演义》经典台词播放  
+- **传播策略**：  
+  - 与河南卫视《梦幻天马》合作推出联名中秋礼盒  
+  - 微博发起#最强国风零食 投票，上榜作品进故宫文创店  
+
+---
+
+### **方案优选逻辑**  
+1. **智能营养地图**：满足高知家长对科技+教育的复合需求（客单价可提升至129元）  
+2. **可持续生态城**：规避添加剂争议，契合ESG投资趋势（适合进驻精品超市渠道）  
+3. **神话食验室**：借势国潮文化复兴，突破节庆礼品市场（中秋/春节销量预计占全年40%）  
+
+每个方案均设置**风险对冲机制**：  
+- 智能版配备「防沉迷提醒」功能，每30分钟提示休息  
+- 环保版提供过敏原分离包装服务（额外付费选项）  
+- 神话版取得广电总局备案，避免文化改编争议  
+
+通过模块化组合（基础积木+扩展包），既可降低生产成本，又能持续制造新鲜感，预计用户LTV（生命周期价值）提升3倍。
+
+当前最新的灵感：
+结合增强现实技术与营养数据可视化，打造科技互动体验，融入环保理念，符合可持续发展趋势，深度联动国潮 IP，融合跨学科知识，增加产品吸引力和传播性，满足不同需求和趋势，打造多种特色产品和活动。`,
+    timestamp: '09:04 AM',
+    thoughtProcess: [
+      '第一步：明确分析目标，从用户核心需求「做一个积木巧克力」分析。',
+      '第二步：调用水晶球API，获取电商平台上关于益智类、儿童积木等的SKU信息。',
+      '第三步：调用Deepseek R1，深入分析用户提供的社媒数据和市场反馈，重点关注家长和小朋友的核心需求。',
+      '第四步：结合用户数据，设计三个不同方向的细节方案，分别聚焦科技互动、环保理念和IP联名。',
+      '第五步：验证每个方案是否解决了用户提到的痛点，如甜度控制、包装密封性、成分透明等。',
+      '第六步：确保每个方案都有独特的卖点，并设计相应的社媒传播策略，提升市场竞争力。'
+    ],
+    dataSources: {
+      keywords: ['增强现实', '营养数据可视化', '科技互动', '可持续发展', '国潮IP'],
+      insights: [
+        '增强现实技术可提升儿童互动体验，增加产品吸引力',
+        '营养数据可视化帮助家长更好地了解孩子的营养摄入',
+        '结合环保理念符合当前市场趋势，提升品牌形象'
+      ],
+      marketTrends: {
+        growth: '25%',
+        category: '益智类产品',
+        periodChange: '较上年同期增长10%',
+        trendDirection: 'up'
+      },
+      skuList: [
+        {
+          id: 'SKU101',
+          name: '陕西特产兵马俑巧克力130g益智手工秦兵马俑大雁塔儿童圣诞巧克力',
+          image: 'https://img.alicdn.com/imgextra/i1/2215480473693/O1CN01HWggU71d9RbQ4Auk3_!!2215480473693.jpg_.webp',
+          price: 53,
+          category: '科技互动食品',
+          link: "https://item.taobao.com/item.htm?abbucket=10&id=728943527009&ns=1&pisk=ggDKewTrfhIKhmYv8vRGEV_Bwd-M2Cme-2ofEz4hNV3tVPXkYJAze4UtzyV3dyX8e03rr4nyYuaSP4UotCvmYDyzFE2JnKmERdXeF2B7Rdt7VkaWjW_KAJSQFEYDe1j_Te2S-INn5d1_0PZQVzNBXRZ726w7Nki6XuZlR_6IPhn_7uQ5Nkw51cZU0kw5d7s6CorPOu6QFc9_7ue7P4wWXRGM0UU1AzX-G0fkdG-FKTB-BkFLyTVNehtu2WUnvPd61Ap49riQWTL4_n6U5oH6zw4rBcMQmV9Gp8n_2qeI6F6KyDGqzogBBwZKOmn06Y8fells85qK631_RmaEJWhA5HUrK2H8TxTcQyGtQYenseB0z7GiLSkH59ejgD2nNVt5Fzh_Vg5rnxeiKZ4Yq6t9X_5zOlkO4murGIDmqlUDvLCPa5-NE6HDI_15ucZToHpRa_Pwb&priceTId=215044f617405341829628114e19b9&skuId=5050299096198&spm=a21n57.1.hoverItem.3&utparam=%7B%22aplus_abtest%22%3A%2290e5622e6e4ab154782ba93f0995a40f%22%7D&xxc=taobaoSearch",
+          tags: ['知识学习', '营养数据']
+        },
+        {
+          id: 'SKU102',
+          name: '巧克力积木烘焙蛋装饰儿童节创意甜品冰淇淋摆件插件配件可食用',
+          image: 'https://gw.alicdn.com/bao/uploaded/i2/263478284/O1CN01BXySrE2B47qUPAKLV_!!263478284.jpg_.webp',
+          price: 28,
+          link: "https://item.taobao.com/item.htm?abbucket=10&id=716369401878&ns=1&pisk=gX9x3p0wV0Ex2N0KuKluIUauD5ol6bxqoE-QINb01ULJfa2i0tcNBFQJ7ZfchZ2OBhLwSFKZ0G_65FQMibDH0nWNC2XtKvx2oqhV5EIbGTi1xiIsqsavctrfC20nB7q5gqX6oX1GGzN5YasffN6s2TsObo61GGsS2Gsgl5wX50K5zMS_lS_XVTsdPrsffZNSFMS1cPwbC0B5zG615F1j6tuOPo_gBBtgOPtgb_y_CLIANbxAPx-BFiICJnt_CRZNDsQBcag3ARaV6ECvExUFDQtpoiLZL-Wf6IOChd3KHTteZEsJ52FOPBp2B6vxJW7X3N8dhQ37HO62OpB1BXEVqKKWL1pqk8_vz3Oh3pgzBetkxK5yB2U57IjFFid-f7_f1gyyKpBknybdjSi-25PNGgJ8bH8wOXvHjgQnDAFa__ozISpnE5N_83sR-mHT_55r4&priceTId=215044f617405343161716333e19b9&skuId=5006293113204&spm=a21n57.1.hoverItem.2&utparam=%7B%22aplus_abtest%22%3A%2249e10a7b7acad290f3180df7256fe16e%22%7D&xxc=taobaoSearch",
+          category: '环保食品',
+          tags: ['六一甜品饰', '环保包装']
+        }
+      ],
+      userCommentAnalysis: [
+        {
+          sentiment: 'positive',
+          aspect: '科学学习',
+          count: 456,
+          examples: ['非常乐意看到孩子学习科学,营养数据可视化让家长更放心'],
+          percentage: 92
+        },
+        {
+          sentiment: 'positive',
+          aspect: '环保理念',
+          count: 389,
+          examples: ['支持环保包装', '喜欢可持续发展的理念'],
+          percentage: 88
+        },
+        {
+          sentiment: 'negative',
+          aspect: '价格',
+          count: 123,
+          examples: ['价格偏高', '希望能有更多优惠活动'],
+          percentage: 68
+        }
+      ]
+    }
+  },
+  {
+    type: 'user',
+    content:'有没有更细节的想法？比如扫出来是啥东西，我想和物理或天文结合试试看？',
+    timestamp:'09:06 AM',
+    conceptData: {
+      id: 201,
+      name: '智能营养地图·AR巧克力建造师',
+      description: '增强现实技术+营养数据可视化',
+      score: 92,
+      metrics: {
+        marketPotential: 95,
+        feasibility: 85,
+        innovationLevel: 90,
+        costEfficiency: 75
+      },
+      tags: ['AR技术', '营养数据', '科技互动'],
+      dataPoints: [
+        { type: '水晶球', description: 'AR互动产品市场需求增长30%', confidence: 90 }
+      ],
+      selected: false,
+      nextStage: null
+    }
+  },
+  {
+    type: 'bot',
+    content: `根据您的需求，我们为「智能营养地图·AR巧克力建造师」设计了结合物理和天文元素的升级方案。以下是详细内容：
+    
+    
+
+### **「智能营养地图·AR巧克力建造师」× 物理天文主题升级方案**
+
+---
+
+#### **一、天文主题积木系统设计**
+**1. 星球营养对应体系**
+| 星球积木 | 天文属性 | 营养强化方案 | 物理交互机制 |
+|----------|-------------------------|-----------------------------|---------------------------|
+| 水星 | 最小行星/昼夜温差最大 | 维生素C（抗温差应激） | 触摸积木触发极热/极冷特效 |
+| 木星 | 气态巨行星/强磁场 | Omega-3（促进脑神经发育） | AR界面显示磁力线轨迹 |
+| 土星 | 星环系统/密度低于水 | 膳食纤维（调节肠道蠕动） | 投掷积木触发环状波纹 |
+| 海王星 | 冰巨星/超强风暴 | 乳清蛋白（增强肌肉耐力） | 吹气触发虚拟风暴特效 |
+
+**2. 积木结构创新**
+- **引力连接器**：采用磁吸式可食用铁粉涂层，模拟天体间引力作用（吸力强度=营养密度）
+- **轨道凹槽设计**：土星环积木带可拆卸轨道条，对应不同膳食纤维类型（可溶/不可溶）
+
+---
+
+#### **二、AR天文实验室功能细节**
+**1. 扫描触发场景**
+
+| 行星组合 | 天文现象 | 营养学映射 | 互动演示内容 |
+|----------|----------|------------|--------------|
+| 水星 + 金星 | 日凌现象 | 维生素C与维生素D协同作用 | 模拟日凌现象，展示维生素C与维生素D的协同吸收过程 |
+| 木星 + 土星 | 引力弹弓效应 | Omega-3脂肪酸对神经信号传导的促进作用 | 演示巨行星引力弹弓效应，解释Omega-3如何加速神经信号传导 |
+
+
+**2. 核心交互模块**
+- **宇宙尺度模拟**：
+- 搭建太阳系模型时，AR自动缩放比例（1米=1天文单位）
+- 儿童行走触发行星公转动画（步数转换为营养能量值）
+- **物理实验台**：
+- 投掷火星积木测算抛物线轨迹（对应蛋白质吸收曲线）
+- 用月球积木遮挡地球积木演示日食（关联钙-维生素D代谢）
+
+**3. 天文知识融合**
+- **黑洞挑战模式**：当积木组合营养不均衡时，AR界面出现黑洞吞噬场景，需紧急补充指定营养素来修复星系
+
+---
+
+#### **三、教育价值深化路径**
+**1. 跨学科任务卡设计**
+| 任务类型 | 物理知识点 | 营养学映射 | 操作示例 |
+|--------------|-------------------------|--------------------------|---------------------------|
+| 轨道力学 | 万有引力定律 | 钙-维生素D协同作用 | 调整地月距离优化钙吸收率 |
+| 光谱分析 | 元素吸收谱线 | 维生素B12检测原理 | 用棱镜积木分解营养光线 |
+| 热力学 | 熵增原理 | 肠道菌群能量转化 | 搭建高温恒星促进益生菌 |
+
+**2. 科学家联名系统**
+- 收集爱因斯坦积木解锁相对论营养学（E=mc²对应能量换算）
+- 集齐居里夫人套装激活放射性钙代谢实验（安全虚拟场景）
+
+---
+
+#### **四、技术实现方案**
+**1. 空间定位系统**
+- 采用UWB超宽带技术，0.1秒内捕捉积木三维坐标（误差≤2mm）
+- 惯性测量单元（IMU）监测积木加速度，计算虚拟天体动量
+
+**2. 天文数据库接入**
+- 整合NASA太阳动力学天文台实时数据，AR界面显示真实太阳耀斑活动
+- 当国际空间站过境时，触发特殊营养任务（需当地天文事件触发）
+
+---
+
+#### **五、传播爆点设计**
+**1. 宇宙主题挑战赛**
+- #我的营养银河系 创作大赛：用积木还原真实星系并保证营养均衡
+- 优胜作品将获得智利天文台命名权（真实小行星命名）
+
+**2. 科学家代言计划**
+- 邀请航天员拍摄"太空营养课"系列短视频
+- 与《三体》版权方合作推出黑暗森林法则特别版（监测"营养威慑度"）
+
+---
+
+#### **六、商业验证模型**
+**1. 教育机构合作**
+- 开发"NASA少年营养学家"认证课程（理论考试+AR实操）
+- 学校采购价：2980元/套（含教师培训+课程管理系统）
+
+**2. 数据增值服务**
+- 天文营养大数据报告：分析星座与饮食偏好关联性（娱乐化付费内容）
+- 恒星生命周期营养计划：根据孩子年龄推荐不同星系搭建方案
+
+---
+
+#### **七、风险控制**
+- **认知负荷控制**：7岁以下版本仅保留行星基础模型
+- **航天级灭菌**：积木表面涂覆二氧化钛光触媒涂层，通过NASA空间站微生物检测标准
+- **防沉迷机制**：连续搭建30分钟触发"超新星爆发"强制休息动画
+
+    `,
+    timestamp: '2023-06-20 11:15 AM',
+    thoughtProcess: [
+      '明确用户需求，结合物理和天文元素深化「智能营养地图·AR巧克力建造师」方案。',
+      '调用Deepseek R1，分析用户提供的社媒数据和市场反馈，重点关注家长和孩子的核心需求。',
+      '设计天文主题积木系统，将星球与营养成分对应，并结合物理交互机制。',
+      '开发AR天文实验室功能，融入天文知识和物理实验，增强教育性和趣味性。',
+      '设计跨学科任务卡和科学家联名系统，深化教育价值。',
+      '评估技术可行性，确保AR体验流畅且准确。',
+      '设计传播爆点和商业验证模型，提升市场吸引力。',
+      '制定风险控制措施，确保产品安全性和用户体验。'
+    ],
+    dataSources: {
+      keywords: ['天文',  'AR技术', '营养可视化'],
+      insights: [
+        '天文教育可提升孩子的科学兴趣，符合STEM教育趋势',
+        '物理交互机制能增强孩子的动手能力和学习体验',
+        'AR技术结合营养可视化，让家长更直观了解孩子的营养摄入'
+      ],
+      marketTrends: {
+        growth: '30%',
+        category: '教育玩具',
+        periodChange: '较上年同期增长15%',
+        trendDirection: 'up'
+      },
+      webSources: [
+        {
+          title: '2023年STEM教育市场分析报告',
+          url: 'https://example.com/stem-education-market-2023',
+          summary: 'STEM教育市场预计在未来5年将以年均30%的速度增长，天文和物理教育是重要驱动力。'
+        },
+        {
+          title: 'AR技术在儿童教育中的应用研究',
+          url: 'https://example.com/ar-in-education',
+          summary: '研究表明，AR技术能显著提高儿童的学习兴趣和知识吸收率，特别是在科学教育领域。'
+        }
+      ],
+      userCommentAnalysis: [
+        {
+          sentiment: 'positive',
+          aspect: '教育价值',
+          count: 512,
+          examples: ['激发孩子的科学兴趣是一件很重要的事情，孩子爱不释手'],
+          percentage: 94
+        },
+        {
+          sentiment: 'negative',
+          aspect: '价格',
+          count: 145,
+          examples: ['有点担心AR会造成孩子近视，孩子真的会玩个不停。。。',],
+          percentage: 68
+        }
+      ]
+    }
+  }
 
 ];
 
@@ -198,7 +540,73 @@ export const initialStages: Stage[] = [
         dataPoints: [
           { type: '水晶球', description: '儿童食品市场增长率为15%', confidence: 90 }
         ],
-        selected: false,nextStage:null,
+        selected: false,
+        nextStage: {
+          id: 2,
+          name: '概念开发阶段',
+          description: '基于市场洞察开发产品概念',
+          status: 'current',
+          order: 2,
+          completionCriteria: '选择一个产品概念进行原型开发',
+          estimatedTimeInMinutes: 60,
+          currentConceptId: null,
+          concepts: [
+            {
+              id: 201,
+              name: '智能营养地图·AR巧克力建造师',
+              description: '增强现实技术+营养数据可视化',
+              score: 92,
+              metrics: {
+                marketPotential: 95,
+                feasibility: 85,
+                innovationLevel: 90,
+                costEfficiency: 75
+              },
+              tags: ['AR技术', '营养数据', '科技互动'],
+              dataPoints: [
+                { type: '水晶球', description: 'AR互动产品市场需求增长30%', confidence: 90 }
+              ],
+              selected: false,
+              nextStage: null
+            },
+            {
+              id: 202,
+              name: '可持续建造计划·巧克力生态城',
+              description: '环保闭环设计+社会责任绑定',
+              score: 88,
+              metrics: {
+                marketPotential: 90,
+                feasibility: 80,
+                innovationLevel: 85,
+                costEfficiency: 70
+              },
+              tags: ['环保', '可持续', '社会责任'],
+              dataPoints: [
+                { type: '水晶球', description: '环保产品消费者支付意愿提高20%', confidence: 85 }
+              ],
+              selected: false,
+              nextStage: null
+            },
+            {
+              id: 203,
+              name: '神话食验室·巧克力封神榜',
+              description: '国潮IP深度联动+跨学科知识融合',
+              score: 90,
+              metrics: {
+                marketPotential: 95,
+                feasibility: 85,
+                innovationLevel: 90,
+                costEfficiency: 75
+              },
+              tags: ['国潮IP', '跨学科', '文化复兴'],
+              dataPoints: [
+                { type: '水晶球', description: '国潮产品市场溢价空间可达35%', confidence: 90 }
+              ],
+              selected: false,
+              nextStage: null
+            }
+          ]
+        },
       },
       {
         id: 102,
@@ -215,7 +623,7 @@ export const initialStages: Stage[] = [
         dataPoints: [
           { type: '水晶球', description: '国潮食品市场溢价空间可达30%', confidence: 88 }
         ],
-        selected: false,nextStage:null,
+        selected: false, nextStage: null,
       },
       {
         id: 103,
@@ -233,7 +641,7 @@ export const initialStages: Stage[] = [
           { type: '水晶球', description: 'STEM教育产品市场需求增长20%', confidence: 92 }
         ],
         selected: false,
-        nextStage:null,
+        nextStage: null,
       }
     ]
   }
@@ -245,6 +653,13 @@ export const initialUserRequirements: UserRequirement[] = [
     id: 1,
     content: "做一款受小朋友和家长欢迎的巧克力产品",
     confidence: 95,
+    timestamp: "2023-06-20 10:30 AM",
+    edited: false
+  },
+  {
+    id: 1,
+    content: "做一款受小朋友欢迎的益智类、儿童积木巧克力",
+    confidence: 90,
     timestamp: "2023-06-20 10:30 AM",
     edited: false
   },
