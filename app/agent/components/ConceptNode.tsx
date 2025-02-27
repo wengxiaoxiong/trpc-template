@@ -124,7 +124,7 @@ const ConceptNode: React.FC<ConceptNodeProps> = ({
             </div>
             <div className="text-xs text-gray-500">评分</div>
           </div>
-          {isSelected && <CheckCircleOutlined className="text-indigo-500 text-lg ml-2 absolute top-2 right-2" />}
+          {/* {isSelected && <CheckCircleOutlined className="text-indigo-500 text-lg ml-2 absolute top-2 right-2" />} */}
         </div>
 
         {currentConcept.dataPoints && currentConcept.dataPoints.length > 0 && (

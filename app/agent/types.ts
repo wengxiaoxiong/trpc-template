@@ -69,6 +69,11 @@ export interface UserCommentNLP {
   percentage?: number;
 }
 
+export interface Images {
+  url: string;
+  caption?: string;
+}
+
 export interface Message {
   type: 'bot' | 'user';
   content: string;
@@ -78,6 +83,8 @@ export interface Message {
   dataSources?: {
     keywords?: string[];
     insights?: string[];
+    images?: Images[],
+    markdown?: string,
     marketTrends?: {
       growth: string;
       category: string;

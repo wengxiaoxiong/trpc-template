@@ -15,7 +15,9 @@ import {
   CaretDownOutlined,
   ExpandAltOutlined,
   ShrinkOutlined,
-  BulbOutlined
+  BulbOutlined,
+  PictureOutlined,
+  FileTextOutlined
 } from '@ant-design/icons';
 import { Message, WebSource, SkuItem, UserCommentNLP } from '../types';
 import ConceptCard from './ConceptCard';
@@ -50,6 +52,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   const isSectionExpanded = (section: string) => {
     return expandAll || expandedSection === section;
   };
+
 
   const renderKeywords = () => {
     if (!message.dataSources?.keywords?.length) return null;
@@ -297,6 +300,99 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
     );
   };
 
+  const renderImages = () => {
+    const images = message.dataSources?.images;
+    if (!images?.length) return null;
+    
+    return (
+      <div className="mb-2">
+        <div 
+          className="flex items-center cursor-pointer hover:bg-gray-50 rounded p-1"
+          onClick={() => toggleSection('images')}
+        >
+          <PictureOutlined className="text-pink-500 mr-2 text-xs" />
+          <span className="text-xs font-medium">相关图片</span>
+          <span className="text-xs text-gray-400 ml-1">({images.length})</span>
+          {isSectionExpanded('images') ? (
+            <CaretUpOutlined className="text-gray-400 ml-1 text-xs" />
+          ) : (
+            <CaretDownOutlined className="text-gray-400 ml-1 text-xs" />
+          )}
+        </div>
+        
+        {isSectionExpanded('images') && (
+          <div className="ml-5 mt-1 grid grid-cols-2 gap-2">
+            {images.map((image, idx) => (
+              <div key={idx} className="bg-white border border-gray-200 rounded-md p-2 hover:border-pink-300 transition-colors">
+                <img
+                  src={image.url} 
+                  alt={image.caption || '相关图片'} 
+                  className="w-full h-auto rounded-md object-cover"
+                />
+                {image.caption && (
+                  <div className="text-xs text-gray-600 mt-1 truncate">
+                    {image.caption}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // 渲染Markdown内容
+  const renderMarkdown = () => {
+    const markdown = message.dataSources?.markdown;
+    if (!markdown) return null;
+    
+    return (
+      <div className="mb-2">
+        <div 
+          className="flex items-center cursor-pointer hover:bg-gray-50 rounded p-1"
+          onClick={() => toggleSection('markdown')}
+        >
+          <FileTextOutlined className="text-blue-500 mr-2 text-xs" />
+          <span className="text-xs font-medium">数据</span>
+          {isSectionExpanded('markdown') ? (
+            <CaretUpOutlined className="text-gray-400 ml-1 text-xs" />
+          ) : (
+            <CaretDownOutlined className="text-gray-400 ml-1 text-xs" />
+          )}
+        </div>
+        
+        {isSectionExpanded('markdown') && (
+          <div className="ml-5 mt-1 bg-white border border-gray-200 rounded-md p-2">
+            <ReactMarkdown 
+              remarkPlugins={[remarkGfm]}
+              // className="text-xs"
+              components={{
+                p: ({node, ...props}) => <p className="mb-1" {...props} />,
+                h1: ({node, ...props}) => <h1 className="text-base font-bold mt-2 mb-1" {...props} />,
+                h2: ({node, ...props}) => <h2 className="text-sm font-bold mt-2 mb-1" {...props} />,
+                h3: ({node, ...props}) => <h3 className="text-sm font-semibold mt-1 mb-0.5" {...props} />,
+                h4: ({node, ...props}) => <h4 className="text-xs font-semibold mt-1 mb-0.5" {...props} />,
+                hr: ({node, ...props}) => <hr className="my-1" {...props} />,
+                ul: ({node, ...props}) => <ul className="mt-0.5 mb-1 pl-4" {...props} />,
+                ol: ({node, ...props}) => <ol className="mt-0.5 mb-1 pl-4" {...props} />,
+                li: ({node, ...props}) => <li className="mb-0.5" {...props} />,
+                table: ({node, ...props}) => <table className="border-collapse border border-gray-200 my-2 w-full" {...props} />,
+                thead: ({node, ...props}) => <thead className="bg-gray-50" {...props} />,
+                tbody: ({node, ...props}) => <tbody {...props} />,
+                tr: ({node, ...props}) => <tr className="border-b border-gray-200" {...props} />,
+                th: ({node, ...props}) => <th className="border border-gray-200 px-2 py-1 text-left" {...props} />,
+                td: ({node, ...props}) => <td className="border border-gray-200 px-2 py-1" {...props} />
+              }}
+            >
+              {markdown}
+            </ReactMarkdown>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   // 检查是否有数据来源可以展示
   const hasDataSources = () => {
     const ds = message.dataSources;
@@ -307,7 +403,9 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       ds.marketTrends ||
       (ds.webSources && ds.webSources.length > 0) ||
       (ds.skuList && ds.skuList.length > 0) ||
-      (ds.userCommentAnalysis && ds.userCommentAnalysis.length > 0)
+      (ds.userCommentAnalysis && ds.userCommentAnalysis.length > 0) ||
+      (ds.images && ds.images.length > 0) ||
+      ds.markdown
     );
   };
 
@@ -388,6 +486,8 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
               {renderWebSources()}
               {renderSkuList()}
               {renderUserComments()}
+              {renderImages()}
+              {renderMarkdown()}
             </div>
           )}
           
