@@ -9,7 +9,7 @@ const Header: React.FC = () => {
       <div className="max-w-full mx-auto px-6 h-16 flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <BulbOutlined className="text-indigo-600 text-2xl" />
-          <h1 className="text-xl font-semibold text-gray-900">Tezign Chain Of Design</h1>
+          <h1 className="text-xl font-semibold text-gray-900">Chain Of Design</h1>
         </div>
         <div className="flex items-center space-x-4">
           <button className="!rounded-button bg-indigo-600 text-white px-4 py-2 text-sm font-medium hover:bg-indigo-700">

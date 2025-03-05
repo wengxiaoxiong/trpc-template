@@ -202,7 +202,7 @@ export const exampleStages: Stage[] = [
   export const exampleMessages: Message[] = [
       {
         type: 'bot',
-        content: '欢迎来到Tezign Chain Of Design，让我们从了解您的目标市场开始。您想开发什么类型的产品？',
+        content: '欢迎来到Chain Of Design，让我们从了解您的目标市场开始。您想开发什么类型的产品？',
         timestamp: '09:00 AM'
       },
       {
