@@ -12,9 +12,9 @@ import {
   ReloadOutlined,
   EditOutlined
 } from '@ant-design/icons';
-import MermaidRenderer from '../components/MermaidRenderer';
-import MermaidAnimation from '../components/MermaidAnimation';
-import MermaidDiffAnimation from '../components/MermaidDiffAnimation';
+import MermaidRenderer from './MermaidRenderer';
+import MermaidAnimation from './MermaidAnimation';
+import MermaidDiffAnimation from './MermaidDiffAnimation';
 
 const { TabPane } = Tabs;
 const { TextArea } = Input;
