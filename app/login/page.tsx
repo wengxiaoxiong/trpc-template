@@ -86,7 +86,7 @@ export default function LoginPage() {
               <i className="fas fa-cube text-white text-2xl"></i>
             </div>
             <h1 className="text-2xl font-bold text-gray-800 mb-2">模版项目</h1>
-            <p className="text-gray-500">高级批量ComfyUI任务处理平台</p>
+            <p className="text-gray-500">高级平台</p>
           </div>
 
           {/* 登录表单 */}
@@ -140,7 +140,7 @@ export default function LoginPage() {
         <div className="text-center mt-8 text-gray-500 text-sm">
           <p>© 2024 模版项目. All rights reserved.</p>
           <p className="mt-2">
-            高性能 · 安全可靠 · 企业级批量ComfyUI任务处理解决方案
+            高性能 · 安全可靠 · 企业级解决方案
           </p>
         </div>
       </div>
