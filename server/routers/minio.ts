@@ -7,14 +7,14 @@ import { FileType } from '@prisma/client'
 
 // Minio 客户端配置
 const minioClient = new Client({
-    endPoint: 'localhost',
-    port: 9000,
+    endPoint: process.env.MINIO_ENDPOINT || 'localhost',
+    port: parseInt(process.env.MINIO_PORT || '9000'),
     useSSL: false,
     accessKey: process.env.MINIO_ACCESS_KEY || 'wsk779yxZAoghq5ExAwZ',
     secretKey: process.env.MINIO_SECRET_KEY || 'MLM2GXUuHenu08bL899pADzMNO7UZNAvl6Lo8ZCA'
 })
 
-const BUCKET_NAME = 'comfxyz'
+const BUCKET_NAME = process.env.MINIO_BUCKET || 'comfxyz'
 
 // 文件信息的 Schema
 const fileInfoSchema = z.object({
