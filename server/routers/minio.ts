@@ -14,7 +14,7 @@ const minioClient = new Client({
     secretKey: process.env.MINIO_SECRET_KEY || 'MLM2GXUuHenu08bL899pADzMNO7UZNAvl6Lo8ZCA'
 })
 
-const BUCKET_NAME = process.env.MINIO_BUCKET || 'comfxyz'
+const BUCKET_NAME = process.env.MINIO_BUCKET || '模版项目'
 
 // 文件信息的 Schema
 const fileInfoSchema = z.object({

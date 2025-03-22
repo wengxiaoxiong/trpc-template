@@ -85,7 +85,7 @@ export default function LoginPage() {
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center">
               <i className="fas fa-cube text-white text-2xl"></i>
             </div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">ComfXYZ</h1>
+            <h1 className="text-2xl font-bold text-gray-800 mb-2">模版项目</h1>
             <p className="text-gray-500">高级批量ComfyUI任务处理平台</p>
           </div>
 
@@ -138,7 +138,7 @@ export default function LoginPage() {
 
         {/* 页脚信息 */}
         <div className="text-center mt-8 text-gray-500 text-sm">
-          <p>© 2024 ComfXYZ. All rights reserved.</p>
+          <p>© 2024 模版项目. All rights reserved.</p>
           <p className="mt-2">
             高性能 · 安全可靠 · 企业级批量ComfyUI任务处理解决方案
           </p>
