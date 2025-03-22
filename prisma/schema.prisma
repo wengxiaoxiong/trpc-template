@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+   provider = "mysql"
+   url      = env("DATABASE_URL")
+}
+
+model User {
+    id         Int      @id @default(autoincrement())
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
+    username   String   @unique
+    password   String 
+    avatar     String?
+    isAdmin    Boolean  @default(false)
+    files      UserFile[]
+}
+
+// 文件类型枚举
+enum FileType {
+    // ai生成的图片
+    AI_GENERATED_IMAGE
+    // 用户上传的文件
+    USER_UPLOADED_FILE
+    // 图片参数
+    PARAMETER_IMAGE
+}
+
+model UserFile {
+    id          Int      @id @default(autoincrement())
+    name        String
+    size        Int
+    type        String
+    path        String
+    description String?
+    ownerId     Int
+    owner       User     @relation(fields: [ownerId], references: [id])
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+    fileType    FileType @default(USER_UPLOADED_FILE)
+
+    @@index([ownerId])
+}
