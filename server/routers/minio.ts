@@ -8,8 +8,8 @@ import { FileType } from '@prisma/client'
 // Minio 客户端配置
 const minioClient = new Client({
     endPoint: process.env.MINIO_ENDPOINT || 'localhost',
-    port: parseInt(process.env.MINIO_PORT || '9000'),
-    useSSL: false,
+    port: process.env.MINIO_PORT ? parseInt(process.env.MINIO_PORT) : undefined,
+    useSSL: process.env.MINIO_USE_SSL === 'true',
     accessKey: process.env.MINIO_ACCESS_KEY || 'wsk779yxZAoghq5ExAwZ',
     secretKey: process.env.MINIO_SECRET_KEY || 'MLM2GXUuHenu08bL899pADzMNO7UZNAvl6Lo8ZCA'
 })
@@ -56,7 +56,7 @@ export const minioRouter = router({
 
                 return {
                     uploadUrl: presignedUrl,
-                    endPoint: 'localhost:9000',
+                    endPoint: process.env.MINIO_ENDPOINT || 'localhost',
                     bucket: BUCKET_NAME,
                     pathName: pathName,
                 }
