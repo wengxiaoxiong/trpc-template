@@ -292,6 +292,24 @@ export const userRouter = router({
       return total;
     }),
 
+  // 获取所有用户存储空间使用总量
+  getTotalStorageUsed: adminProcedure
+    .query(async () => {
+      const users = await prisma.user.findMany({
+        select: {
+          storageUsed: true
+        }
+      });
+      
+      // 计算总的存储使用量
+      const totalStorageUsed = users.reduce(
+        (total, user) => total + Number(user.storageUsed), 
+        0
+      );
+      
+      return totalStorageUsed;
+    }),
+
   // 邀请码管理
   createInvitationCode: adminProcedure
     .input(z.object({

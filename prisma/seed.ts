@@ -33,7 +33,7 @@ async function main() {
     {
       key: 'site.logo.url',
       value: 'https://www.example.com/logo.png',
-      description: '版权年份',
+      description: 'LOGO',
     },
     {
       key: 'user.storage.max',
