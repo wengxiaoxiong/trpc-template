@@ -13,8 +13,6 @@ COPY pnpm-lock.yaml ./
 
 # 安装依赖
 RUN pnpm install --frozen-lockfile
-RUN pnpm add -D autoprefixer tailwindcss postcss
-RUN pnpm remove bcrypt && pnpm add bcryptjs
 
 # 复制源代码
 COPY . .
