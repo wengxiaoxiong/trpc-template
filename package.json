@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "prisma:seed": "npx ts-node prisma/seed.ts",
-    "docker": "docker build -t trpc-template . && docker rm -f trpc-app || true && docker run -p 3002:3002 --name trpc-app trpc-template"
+    "docker": "docker build -t trpc-app ."
   },
   "dependencies": {
     "@ant-design/icons": "^5.5.2",
