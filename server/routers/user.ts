@@ -216,4 +216,11 @@ export const userRouter = router({
         pageSize,
       };
     }),
+
+  // 获取用户总数
+  getTotalUsers: protectedProcedure
+    .query(async () => {
+      const total = await prisma.user.count();
+      return total;
+    }),
 }); 

@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { Header } from './Header';
 import { Card, Statistic } from 'antd';
 import { useRouter } from 'next/navigation';
-import { FolderOutlined, DashboardOutlined } from '@ant-design/icons';
+import { FolderOutlined, DashboardOutlined, UserOutlined } from '@ant-design/icons';
 import { trpc } from '@/utils/trpc/client';
 
 interface DashboardLayoutProps {
@@ -14,6 +14,7 @@ interface DashboardLayoutProps {
 export const MainPageLayout = ({ children }: DashboardLayoutProps) => {
   const router = useRouter();
   const { data: filesCount, refetch: refetchFilesCount } = trpc.minio.countFiles.useQuery();
+  const { data: totalUsers } = trpc.user.getTotalUsers.useQuery();
 
   // 设置定时器，每分钟刷新一次数据
   useEffect(() => {
@@ -40,19 +41,19 @@ export const MainPageLayout = ({ children }: DashboardLayoutProps) => {
         <Header />
         <main className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className='cursor-pointer' onClick={() => { router.push("/dashboard") }}>
-              <Statistic
-                title="仪表盘"
-                value={0}
-                prefix={<DashboardOutlined />}
-                valueStyle={{ color: '#3f8600' }}
-              />
-            </Card>
             <Card className='cursor-pointer' onClick={() => { router.push("/files") }}>
               <Statistic
                 title="文件总数"
                 value={filesCount || 0}
                 prefix={<FolderOutlined />}
+                valueStyle={{ color: '#3f8600' }}
+              />
+            </Card>
+            <Card className='cursor-pointer' onClick={() => { router.push("/admin") }}>
+              <Statistic
+                title="用户总数"
+                value={totalUsers || 0}
+                prefix={<UserOutlined />}
                 valueStyle={{ color: '#3f8600' }}
               />
             </Card>

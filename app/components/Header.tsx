@@ -76,6 +76,11 @@ export function Header() {
                             {item.label}
                         </Button>
                     ))}
+                    {user?.isAdmin && (
+                        <Button type="text" onClick={() => router.push('/admin')}>
+                            管理后台
+                        </Button>
+                    )}
                 </nav>
             </div>
             <div className="flex items-center space-x-4">

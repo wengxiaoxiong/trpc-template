@@ -66,7 +66,7 @@ pnpm prisma db push
 5. 创建初始管理员账号
 ```sql
 INSERT INTO `User` (`id`, `createdAt`, `updatedAt`, `username`, `password`, `avatar`, `isAdmin`) VALUES
-(1, '2025-03-23 02:14:04.236', '2025-03-23 02:14:04.236', 'admin', '$2b$10$Ybj1GMWDeWbSKNMg3xRb/uUcIZmZzsK3e0vyhjJLIWUr8A95WeUXO', NULL, 1);
+(1, '2025-03-23 02:14:04.236', '2025-03-23 02:14:04.236', 'admin', '$2b$10$aaO94E2iiaDYKksaDZbPp./bKXU7n.1A2iT3LZrs1y2PPDSS15lHq', NULL, 1);
 ```
 
 ### 开发
