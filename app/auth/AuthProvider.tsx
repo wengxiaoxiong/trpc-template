@@ -34,6 +34,18 @@ const tokenUtils = {
   get: () => localStorage.getItem(TOKEN_KEY)
 }
 
+// 定义需要登录才能访问的路径
+const PROTECTED_ROUTES = [
+  '/webapp',
+  '/files',
+  '/admin'
+];
+
+// 检查路径是否受保护
+const isProtectedRoute = (path: string) => {
+  return PROTECTED_ROUTES.some(route => path.startsWith(route));
+};
+
 // 简化 AuthProvider 组件
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | undefined>(undefined)
@@ -54,7 +66,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const isAuthRoute = ['/login', '/register'].includes(pathname)
-    if (error && !isAuthRoute) {
+    
+    // 如果是受保护路由但用户未登录，则重定向到登录页
+    if (error && isProtectedRoute(pathname) && !isAuthRoute) {
       tokenUtils.remove()
       router.push('/login')
     }
@@ -66,13 +80,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     tokenUtils.set(token)
     // 立即获取用户信息
     utils.user.getCurrentUser.invalidate()
-    router.push('/')
+    router.push('/webapp')
   }, [router, utils])
 
   const logout = useCallback(() => {
     setUser(undefined)
     tokenUtils.remove()
-    router.push('/login')
+    router.push('/')
   }, [router])
 
   return (

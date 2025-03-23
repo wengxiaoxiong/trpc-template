@@ -17,6 +17,7 @@ export function Header() {
     const { data: user, refetch: refetchUser } = trpc.user.getCurrentUser.useQuery();
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const { logout } = useAuth();
 
     const { uploadFile } = useMinioUpload({
         onSuccess: () => {
@@ -58,8 +59,7 @@ export function Header() {
                 <UploadOutlined /> 更换头像
             </Menu.Item>
             <Menu.Item key="logout" onClick={() => {
-                localStorage.removeItem('token');
-                router.push('/login');
+                logout();
             }}>
                 退出登录
             </Menu.Item>
@@ -69,7 +69,7 @@ export function Header() {
     return (
         <header className="bg-white shadow-sm py-4 px-6 flex items-center justify-between mb-6">
             <div className="flex items-center space-x-8">
-                <h1 className="text-xl font-semibold text-gray-800 select-none cursor-pointer" onClick={() => { router.push("/") }} >模版项目</h1>
+                <h1 className="text-xl font-semibold text-gray-800 select-none cursor-pointer" onClick={() => { router.push("/webapp") }} >模版项目</h1>
                 <nav className="flex space-x-4">
                     {navItems.map(item => (
                         <Button key={item.href} type="text" onClick={() => router.push(item.href)}>

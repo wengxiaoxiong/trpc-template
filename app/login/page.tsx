@@ -20,7 +20,7 @@ export default function LoginPage() {
     onSuccess: (data) => {
       login(data.token)
       message.success('登录成功')
-      router.push('/')
+      router.push('/webapp')
     },
     onError: (error) => {
       setError(error.message)
@@ -54,9 +54,9 @@ export default function LoginPage() {
               type="primary"
               size="large"
               className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 mb-4"
-              onClick={() => router.push('/')}
+              onClick={() => router.push('/webapp')}
             >
-              返回主页
+              进入应用
             </Button>
             <Button
               type="link"
