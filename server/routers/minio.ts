@@ -209,5 +209,45 @@ export const minioRouter = router({
             })
 
             return { success: true }
+        }),
+        
+    // 重命名文件
+    renameFile: protectedProcedure
+        .input(z.object({ 
+            id: z.number(),
+            newName: z.string().min(1).max(255).refine(name => {
+                // 文件名安全性验证，禁止包含一些特殊字符
+                return !/[\/\\:*?"<>|]/.test(name);
+            }, {
+                message: "文件名不能包含以下字符: / \\ : * ? \" < > |"
+            })
+        }))
+        .mutation(async ({ input, ctx }) => {
+            const file = await prisma.userFile.findUnique({
+                where: { id: input.id }
+            })
+
+            if (!file) {
+                throw new TRPCError({
+                    code: 'NOT_FOUND',
+                    message: '文件不存在'
+                })
+            }
+
+            // 检查权限：文件所有者或管理员可以重命名
+            if (file.ownerId !== ctx.user.id && !ctx.user.isAdmin) {
+                throw new TRPCError({
+                    code: 'FORBIDDEN',
+                    message: '无权重命名该文件'
+                })
+            }
+
+            // 更新文件名
+            const updatedFile = await prisma.userFile.update({
+                where: { id: input.id },
+                data: { name: input.newName }
+            })
+
+            return updatedFile
         })
 })

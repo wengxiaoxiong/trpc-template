@@ -1,5 +1,5 @@
-import { Button, Select, Table, Tag } from 'antd';
-import { DownloadOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Button, Select, Table, Tag, Tooltip, Modal, Input, Form } from 'antd';
+import { DownloadOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { FileType } from '@prisma/client';
 import { trpc } from '@/utils/trpc/client';
@@ -22,6 +22,10 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
     const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
     const [selectedFileType, setSelectedFileType] = useState<FileType | undefined>(undefined);
     const [selectedPath, setSelectedPath] = useState<string | null>(null);
+    const [renameModalVisible, setRenameModalVisible] = useState(false);
+    const [currentFile, setCurrentFile] = useState<any>(null);
+    const [newFileName, setNewFileName] = useState('');
+    const [form] = Form.useForm();
 
     // 数据查询
     const { data: fileListData, refetch: refetchFiles } = userId 
@@ -56,6 +60,9 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
 
     // 删除文件
     const { mutateAsync: deleteFileMutation } = trpc.minio.deleteFile.useMutation();
+    
+    // 重命名文件
+    const { mutateAsync: renameFileMutation } = trpc.minio.renameFile.useMutation();
 
     // 获取文件URL
     const { data: fileUrl, isLoading: isLoadingUrl } = trpc.minio.getFileUrl.useQuery(
@@ -91,6 +98,46 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
         }
     };
 
+    const handleRenameClick = (file: any) => {
+        setCurrentFile(file);
+        // 分离文件名和扩展名
+        const fileNameParts = file.name.split('.');
+        const extension = fileNameParts.length > 1 ? fileNameParts.pop() : '';
+        const baseName = fileNameParts.join('.');
+        
+        // 只设置基本文件名（不含扩展名）
+        form.setFieldsValue({ baseName });
+        setRenameModalVisible(true);
+    };
+
+    const handleRenameSubmit = async () => {
+        try {
+            await form.validateFields();
+            const values = form.getFieldsValue();
+            
+            if (currentFile) {
+                // 分离当前文件名和扩展名
+                const fileNameParts = currentFile.name.split('.');
+                const extension = fileNameParts.length > 1 ? fileNameParts.pop() : '';
+                
+                // 构建新文件名 = 新基本名 + 原扩展名
+                const newFullName = extension ? `${values.baseName}.${extension}` : values.baseName;
+                
+                if (newFullName !== currentFile.name) {
+                    await renameFileMutation({
+                        id: currentFile.id,
+                        newName: newFullName
+                    });
+                    message.success('文件重命名成功');
+                    refetchFiles();
+                }
+            }
+            setRenameModalVisible(false);
+        } catch (error) {
+            message.error('文件重命名失败');
+        }
+    };
+
     const handleFileTypeChange = (value: FileType | undefined) => {
         setSelectedFileType(value);
         setPagination({ ...pagination, current: 1 });
@@ -103,6 +150,16 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
             dataIndex: 'name',
             key: 'name',
             ellipsis: true,
+            width: 200,
+            render: (text: string) => {
+                return (
+                    <Tooltip title={text} placement="top">
+                        <div className="font-medium truncate max-w-[200px]">
+                            {text}
+                        </div>
+                    </Tooltip>
+                );
+            },
         },
         {
             title: '预览',
@@ -136,9 +193,15 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
         {
             title: '操作',
             key: 'action',
-            width: 100,
+            width: 150,
             render: (_: unknown, record: any) => (
                 <div className="flex space-x-1">
+                    <Button
+                        type="link"
+                        icon={<EditOutlined />}
+                        onClick={() => handleRenameClick(record)}
+                        size="small"
+                    />
                     <Button
                         type="link"
                         icon={<DownloadOutlined />}
@@ -196,6 +259,32 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
                     size="small"
                 />
             </div>
+
+            <Modal
+                title="重命名文件"
+                open={renameModalVisible}
+                onOk={handleRenameSubmit}
+                onCancel={() => setRenameModalVisible(false)}
+                destroyOnClose={true}
+            >
+                <Form form={form} layout="vertical">
+                    <Form.Item
+                        name="baseName"
+                        label="文件名"
+                        rules={[
+                            { required: true, message: '请输入文件名' },
+                            { max: 255, message: '文件名不能超过255个字符' },
+                            { 
+                                pattern: /^[^\/\\:*?"<>|]+$/, 
+                                message: '文件名不能包含以下字符: / \\ : * ? " < > |' 
+                            }
+                        ]}
+                        extra={currentFile?.name.includes('.') ? `文件扩展名 ".${currentFile?.name.split('.').pop()}" 将被保留` : ''}
+                    >
+                        <Input />
+                    </Form.Item>
+                </Form>
+            </Modal>
         </div>
     );
 }); 
