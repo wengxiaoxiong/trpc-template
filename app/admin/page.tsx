@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Input, Switch, message, Space, Pagination, Tabs, ConfigProvider } from 'antd';
 import { trpc } from '@/utils/trpc/client';
 import { PlusOutlined, EditOutlined, DeleteOutlined, FileOutlined } from '@ant-design/icons';
@@ -30,6 +30,20 @@ export default function AdminPage() {
     pageSize,
     search: searchText,
   });
+
+  // 监听tab切换，刷新对应数据
+  useEffect(() => {
+    // 刷新当前选中tab的数据
+    if (activeTab === 'users') {
+      refetch();
+      utils.user.getUsers.invalidate();
+    } else if (activeTab === 'invitationCodes') {
+      utils.user.getAllInvitationCodes.invalidate();
+      utils.user.getRequireInvitationCodeSetting.invalidate();
+    } else if (activeTab === 'configs') {
+      utils.config.getAllConfigs.invalidate();
+    }
+  }, [activeTab, utils, refetch]);
 
   const createUser = trpc.user.createUser.useMutation({
     onSuccess: () => {
