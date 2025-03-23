@@ -5,7 +5,6 @@ WORKDIR /app
 
 # 安装pnpm和构建依赖
 RUN npm install -g pnpm
-RUN apk add --no-cache python3 make g++
 
 # 复制 package.json 和 pnpm-lock.yaml
 COPY package*.json ./
