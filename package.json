@@ -22,6 +22,7 @@
     "@types/bcryptjs": "^3.0.0",
     "antd": "^5.22.5",
     "bcryptjs": "^3.0.2",
+    "cross-env": "^7.0.3",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
     "dotenv": "^16.4.7",
