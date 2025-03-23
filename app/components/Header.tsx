@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { FileType } from '@prisma/client';
 import { MinioImage } from './MinioImage';
 import { useMinioUpload } from '@/utils/minio/useMinioUpload';
+import { useSiteConfig } from './SiteConfigProvider';
 
 const navItems = [
     { href: '/files', label: '文件管理' },
@@ -19,6 +20,11 @@ export function Header() {
     const [uploading, setUploading] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const { logout } = useAuth();
+
+    const { getConfigValue } = useSiteConfig();
+  
+    // 获取配置
+    const siteTitle = getConfigValue('site.title', '模版项目');
 
     const { uploadFile } = useMinioUpload({
         onSuccess: () => {
@@ -75,7 +81,7 @@ export function Header() {
     return (
         <header className="bg-white shadow-sm py-4 px-4 sm:px-6 flex flex-wrap items-center justify-between mb-6">
             <div className="flex items-center justify-between w-full lg:w-auto">
-                <h1 className="text-xl font-semibold text-gray-800 select-none cursor-pointer" onClick={() => { router.push("/webapp") }} >模版项目</h1>
+                <h1 className="text-xl font-semibold text-gray-800 select-none cursor-pointer" onClick={() => { router.push("/webapp") }} >{siteTitle}</h1>
                 <button 
                     className="lg:hidden p-2 rounded-md hover:bg-gray-100 focus:outline-none" 
                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

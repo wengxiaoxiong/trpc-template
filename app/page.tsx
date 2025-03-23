@@ -6,19 +6,28 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from './auth/AuthProvider';
 import { UserOutlined } from '@ant-design/icons';
 import { MinioImage } from './components/MinioImage';
+import { useSiteConfig } from './components/SiteConfigProvider';
 
 const { Title, Paragraph } = Typography;
 
 const LandingPage: React.FC = () => {
   const router = useRouter();
   const { user, logout } = useAuth();
+  const { getConfigValue } = useSiteConfig();
+  
+  // 获取配置
+  const siteTitle = getConfigValue('site.title', '模版项目');
+  const siteDesc = getConfigValue('site.description', '高级平台');
+  const siteCopyright = getConfigValue('site.footer.copyright', `© ${getConfigValue('site.year', '2025')} ${siteTitle}. All rights reserved.`);
+  const siteSlogan = getConfigValue('site.footer.slogan', '高性能 · 安全可靠 · 企业级解决方案');
+  const logoUrl = getConfigValue('site.logo.url', '');
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <nav className="flex flex-wrap justify-between items-center py-4 sm:py-6">
           <div className="flex items-center">
-            <span className="text-xl sm:text-2xl font-bold text-indigo-600">模版项目</span>
+            <span className="text-xl sm:text-2xl font-bold text-indigo-600">{siteTitle}</span>
           </div>
           <div className="flex flex-wrap items-center gap-2 sm:gap-4">
             {user ? (
@@ -80,11 +89,10 @@ const LandingPage: React.FC = () => {
         <div className="py-8 sm:py-12 md:py-20">
           <div className="text-center">
             <Title level={1} className="text-3xl sm:text-4xl md:text-6xl font-bold text-gray-900">
-              现代化Web应用模版
+              {siteTitle}
             </Title>
             <Paragraph className="mt-4 sm:mt-6 text-base sm:text-xl text-gray-600 max-w-3xl mx-auto px-2 sm:px-0">
-              基于 Next.js + tRPC + Prisma + Minio + Tailwind CSS 构建的高性能、可扩展的企业级应用模版。
-              快速开发您的下一个重要项目。
+              {siteDesc}
             </Paragraph>
             <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row justify-center gap-3 px-4 sm:px-0">
               {user ? (
@@ -161,9 +169,9 @@ const LandingPage: React.FC = () => {
 
         <footer className="py-8 sm:py-12 border-t border-gray-200">
           <div className="text-center">
-            <p className="text-gray-600">© 2024 模版项目. All rights reserved.</p>
+            <p className="text-gray-600">{siteCopyright}</p>
             <p className="mt-2 text-sm text-gray-500">
-              高性能 · 安全可靠 · 企业级解决方案
+              {siteSlogan}
             </p>
           </div>
         </footer>

@@ -6,6 +6,9 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../auth/AuthProvider'
 import { Input, Button, message, Form } from 'antd'
 import { UserOutlined, LockOutlined } from '@ant-design/icons'
+import { AuthLayout } from '../components/AuthLayout'
+import { AuthHeader } from '../components/AuthHeader'
+import { AuthPageLink } from '../components/AuthPageLink'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -49,89 +52,65 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-lg shadow-xl p-8">
-          {/* Logo区域 */}
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center">
-              <i className="fas fa-cube text-white text-2xl"></i>
-            </div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">模版项目</h1>
-            <p className="text-gray-500">高级平台</p>
-          </div>
+    <AuthLayout>
+      <AuthHeader />
 
-          {/* 注册表单 */}
-          <Form onFinish={handleSubmit} layout="vertical">
-            <Form.Item
-              name="username"
-              rules={[{ required: true, message: '请输入用户名' }]}
-            >
-              <Input
-                prefix={<UserOutlined className="text-gray-400" />}
-                placeholder="请输入用户名"
-                size="large"
-                className="rounded-lg border-gray-300"
-              />
-            </Form.Item>
+      {/* 注册表单 */}
+      <Form onFinish={handleSubmit} layout="vertical">
+        <Form.Item
+          name="username"
+          rules={[{ required: true, message: '请输入用户名' }]}
+        >
+          <Input
+            prefix={<UserOutlined className="text-gray-400" />}
+            placeholder="请输入用户名"
+            size="large"
+            className="rounded-lg border-gray-300"
+          />
+        </Form.Item>
 
-            <Form.Item
-              name="password"
-              rules={[{ required: true, message: '请输入密码' }]}
-            >
-              <Input.Password
-                prefix={<LockOutlined className="text-gray-400" />}
-                placeholder="请输入密码"
-                size="large"
-                className="rounded-lg border-gray-300"
-              />
-            </Form.Item>
+        <Form.Item
+          name="password"
+          rules={[{ required: true, message: '请输入密码' }]}
+        >
+          <Input.Password
+            prefix={<LockOutlined className="text-gray-400" />}
+            placeholder="请输入密码"
+            size="large"
+            className="rounded-lg border-gray-300"
+          />
+        </Form.Item>
 
-            <Form.Item
-              name="confirmPassword"
-              rules={[{ required: true, message: '请确认密码' }]}
-            >
-              <Input.Password
-                prefix={<LockOutlined className="text-gray-400" />}
-                placeholder="请确认密码"
-                size="large"
-                className="rounded-lg border-gray-300"
-              />
-            </Form.Item>
+        <Form.Item
+          name="confirmPassword"
+          rules={[{ required: true, message: '请确认密码' }]}
+        >
+          <Input.Password
+            prefix={<LockOutlined className="text-gray-400" />}
+            placeholder="请确认密码"
+            size="large"
+            className="rounded-lg border-gray-300"
+          />
+        </Form.Item>
 
-            {error && (
-              <div className="text-red-500 text-sm">{error}</div>
-            )}
+        {error && (
+          <div className="text-red-500 text-sm">{error}</div>
+        )}
 
-            <Form.Item className="mb-4">
-              <Button
-                type="primary"
-                htmlType="submit"
-                className="w-full h-11 bg-gradient-to-r from-blue-500 to-indigo-600 !rounded-button"
-                loading={loading}
-              >
-                注册
-              </Button>
-            </Form.Item>
-          </Form>
+        <Form.Item className="mb-4">
+          <Button
+            type="primary"
+            htmlType="submit"
+            className="w-full h-11 bg-gradient-to-r from-blue-500 to-indigo-600 !rounded-button"
+            loading={loading}
+          >
+            注册
+          </Button>
+        </Form.Item>
+      </Form>
 
-          {/* 额外信息 */}
-          <div className="text-center text-sm text-gray-500">
-            <span>已经有账号？</span>
-            <button className="text-blue-600 hover:text-blue-700 ml-1 !rounded-button whitespace-nowrap" onClick={() => router.push('/login')}>
-              立即登录
-            </button>
-          </div>
-        </div>
-
-        {/* 页脚信息 */}
-        <div className="text-center mt-8 text-gray-500 text-sm">
-          <p>© 2024 模版项目. All rights reserved.</p>
-          <p className="mt-2">
-            高性能 · 安全可靠 · 企业级解决方案
-          </p>
-        </div>
-      </div>
-    </div>
+      {/* 额外信息 */}
+      <AuthPageLink mode="register" />
+    </AuthLayout>
   )
 }

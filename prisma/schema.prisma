@@ -7,6 +7,16 @@ datasource db {
    url      = env("DATABASE_URL")
 }
 
+// 新增系统配置表
+model SiteConfig {
+    id         Int      @id @default(autoincrement())
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
+    key        String   @unique
+    value      String   @db.Text
+    description String?  @db.Text
+}
+
 model User {
     id         Int      @id @default(autoincrement())
     createdAt  DateTime @default(now())

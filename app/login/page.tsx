@@ -7,6 +7,10 @@ import { useAuth } from '../auth/AuthProvider'
 import { Input, Button, message, Form } from 'antd'
 import { UserOutlined, LockOutlined } from '@ant-design/icons'
 import { MinioImage } from '../components/MinioImage'
+import { AuthLayout } from '../components/AuthLayout'
+import { AuthHeader } from '../components/AuthHeader'
+import { AuthPageLink } from '../components/AuthPageLink'
+import { Logo } from '../components/Logo'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -40,110 +44,84 @@ export default function LoginPage() {
   // 如果用户已登录，显示已登录状态
   if (user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <div className="bg-white rounded-lg shadow-xl p-8 text-center">
-            <div className="text-2xl font-bold text-gray-800 mb-4">
-              您已登录
-            </div>
-            <div className="text-gray-600 mb-6 text-center flex items-center justify-evenly flex-col space-y-4 h-36">
-              <MinioImage pathName={user.avatar || ''} className="rounded-full mx-auto" />
-              当前登录账号：{user.username}
-            </div>
-            <Button
-              type="primary"
-              size="large"
-              className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 mb-4"
-              onClick={() => router.push('/webapp')}
-            >
-              进入应用
-            </Button>
-            <Button
-              type="link"
-              size="large"
-              className="w-full"
-              onClick={() => {
-                logout()
-                setUsername('')
-                setPassword('')
-              }}
-            >
-              切换账号
-            </Button>
+      <AuthLayout>
+        <div className="text-center">
+          <div className="text-2xl font-bold text-gray-800 mb-4">
+            您已登录
           </div>
+          <div className="text-gray-600 mb-6 text-center flex items-center justify-evenly flex-col space-y-4 h-36">
+            <MinioImage pathName={user.avatar || ''} className="rounded-full mx-auto" />
+            当前登录账号：{user.username}
+          </div>
+          <Button
+            type="primary"
+            size="large"
+            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 mb-4"
+            onClick={() => router.push('/webapp')}
+          >
+            进入应用
+          </Button>
+          <Button
+            type="link"
+            size="large"
+            className="w-full"
+            onClick={() => {
+              logout()
+              setUsername('')
+              setPassword('')
+            }}
+          >
+            切换账号
+          </Button>
         </div>
-      </div>
+      </AuthLayout>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-lg shadow-xl p-8">
-          {/* Logo区域 */}
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center">
-              <i className="fas fa-cube text-white text-2xl"></i>
-            </div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">模版项目</h1>
-            <p className="text-gray-500">高级平台</p>
-          </div>
+    <AuthLayout>
+      <AuthHeader />
 
-          {/* 登录表单 */}
-          <Form onFinish={handleSubmit} layout="vertical">
-            <Form.Item
-              name="username"
-              rules={[{ required: true, message: '请输入用户名' }]}
-            >
-              <Input
-                prefix={<UserOutlined className="text-gray-400" />}
-                placeholder="请输入用户名"
-                size="large"
-                className="rounded-lg border-gray-300"
-              />
-            </Form.Item>
+      {/* 登录表单 */}
+      <Form onFinish={handleSubmit} layout="vertical">
+        <Form.Item
+          name="username"
+          rules={[{ required: true, message: '请输入用户名' }]}
+        >
+          <Input
+            prefix={<UserOutlined className="text-gray-400" />}
+            placeholder="请输入用户名"
+            size="large"
+            className="rounded-lg border-gray-300"
+          />
+        </Form.Item>
 
-            <Form.Item
-              name="password"
-              rules={[{ required: true, message: '请输入密码' }]}
-            >
-              <Input.Password
-                prefix={<LockOutlined className="text-gray-400" />}
-                placeholder="请输入密码"
-                size="large"
-                className="rounded-lg border-gray-300"
-              />
-            </Form.Item>
+        <Form.Item
+          name="password"
+          rules={[{ required: true, message: '请输入密码' }]}
+        >
+          <Input.Password
+            prefix={<LockOutlined className="text-gray-400" />}
+            placeholder="请输入密码"
+            size="large"
+            className="rounded-lg border-gray-300"
+          />
+        </Form.Item>
 
-            <Form.Item className="mb-4">
-              <Button
-                type="primary"
-                htmlType="submit"
-                className="w-full h-11 bg-gradient-to-r from-blue-500 to-indigo-600 !rounded-button"
-                loading={loading}
-              >
-                登录
-              </Button>
-            </Form.Item>
-          </Form>
+        <Form.Item className="mb-4">
+          <Button
+            type="primary"
+            htmlType="submit"
+            className="w-full h-11 bg-gradient-to-r from-blue-500 to-indigo-600 !rounded-button"
+            loading={loading}
+          >
+            登录
+          </Button>
+        </Form.Item>
+      </Form>
 
-          {/* 额外信息 */}
-          <div className="text-center text-sm text-gray-500">
-            <span>还没有账号？</span>
-            <button className="text-blue-600 hover:text-blue-700 ml-1 !rounded-button whitespace-nowrap" onClick={() => router.push('/register')}>
-              立即注册
-            </button>
-          </div>
-        </div>
-
-        {/* 页脚信息 */}
-        <div className="text-center mt-8 text-gray-500 text-sm">
-          <p>© 2024 模版项目. All rights reserved.</p>
-          <p className="mt-2">
-            高性能 · 安全可靠 · 企业级解决方案
-          </p>
-        </div>
-      </div>
-    </div>
+      {/* 额外信息 */}
+      <AuthPageLink mode="login" />
+    </AuthLayout>
   )
 }

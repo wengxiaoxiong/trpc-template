@@ -1,9 +1,8 @@
 'use client'
 
 import './globals.css'
-import { TrpcProvider } from './provider'
+import Provider from './provider'
 import { RecoilRoot } from 'recoil'
-import { AuthProvider } from './auth/AuthProvider'
 
 export default function RootLayout({
   children,
@@ -16,13 +15,11 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
       </head>
       <body>
-        <TrpcProvider>
+        <Provider>
           <RecoilRoot>
-            <AuthProvider>
-              {children}
-            </AuthProvider>
+            {children}
           </RecoilRoot>
-        </TrpcProvider>
+        </Provider>
       </body>
     </html>
   )

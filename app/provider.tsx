@@ -1,61 +1,48 @@
 'use client'
 
-import * as React from 'react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-
-import { httpBatchLink, loggerLink } from '@trpc/client'
+import React, { ReactNode } from 'react'
 import { trpc } from '@/utils/trpc/client'
+import { AuthProvider, useAuth } from './auth/AuthProvider'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { httpBatchLink } from '@trpc/client'
+import { useState } from 'react'
 import SuperJSON from 'superjson'
+import { ConfigProvider } from 'antd'
+import { SiteConfigProvider } from './components/SiteConfigProvider'
 
-export function getBaseUrl() {
-    if (typeof window !== 'undefined')
-        // browser should use relative path
-        return ''
-
-    if (process.env.DEPLOYMENT_URL)
-        // reference for your deployment URL
-        return `https://${process.env.DEPLOYMENT_URL}`
-
-    // local development URL
-    return `http://localhost:${process.env.PORT ?? 26000}`
+interface ProviderProps {
+    children: ReactNode
 }
 
-export function TrpcProvider({ children }: { children: React.ReactNode }) {
-    const [queryClient] = React.useState(() => new QueryClient({
-        defaultOptions: {
-            queries: {
-                retry: false,
-                refetchOnWindowFocus: false,
-            },
-        },
-    }))
+const queryClient = new QueryClient()
 
-    const [trpcClient] = React.useState(() =>
-        trpc.createClient({
+export default function Provider({ children }: ProviderProps): JSX.Element {
+    const [trpcClient] = useState(() => {
+        return trpc.createClient({
             links: [
-                loggerLink({
-                    enabled: () => true,
-                }),
                 httpBatchLink({
-                    url: `${getBaseUrl()}/api/trpc`,
-                    headers: () => {
-                        return {
-                            cookie: document.cookie,
-                        }
+                    url: '/api/trpc',
+                    // optional
+                    headers() {
+                        return {}
                     },
                 }),
             ],
             transformer: SuperJSON
-        }),
-    )
+        })
+    })
 
     return (
-        <trpc.Provider client={trpcClient} queryClient={queryClient}>
-            <QueryClientProvider client={queryClient}>
-                {children}
-                <ReactQueryDevtools initialIsOpen={false} />
-            </QueryClientProvider>
-        </trpc.Provider>
+        <ConfigProvider theme={{ token: { fontFamily: 'Nunito, sans-serif' } }}>
+            <trpc.Provider client={trpcClient} queryClient={queryClient}>
+                <QueryClientProvider client={queryClient}>
+                    <AuthProvider>
+                        <SiteConfigProvider>
+                            {children}
+                        </SiteConfigProvider>
+                    </AuthProvider>
+                </QueryClientProvider>
+            </trpc.Provider>
+        </ConfigProvider>
     )
 }

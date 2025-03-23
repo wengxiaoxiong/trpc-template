@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Table, Button, Modal, Form, Input, Switch, message, Space, Pagination } from 'antd';
+import { Table, Button, Modal, Form, Input, Switch, message, Space, Pagination, Tabs } from 'antd';
 import { trpc } from '@/utils/trpc/client';
 import { PlusOutlined, EditOutlined, DeleteOutlined, FileOutlined } from '@ant-design/icons';
 import UserFilesModal from './components/UserFilesModal';
 import { AdminRouteGuard } from '../components/AdminRouteGuard';
 import { MainPageLayout } from '../components/MainPageLayout';
 import { Card } from 'antd';
+import SiteConfigManager from './components/SiteConfigManager';
 
 export default function AdminPage() {
   const [form] = Form.useForm();
@@ -17,6 +18,7 @@ export default function AdminPage() {
   const [pageSize, setPageSize] = useState(10);
   const [searchText, setSearchText] = useState('');
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState('users');
 
   const utils = trpc.useUtils();
   const { data, isLoading, refetch } = trpc.user.getUsers.useQuery({
@@ -173,9 +175,12 @@ export default function AdminPage() {
     },
   ];
 
-  return (
-    <AdminRouteGuard>
-      <MainPageLayout>
+  // 管理页面的标签页
+  const tabItems = [
+    {
+      key: 'users',
+      label: '用户管理',
+      children: (
         <Card title="用户管理">
           <div className="mb-4 flex justify-between items-center">
             <Input.Search
@@ -208,6 +213,29 @@ export default function AdminPage() {
             }}
           />
         </Card>
+      ),
+    },
+    {
+      key: 'configs',
+      label: '站点配置',
+      children: (
+        <Card title="站点配置">
+          <SiteConfigManager />
+        </Card>
+      ),
+    },
+  ];
+
+  return (
+    <AdminRouteGuard>
+      <MainPageLayout>
+        <Tabs 
+          items={tabItems} 
+          activeKey={activeTab} 
+          onChange={setActiveTab} 
+          tabPosition="left"
+          className="admin-tabs"
+        />
 
         <Modal
           title={editingUser ? '编辑用户' : '创建用户'}
