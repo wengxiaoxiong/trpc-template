@@ -7,6 +7,7 @@ import type { UploadProps, UploadFile } from 'antd';
 import { InboxOutlined, DeleteOutlined, CheckCircleOutlined, FileOutlined, EditOutlined } from '@ant-design/icons';
 import { FileList, FileListRef } from "../components/FileList";
 import { FileType } from "@prisma/client";
+import Image from 'next/image';
 
 const { Dragger } = Upload;
 
@@ -149,7 +150,7 @@ export default function FilesPage() {
                             <InboxOutlined />
                         </p>
                         <p className="ant-upload-text">点击或拖拽文件到此区域上传</p>
-                        <p className="ant-upload-hint">支持单个或批量上传，选择后点击"开始上传"按钮</p>
+                        <p className="ant-upload-hint">支持单个或批量上传，选择后点击「开始上传」按钮</p>
                     </Dragger>
                     
                     {fileList.length > 0 && (
@@ -186,10 +187,12 @@ export default function FilesPage() {
                                     >
                                         <div className="flex items-center w-full">
                                             {item.type?.startsWith('image/') ? (
-                                                <img 
+                                                <Image 
                                                     src={URL.createObjectURL(item.originFileObj as File)}
                                                     alt="预览"
-                                                    className="w-8 h-8 object-cover mr-2 rounded"
+                                                    width={32}
+                                                    height={32}
+                                                    className="object-cover mr-2 rounded"
                                                 />
                                             ) : (
                                                 <FileOutlined className="mr-2 text-blue-500" />
@@ -248,7 +251,7 @@ export default function FilesPage() {
                     autoFocus
                 />
                 <div className="text-gray-500 text-xs mt-2">
-                    注意：系统将自动保留原文件扩展名，确保文件类型正确
+                    Tips: 如果您需要更改文件扩展名，请输入包含扩展名的完整文件名（例如 &quot;文件名.jpg&quot;）
                 </div>
             </Modal>
         </MainPageLayout>

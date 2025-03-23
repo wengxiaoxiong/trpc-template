@@ -37,7 +37,7 @@ export const MinioImage = ({
     };
 
     loadImageUrl();
-  }, [pathName]);
+  }, [pathName, utils.client.minio.getFileUrl]);
 
   if (!pathName || !imageUrl) {
     return null;

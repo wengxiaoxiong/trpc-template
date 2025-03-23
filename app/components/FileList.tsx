@@ -287,4 +287,7 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
             </Modal>
         </div>
     );
-}); 
+});
+
+// 添加 displayName 修复 lint 错误
+FileList.displayName = 'FileList'; 
