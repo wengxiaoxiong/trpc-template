@@ -1,5 +1,5 @@
 import { Button, Select, Table, Tag, Tooltip, Modal, Input, Form } from 'antd';
-import { DownloadOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { DownloadOutlined, DeleteOutlined, EditOutlined, ShareAltOutlined } from '@ant-design/icons';
 import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { FileType } from '@prisma/client';
 import { trpc } from '@/utils/trpc/client';
@@ -89,13 +89,21 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
     };
 
     const handleDelete = async (file: any) => {
-        try {
-            await deleteFileMutation({ id: file.id });
-            message.success('文件删除成功');
-            refetchFiles();
-        } catch (error) {
-            message.error('文件删除失败');
-        }
+        Modal.confirm({
+            title: '确认删除',
+            content: `确定要删除文件 "${file.name}" 吗？`,
+            okText: '确认',
+            cancelText: '取消',
+            onOk: async () => {
+                try {
+                    await deleteFileMutation({ id: file.id });
+                    message.success('文件删除成功');
+                    refetchFiles();
+                } catch (error) {
+                    message.error('文件删除失败');
+                }
+            }
+        });
     };
 
     const handleRenameClick = (file: any) => {
@@ -141,6 +149,39 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
     const handleFileTypeChange = (value: FileType | undefined) => {
         setSelectedFileType(value);
         setPagination({ ...pagination, current: 1 });
+    };
+
+    // 处理文件分享（复制下载链接）
+    const handleShare = async (file: any) => {
+        try {
+            // 保存当前路径
+            const currentPath = selectedPath;
+            
+            // 设置要获取URL的文件路径
+            setSelectedPath(file.path);
+            
+            // 等待URL加载完成
+            const checkUrl = async () => {
+                if (fileUrl?.url && selectedPath === file.path) {
+                    await navigator.clipboard.writeText(fileUrl.url);
+                    message.success('下载链接已复制到剪贴板');
+                    // 恢复原来的路径
+                    setSelectedPath(currentPath);
+                } else if (!isLoadingUrl && selectedPath === file.path) {
+                    message.error('获取分享链接失败');
+                    setSelectedPath(currentPath);
+                } else {
+                    // 继续等待
+                    setTimeout(checkUrl, 100);
+                }
+            };
+            
+            // 启动检查
+            setTimeout(checkUrl, 100);
+        } catch (error) {
+            console.error('分享失败:', error);
+            message.error('复制链接失败');
+        }
     };
 
     // 响应式列配置
@@ -210,7 +251,7 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
         {
             title: '操作',
             key: 'action',
-            width: 150,
+            width: 180,
             render: (_: unknown, record: any) => (
                 <div className="flex space-x-1">
                     <Button
@@ -224,6 +265,13 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
                         icon={<DownloadOutlined />}
                         onClick={() => handleDownload(record)}
                         size="small"
+                    />
+                    <Button
+                        type="link"
+                        icon={<ShareAltOutlined />}
+                        onClick={() => handleShare(record)}
+                        size="small"
+                        title="复制下载链接"
                     />
                     <Button
                         type="link"
