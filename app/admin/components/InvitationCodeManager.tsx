@@ -219,7 +219,6 @@ export default function InvitationCodeManager() {
   return (
     <div>
       <div className="flex justify-between mb-4">
-        <h2 className="text-xl font-bold">邀请码管理</h2>
         <Button 
           type="primary" 
           icon={<PlusOutlined />} 
