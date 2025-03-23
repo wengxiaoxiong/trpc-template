@@ -171,7 +171,10 @@ export const minioRouter = router({
         .input(z.object({ id: z.number() }))
         .mutation(async ({ input, ctx }) => {
             const file = await prisma.userFile.findUnique({
-                where: { id: input.id }
+                where: { id: input.id },
+                include: {
+                    owner: true
+                }
             })
 
             if (!file) {
@@ -181,7 +184,8 @@ export const minioRouter = router({
                 })
             }
 
-            if (file.ownerId !== ctx.user.id) {
+            // 检查权限：文件所有者或管理员可以删除
+            if (file.ownerId !== ctx.user.id && !ctx.user.isAdmin) {
                 throw new TRPCError({
                     code: 'FORBIDDEN',
                     message: '无权删除该文件'

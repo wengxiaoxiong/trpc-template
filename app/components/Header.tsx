@@ -14,7 +14,7 @@ const navItems = [
 
 export function Header() {
     const router = useRouter();
-    const { data: user, refetch: refetchUser } = trpc.auth.getCurrentUser.useQuery();
+    const { data: user, refetch: refetchUser } = trpc.user.getCurrentUser.useQuery();
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [uploading, setUploading] = useState(false);
 
@@ -28,7 +28,7 @@ export function Header() {
         }
     });
 
-    const { mutateAsync: updateAvatar } = trpc.auth.updateAvatar.useMutation({
+    const { mutateAsync: updateAvatar } = trpc.user.updateAvatar.useMutation({
         onSuccess: () => {
             message.success('头像更新成功');
             refetchUser();

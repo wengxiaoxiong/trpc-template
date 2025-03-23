@@ -16,7 +16,7 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const { mutateAsync: loginMutation } = trpc.auth.login.useMutation({
+  const { mutateAsync: loginMutation } = trpc.user.login.useMutation({
     onSuccess: (data) => {
       login(data.token)
       message.success('登录成功')

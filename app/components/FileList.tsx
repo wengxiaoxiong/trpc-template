@@ -8,21 +8,29 @@ import { message } from 'antd';
 
 interface FileListProps {
     className?: string;
+    userId?: number;
 }
 
 export const FileList: React.FC<FileListProps> = ({
-    className
+    className,
+    userId
 }) => {
     const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
     const [selectedFileType, setSelectedFileType] = useState<FileType | undefined>(undefined);
     const [selectedPath, setSelectedPath] = useState<string | null>(null);
 
     // 数据查询
-    const { data: fileListData, refetch: refetchFiles } = trpc.minio.listFiles.useQuery({
-        page: pagination.current,
-        pageSize: pagination.pageSize,
-        fileType: selectedFileType
-    });
+    const { data: fileListData, refetch: refetchFiles } = userId 
+        ? trpc.user.getUserFiles.useQuery({
+            userId,
+            page: pagination.current,
+            pageSize: pagination.pageSize,
+        })
+        : trpc.minio.listFiles.useQuery({
+            page: pagination.current,
+            pageSize: pagination.pageSize,
+            fileType: selectedFileType
+        });
 
     // 删除文件
     const { mutateAsync: deleteFileMutation } = trpc.minio.deleteFile.useMutation();
@@ -129,16 +137,18 @@ export const FileList: React.FC<FileListProps> = ({
 
     return (
         <div className={className}>
-            <div className="mb-4">
-                <Select
-                    placeholder="选择文件类型"
-                    style={{ width: 200 }}
-                    options={fileTypeOptions}
-                    value={selectedFileType}
-                    onChange={handleFileTypeChange}
-                    allowClear
-                />
-            </div>
+            {!userId && (
+                <div className="mb-4">
+                    <Select
+                        placeholder="选择文件类型"
+                        style={{ width: 200 }}
+                        options={fileTypeOptions}
+                        value={selectedFileType}
+                        onChange={handleFileTypeChange}
+                        allowClear
+                    />
+                </div>
+            )}
             <Table
                 dataSource={fileListData?.files}
                 columns={columns}

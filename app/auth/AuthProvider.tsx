@@ -40,7 +40,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const pathname = usePathname()
 
-  const { data: currentUser, error } = trpc.auth.getCurrentUser.useQuery(undefined, {
+  const { data: currentUser, error } = trpc.user.getCurrentUser.useQuery(undefined, {
     retry: false,
     refetchOnWindowFocus: false,
     refetchOnMount: true
@@ -65,7 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = useCallback((token: string) => {
     tokenUtils.set(token)
     // 立即获取用户信息
-    utils.auth.getCurrentUser.invalidate()
+    utils.user.getCurrentUser.invalidate()
     router.push('/')
   }, [router, utils])
 

@@ -16,7 +16,7 @@ export default function RegisterPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const { mutateAsync: register } = trpc.auth.register.useMutation({
+  const { mutateAsync: register } = trpc.user.register.useMutation({
     onSuccess: (data) => {
       login(data.token)
       message.success('注册成功')

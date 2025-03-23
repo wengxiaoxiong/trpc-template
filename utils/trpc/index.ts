@@ -13,6 +13,7 @@ export interface Context {
         [key:string]:string|undefined;
       };
     };
+    user?: any;
 }
 
 const t = initTRPC.context<Context>().create({
@@ -45,10 +46,34 @@ const isAuthenticated = t.middleware(async ({ ctx, next }) => {
     }else{
         throw new TRPCError({ code: 'FORBIDDEN', message: 'No user' });
     }
+});
 
+const isAdmin = t.middleware(async ({ ctx, next }) => {
+    const token = ctx.req?.headers?.cookie?.split('; ').find(row => row.startsWith('token'))?.split('=')[1];
+    if (!token) {
+        throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Token missing from cookie' });
+    }
+
+    const decoded = verifyToken(token) as {id:number,iat: number,exp: number}
+    if (!decoded || decoded.exp < Date.now() / 1000) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Invalid or expired token' });
+    }
+
+    const user = await prisma.user.findFirst({where:{id:decoded.id}})
+    if (!user?.isAdmin) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: '需要管理员权限' });
+    }
+
+    return next({
+        ctx: {
+            ...ctx,
+            user: user,
+        },
+    });
 });
 
 export const router = t.router;
 export const publicProcedure = t.procedure;
 export const protectedProcedure = t.procedure.use(isAuthenticated);
+export const adminProcedure = t.procedure.use(isAdmin);
 export const createCallerFactory = t.createCallerFactory;
