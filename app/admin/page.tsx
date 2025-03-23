@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Table, Button, Modal, Form, Input, Switch, message, Space, Pagination, Tabs } from 'antd';
+import { Table, Button, Modal, Form, Input, Switch, message, Space, Pagination, Tabs, ConfigProvider } from 'antd';
 import { trpc } from '@/utils/trpc/client';
 import { PlusOutlined, EditOutlined, DeleteOutlined, FileOutlined } from '@ant-design/icons';
 import UserFilesModal from './components/UserFilesModal';
@@ -9,6 +9,10 @@ import { AdminRouteGuard } from '../components/AdminRouteGuard';
 import { MainPageLayout } from '../components/MainPageLayout';
 import { Card } from 'antd';
 import SiteConfigManager from './components/SiteConfigManager';
+import InvitationCodeManager from './components/InvitationCodeManager';
+// 导入dayjs和中文语言包
+import dayjs from 'dayjs';
+import zhCN from 'antd/locale/zh_CN';
 
 export default function AdminPage() {
   const [form] = Form.useForm();
@@ -65,37 +69,49 @@ export default function AdminPage() {
   const handleCreate = () => {
     setEditingUser(null);
     form.resetFields();
+    form.setFieldsValue({
+      isAdmin: false,
+    });
     setIsModalVisible(true);
   };
 
   const handleEdit = (user: any) => {
     setEditingUser(user);
-    form.setFieldsValue(user);
+    form.setFieldsValue({
+      username: user.username,
+      isAdmin: user.isAdmin,
+    });
     setIsModalVisible(true);
   };
 
-  const handleDelete = async (id: number) => {
-    try {
-      await deleteUser.mutateAsync({ id });
-    } catch (error) {
-      // 错误已经在 mutation 的 onError 中处理
-    }
+  const handleDelete = (id: number) => {
+    Modal.confirm({
+      title: '确认删除',
+      content: '确定要删除此用户吗？',
+      okText: '确定',
+      cancelText: '取消',
+      onOk: () => {
+        deleteUser.mutate({ id });
+      },
+    });
   };
 
-  const handleModalOk = async () => {
-    try {
-      const values = await form.validateFields();
+  const handleModalOk = () => {
+    form.validateFields().then((values) => {
       if (editingUser) {
-        await updateUser.mutateAsync({
+        updateUser.mutate({
           id: editingUser.id,
-          ...values,
+          username: values.username,
+          isAdmin: values.isAdmin,
         });
       } else {
-        await createUser.mutateAsync(values);
+        createUser.mutate({
+          username: values.username,
+          password: values.password,
+          isAdmin: values.isAdmin,
+        });
       }
-    } catch (error) {
-      // 错误已经在 mutation 的 onError 中处理
-    }
+    });
   };
 
   const handleViewFiles = (userId: number) => {
@@ -175,6 +191,28 @@ export default function AdminPage() {
     },
   ];
 
+  // 注册配置管理
+  const { data: requireInvitationCode, isLoading: isLoadingConfig } = 
+    trpc.user.getRequireInvitationCodeSetting.useQuery();
+  
+  const { mutate: updateConfig } = trpc.config.updateConfig.useMutation({
+    onSuccess: () => {
+      message.success('配置更新成功');
+      utils.user.getRequireInvitationCodeSetting.invalidate();
+    },
+    onError: (error) => {
+      message.error(error.message);
+    },
+  });
+
+  const handleToggleInvitationCodeRequirement = (checked: boolean) => {
+    updateConfig({
+      key: 'registration.requireInvitationCode',
+      value: checked ? 'true' : 'false',
+      description: '是否需要邀请码注册'
+    });
+  };
+
   // 管理页面的标签页
   const tabItems = [
     {
@@ -216,6 +254,27 @@ export default function AdminPage() {
       ),
     },
     {
+      key: 'invitationCodes',
+      label: '邀请码管理',
+      children: (
+        <Card 
+          title="邀请码管理"
+          extra={
+            <div className="flex items-center">
+              <span className="mr-2">需要邀请码注册：</span>
+              <Switch 
+                checked={requireInvitationCode} 
+                onChange={handleToggleInvitationCodeRequirement}
+                loading={isLoadingConfig}
+              />
+            </div>
+          }
+        >
+          <InvitationCodeManager />
+        </Card>
+      ),
+    },
+    {
       key: 'configs',
       label: '站点配置',
       children: (
@@ -228,56 +287,58 @@ export default function AdminPage() {
 
   return (
     <AdminRouteGuard>
-      <MainPageLayout>
-        <Tabs 
-          items={tabItems} 
-          activeKey={activeTab} 
-          onChange={setActiveTab} 
-          tabPosition="left"
-          className="admin-tabs"
-        />
-
-        <Modal
-          title={editingUser ? '编辑用户' : '创建用户'}
-          open={isModalVisible}
-          onOk={handleModalOk}
-          onCancel={() => setIsModalVisible(false)}
-        >
-          <Form form={form} layout="vertical">
-            <Form.Item
-              name="username"
-              label="用户名"
-              rules={[{ required: true, message: '请输入用户名' }]}
-            >
-              <Input />
-            </Form.Item>
-            {!editingUser && (
-              <Form.Item
-                name="password"
-                label="密码"
-                rules={[{ required: true, message: '请输入密码' }]}
-              >
-                <Input.Password />
-              </Form.Item>
-            )}
-            <Form.Item
-              name="isAdmin"
-              label="管理员权限"
-              valuePropName="checked"
-            >
-              <Switch />
-            </Form.Item>
-          </Form>
-        </Modal>
-
-        {selectedUserId && (
-          <UserFilesModal
-            userId={selectedUserId}
-            visible={!!selectedUserId}
-            onClose={() => setSelectedUserId(null)}
+      <ConfigProvider locale={zhCN}>
+        <MainPageLayout>
+          <Tabs 
+            items={tabItems} 
+            activeKey={activeTab} 
+            onChange={setActiveTab} 
+            tabPosition="left"
+            className="admin-tabs"
           />
-        )}
-      </MainPageLayout>
+
+          <Modal
+            title={editingUser ? '编辑用户' : '创建用户'}
+            open={isModalVisible}
+            onOk={handleModalOk}
+            onCancel={() => setIsModalVisible(false)}
+          >
+            <Form form={form} layout="vertical">
+              <Form.Item
+                name="username"
+                label="用户名"
+                rules={[{ required: true, message: '请输入用户名' }]}
+              >
+                <Input />
+              </Form.Item>
+              {!editingUser && (
+                <Form.Item
+                  name="password"
+                  label="密码"
+                  rules={[{ required: true, message: '请输入密码' }]}
+                >
+                  <Input.Password />
+                </Form.Item>
+              )}
+              <Form.Item
+                name="isAdmin"
+                label="管理员权限"
+                valuePropName="checked"
+              >
+                <Switch />
+              </Form.Item>
+            </Form>
+          </Modal>
+
+          {selectedUserId && (
+            <UserFilesModal
+              userId={selectedUserId}
+              visible={!!selectedUserId}
+              onClose={() => setSelectedUserId(null)}
+            />
+          )}
+        </MainPageLayout>
+      </ConfigProvider>
     </AdminRouteGuard>
   );
 } 

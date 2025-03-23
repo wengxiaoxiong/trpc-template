@@ -8,6 +8,11 @@ const prismaGlobal = global as typeof global & {
     prisma?: PrismaClient
 }
 
+// 清除之前的实例
+if (process.env.NODE_ENV !== 'production' && prismaGlobal.prisma) {
+    prismaGlobal.prisma = undefined;
+}
+
 export const prisma: PrismaClient =
     prismaGlobal.prisma ||
     new PrismaClient({

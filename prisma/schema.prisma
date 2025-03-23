@@ -17,15 +17,30 @@ model SiteConfig {
     description String?  @db.Text
 }
 
+// 邀请码模型
+model InvitationCode {
+    id              Int       @id @default(autoincrement())
+    code            String    @unique
+    usedCount       Int       @default(0)
+    maxUses         Int       @default(1)
+    isActive        Boolean   @default(true)
+    createdAt       DateTime  @default(now())
+    expiresAt       DateTime?
+    createdBy       Int
+    users           User[]
+}
+
 model User {
-    id         Int      @id @default(autoincrement())
-    createdAt  DateTime @default(now())
-    updatedAt  DateTime @updatedAt
-    username   String   @unique
-    password   String 
-    avatar     String?
-    isAdmin    Boolean  @default(false)
-    files      UserFile[]
+    id             Int              @id @default(autoincrement())
+    createdAt      DateTime         @default(now())
+    updatedAt      DateTime         @updatedAt
+    username       String           @unique
+    password       String 
+    avatar         String?
+    isAdmin        Boolean          @default(false)
+    files          UserFile[]
+    invitationCode InvitationCode?  @relation(fields: [invitationCodeId], references: [id])
+    invitationCodeId Int?
 }
 
 // 文件类型枚举

@@ -5,7 +5,7 @@ import { trpc } from '@/utils/trpc/client'
 import { useState, useEffect } from 'react'
 import { useAuth } from '../auth/AuthProvider'
 import { Input, Button, message, Form } from 'antd'
-import { UserOutlined, LockOutlined } from '@ant-design/icons'
+import { UserOutlined, LockOutlined, KeyOutlined } from '@ant-design/icons'
 import { AuthLayout } from '../components/AuthLayout'
 import { AuthHeader } from '../components/AuthHeader'
 import { AuthPageLink } from '../components/AuthPageLink'
@@ -16,8 +16,13 @@ export default function RegisterPage() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [invitationCode, setInvitationCode] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  // 获取是否需要邀请码的设置
+  const { data: requireInvitationCode, isLoading: isLoadingConfig } = 
+    trpc.user.getRequireInvitationCodeSetting.useQuery();
 
   const { mutateAsync: register } = trpc.user.register.useMutation({
     onSuccess: (data) => {
@@ -45,7 +50,11 @@ export default function RegisterPage() {
     }
     setLoading(true)
     try {
-      await register({ username: values.username, password: values.password })
+      await register({ 
+        username: values.username, 
+        password: values.password,
+        ...(values.invitationCode ? { invitationCode: values.invitationCode } : {})
+      })
     } catch (error) {
       setLoading(false)
     }
@@ -92,6 +101,26 @@ export default function RegisterPage() {
             className="rounded-lg border-gray-300"
           />
         </Form.Item>
+
+        {/* 邀请码字段，根据配置显示 */}
+        {(requireInvitationCode || isLoadingConfig) && (
+          <Form.Item
+            name="invitationCode"
+            rules={[
+              { 
+                required: requireInvitationCode, 
+                message: '请输入邀请码' 
+              }
+            ]}
+          >
+            <Input
+              prefix={<KeyOutlined className="text-gray-400" />}
+              placeholder="请输入邀请码"
+              size="large"
+              className="rounded-lg border-gray-300"
+            />
+          </Form.Item>
+        )}
 
         {error && (
           <div className="text-red-500 text-sm">{error}</div>

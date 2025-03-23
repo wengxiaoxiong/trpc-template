@@ -38,7 +38,10 @@ export const MinioFileUploader: React.FC<{
           description,
           // 获取上传凭证的函数
           getCredentials: async () => {
-            const result = await utils.client.minio.getCredentials.query();
+            const result = await utils.client.minio.getCredentials.query({
+              _randomParam: Date.now(),
+              _uniqueId: crypto.randomUUID()
+            });
             return result;
           },
           // 创建文件记录的函数
@@ -47,6 +50,9 @@ export const MinioFileUploader: React.FC<{
           }
         });
 
+        // 发送全局事件，让其他组件可以监听到文件上传成功
+        window.dispatchEvent(new CustomEvent('fileUploaded'));
+        
         // 刷新文件列表（如果需要）
         onUploadComplete?.();
 

@@ -12,17 +12,76 @@ export const userRouter = router({
       z.object({
         username: z.string(),
         password: z.string(),
+        invitationCode: z.string().optional(),
       })
     )
     .mutation(async ({ input }) => {
-      const { username, password } = input;
+      const { username, password, invitationCode } = input;
+      
+      // 检查是否需要邀请码
+      const requireInvitationCode = await prisma.siteConfig.findUnique({
+        where: { key: 'registration.requireInvitationCode' },
+      });
+      
+      if (requireInvitationCode && requireInvitationCode.value === 'true' && !invitationCode) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: '注册需要邀请码',
+        });
+      }
+
+      let invitationCodeRecord;
+      if (invitationCode) {
+        invitationCodeRecord = await prisma.invitationCode.findUnique({
+          where: { code: invitationCode },
+        });
+
+        if (!invitationCodeRecord) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: '邀请码无效',
+          });
+        }
+
+        if (!invitationCodeRecord.isActive) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: '邀请码已被禁用',
+          });
+        }
+
+        if (invitationCodeRecord.expiresAt && invitationCodeRecord.expiresAt < new Date()) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: '邀请码已过期',
+          });
+        }
+
+        if (invitationCodeRecord.usedCount >= invitationCodeRecord.maxUses) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: '邀请码已达到最大使用次数',
+          });
+        }
+      }
+
       const hashedPassword = await bcrypt.hash(password, 10);
       const user = await prisma.user.create({
         data: {
           username,
           password: hashedPassword,
+          ...(invitationCodeRecord ? { invitationCodeId: invitationCodeRecord.id } : {}),
         },
       });
+
+      // 更新邀请码使用次数
+      if (invitationCodeRecord) {
+        await prisma.invitationCode.update({
+          where: { id: invitationCodeRecord.id },
+          data: { usedCount: invitationCodeRecord.usedCount + 1 },
+        });
+      }
+
       const token = generateToken(user.id);
       const sanitizedUser = { ...user, password: undefined };
       return { token, user: sanitizedUser };
@@ -222,5 +281,94 @@ export const userRouter = router({
     .query(async () => {
       const total = await prisma.user.count();
       return total;
+    }),
+
+  // 邀请码管理
+  createInvitationCode: adminProcedure
+    .input(z.object({
+      maxUses: z.number().min(1).default(1),
+      expiresAt: z.string().optional().nullable(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const { maxUses, expiresAt } = input;
+      
+      // 生成随机邀请码
+      const generateRandomCode = () => {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let code = '';
+        for (let i = 0; i < 8; i++) {
+          code += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return code;
+      };
+      
+      // 确保生成的邀请码唯一
+      let code;
+      let existingCode;
+      do {
+        code = generateRandomCode();
+        existingCode = await prisma.invitationCode.findUnique({
+          where: { code },
+        });
+      } while (existingCode);
+      
+      return prisma.invitationCode.create({
+        data: {
+          code,
+          maxUses,
+          expiresAt: expiresAt ? new Date(expiresAt) : null,
+          createdBy: ctx.user.id,
+        },
+      });
+    }),
+    
+  getAllInvitationCodes: adminProcedure
+    .query(async () => {
+      return prisma.invitationCode.findMany({
+        orderBy: { createdAt: 'desc' },
+        include: {
+          users: {
+            select: {
+              id: true,
+              username: true,
+            },
+          },
+        },
+      });
+    }),
+    
+  updateInvitationCode: adminProcedure
+    .input(z.object({
+      id: z.number(),
+      isActive: z.boolean().optional(),
+      maxUses: z.number().min(1).optional(),
+      expiresAt: z.string().nullable().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const { id, ...data } = input;
+      return prisma.invitationCode.update({
+        where: { id },
+        data: {
+          ...data,
+          expiresAt: data.expiresAt ? new Date(data.expiresAt) : null
+        },
+      });
+    }),
+    
+  deleteInvitationCode: adminProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      return prisma.invitationCode.delete({
+        where: { id: input.id },
+      });
+    }),
+
+  // 获取注册是否需要邀请码
+  getRequireInvitationCodeSetting: publicProcedure
+    .query(async () => {
+      const config = await prisma.siteConfig.findUnique({
+        where: { key: 'registration.requireInvitationCode' },
+      });
+      return config?.value === 'true';
     }),
 }); 

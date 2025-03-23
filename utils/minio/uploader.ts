@@ -105,6 +105,7 @@ export class MinioUploader {
     const results = [];
     for (const file of files) {
       try {
+        // 每个文件都调用单独的uploadFile，确保获取独立的凭证
         const result = await this.uploadFile({
           ...options,
           file

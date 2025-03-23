@@ -38,8 +38,14 @@ const paginationSchema = z.object({
 export const minioRouter = router({
     // 获取临时凭证
     getCredentials: protectedProcedure
+        .input(z.object({ 
+            _randomParam: z.number().optional(),
+            _uniqueId: z.string().optional() 
+        }).optional())
         .query(async ({ ctx }) => {
-            const pathName = `${ctx.user.id}/${crypto.randomUUID()}`
+            // 确保每次调用都生成新的UUID
+            const uuid = crypto.randomUUID();
+            const pathName = `${ctx.user.id}/${uuid}`;
 
             try {
                 const presignedUrl = await minioClient.presignedPutObject(

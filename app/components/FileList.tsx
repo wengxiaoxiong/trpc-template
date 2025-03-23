@@ -1,6 +1,6 @@
 import { Button, Select, Table, Tag } from 'antd';
 import { DownloadOutlined, DeleteOutlined } from '@ant-design/icons';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { FileType } from '@prisma/client';
 import { trpc } from '@/utils/trpc/client';
 import { MinioImage } from './MinioImage';
@@ -11,10 +11,14 @@ interface FileListProps {
     userId?: number;
 }
 
-export const FileList: React.FC<FileListProps> = ({
+export interface FileListRef {
+    refetchFiles: () => void;
+}
+
+export const FileList = forwardRef<FileListRef, FileListProps>(({
     className,
     userId
-}) => {
+}, ref) => {
     const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
     const [selectedFileType, setSelectedFileType] = useState<FileType | undefined>(undefined);
     const [selectedPath, setSelectedPath] = useState<string | null>(null);
@@ -31,6 +35,24 @@ export const FileList: React.FC<FileListProps> = ({
             pageSize: pagination.pageSize,
             fileType: selectedFileType
         });
+
+    // 暴露refetchFiles方法给父组件
+    useImperativeHandle(ref, () => ({
+        refetchFiles
+    }));
+
+    // 监听文件上传成功事件，刷新文件列表
+    useEffect(() => {
+        const handleFileUploaded = () => {
+            refetchFiles();
+        };
+
+        window.addEventListener('fileUploaded', handleFileUploaded);
+        
+        return () => {
+            window.removeEventListener('fileUploaded', handleFileUploaded);
+        };
+    }, [refetchFiles]);
 
     // 删除文件
     const { mutateAsync: deleteFileMutation } = trpc.minio.deleteFile.useMutation();
@@ -176,4 +198,4 @@ export const FileList: React.FC<FileListProps> = ({
             </div>
         </div>
     );
-}; 
+}); 

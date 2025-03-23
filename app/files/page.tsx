@@ -1,21 +1,20 @@
 'use client'
 import { MainPageLayout } from "@/app/components/MainPageLayout"
 import { trpc } from "@/utils/trpc/client"
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Upload, message, Card } from 'antd';
 import type { UploadProps } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
-import { FileList } from "../components/FileList";
+import { FileList, FileListRef } from "../components/FileList";
 import { FileType } from "@prisma/client";
 
 const { Dragger } = Upload;
 
 export default function FilesPage() {
     const [uploading, setUploading] = useState(false);
-    const { refetch: refetchCredentials } = trpc.minio.getCredentials.useQuery(undefined, {
-        enabled: true
-    });
-
+    const utils = trpc.useUtils();
+    const fileListRef = useRef<FileListRef>(null);
+    
     const {
         mutateAsync: createFileMutation,
     } = trpc.minio.createFile.useMutation();
@@ -31,12 +30,17 @@ export default function FilesPage() {
             try {
                 setUploading(true);
                 
-                const newCredentials = await refetchCredentials();
-                if (!newCredentials.data) {
+                // 为每个文件单独获取新的凭证
+                const newCredentials = await utils.client.minio.getCredentials.query({
+                    _randomParam: Date.now(),
+                    _uniqueId: crypto.randomUUID()
+                });
+                
+                if (!newCredentials) {
                     throw new Error('无法获取上传凭证');
                 }
 
-                const uploadUrl = newCredentials.data.uploadUrl;
+                const uploadUrl = newCredentials.uploadUrl;
 
                 const response = await fetch(uploadUrl, {
                     method: 'PUT',
@@ -50,7 +54,7 @@ export default function FilesPage() {
                     onSuccess?.(response);
                     await createFileMutation(
                         {
-                            path: newCredentials.data.pathName,
+                            path: newCredentials.pathName,
                             type: uploadFile.type || 'application/octet-stream',
                             name: uploadFile.name,
                             size: uploadFile.size,
@@ -59,6 +63,9 @@ export default function FilesPage() {
                         }
                     )
                     message.success(`${uploadFile.name} 文件上传成功`);
+                    
+                    // 刷新文件列表
+                    fileListRef.current?.refetchFiles();
                 } else {
                     throw new Error('上传失败');
                 }
@@ -90,7 +97,9 @@ export default function FilesPage() {
                 </Card>
 
                 <Card title="文件列表" className="w-full">
-                    <FileList />
+                    <FileList 
+                        ref={fileListRef}
+                    />
                 </Card>
             </div>
         </MainPageLayout>
