@@ -57,6 +57,24 @@ NEXTAUTH_URL="http://localhost:3002"
 NEXTAUTH_SECRET="your-secret-key"
 ```
 
+### 邀请码系统
+
+系统提供邀请码注册功能，可以限制用户注册，只有拥有有效邀请码的用户才能注册。
+
+#### 管理邀请码
+
+1. 管理员可以在后台创建邀请码
+2. 每个邀请码可以设置有效期和使用次数
+3. 系统会记录邀请码的使用记录
+
+#### 生成邀请码
+
+1. 登录管理后台 (/admin)
+2. 进入"邀请码管理"页面
+3. 点击"生成邀请码"按钮
+4. 设置邀请码有效期和可使用次数
+5. 点击"确认"生成邀请码
+
 ### 运行开发服务器
 
 ```bash
@@ -66,6 +84,105 @@ yarn dev
 ```
 
 访问 http://localhost:3002 查看应用。
+
+## Docker 部署
+
+本项目支持使用 Docker 进行容器化部署，简化环境配置和应用部署过程。
+
+### 构建 Docker 镜像
+
+```bash
+docker build -t trpc-app .
+```
+
+### 运行 Docker 容器
+
+```bash
+docker run -d \
+  --name trpc-app \
+  -p 3002:3002 \
+  -e DATABASE_URL="mysql://user:password@host:3306/dbname" \
+  -e MINIO_ACCESS_KEY="minio_access_key" \
+  -e MINIO_SECRET_KEY="minio_secret_key" \
+  -e MINIO_ENDPOINT="minio_endpoint" \
+  -e MINIO_USE_SSL=false \
+  -e MINIO_BUCKET="bucket_name" \
+  -e JWT_SECRET="your_jwt_secret" \
+  -e PORT=3002 \
+  trpc-app
+```
+
+### 环境变量说明
+
+| 环境变量 | 说明 | 示例 |
+|---------|------|------|
+| DATABASE_URL | 数据库连接字符串 | mysql://user:password@host:3306/dbname |
+| MINIO_ACCESS_KEY | MinIO 访问密钥 | minio_access_key |
+| MINIO_SECRET_KEY | MinIO 秘密密钥 | minio_secret_key |
+| MINIO_ENDPOINT | MinIO 服务端点 | minio.example.com |
+| MINIO_USE_SSL | 是否使用 SSL 连接 MinIO | true/false |
+| MINIO_BUCKET | MinIO 存储桶名称 | mybucket |
+| JWT_SECRET | JWT 签名密钥 | your_secure_secret_key |
+| PORT | 应用服务端口 | 3002 |
+
+### 使用 Docker Compose
+
+创建 `docker-compose.yml` 文件：
+
+```yaml
+version: '3'
+services:
+  app:
+    build: .
+    ports:
+      - "3002:3002"
+    environment:
+      - DATABASE_URL=mysql://user:password@db:3306/trpc_db
+      - MINIO_ACCESS_KEY=minio_access_key
+      - MINIO_SECRET_KEY=minio_secret_key
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_USE_SSL=false
+      - MINIO_BUCKET=trpc-bucket
+      - JWT_SECRET=your_jwt_secret
+      - PORT=3002
+    depends_on:
+      - db
+      - minio
+  
+  db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=trpc_db
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+    volumes:
+      - mysql_data:/var/lib/mysql
+  
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=minio_access_key
+      - MINIO_ROOT_PASSWORD=minio_secret_key
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+
+volumes:
+  mysql_data:
+  minio_data:
+```
+
+运行 Docker Compose：
+
+```bash
+docker-compose up -d
+```
 
 ## 部署
 
