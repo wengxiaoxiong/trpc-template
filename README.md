@@ -53,7 +53,7 @@ yarn install
 
 ```
 DATABASE_URL="mysql://root:12345678@localhost:3306/mydb"
-NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_URL="http://localhost:3002"
 NEXTAUTH_SECRET="your-secret-key"
 ```
 
@@ -65,7 +65,7 @@ npm run dev
 yarn dev
 ```
 
-访问 http://localhost:3000 查看应用。
+访问 http://localhost:3002 查看应用。
 
 ## 部署
 
@@ -182,8 +182,8 @@ pnpm dev
 ```
 
 访问地址：
-- 前台页面：http://localhost:3000
-- 后台管理：http://localhost:3000/admin
+- 前台页面：http://localhost:3002
+- 后台管理：http://localhost:3002/admin
 
 后台管理初始账号：
 - 用户名：admin

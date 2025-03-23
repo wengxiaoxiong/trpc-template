@@ -38,4 +38,5 @@ next-env.d.ts
 
 # minio
 .env
+.env.production
 .next
