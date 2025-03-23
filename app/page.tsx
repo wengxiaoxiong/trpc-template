@@ -79,7 +79,7 @@ const LandingPage: React.FC = () => {
               现代化Web应用模版
             </Title>
             <Paragraph className="mt-6 text-xl text-gray-600 max-w-3xl mx-auto">
-              基于 Next.js + tRPC + Prisma + Tailwind CSS 构建的高性能、可扩展的企业级应用模版。
+              基于 Next.js + tRPC + Prisma + Minio + Tailwind CSS 构建的高性能、可扩展的企业级应用模版。
               快速开发您的下一个重要项目。
             </Paragraph>
             <div className="mt-10">
@@ -120,27 +120,26 @@ const LandingPage: React.FC = () => {
               <div className="p-6 bg-white rounded-lg shadow-md">
                 <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                   </svg>
                 </div>
-                <Title level={3} className="text-xl font-semibold">高性能</Title>
+                <Title level={3} className="text-xl font-semibold">高效开发</Title>
                 <Paragraph className="mt-2 text-gray-600">
-                  使用Next.js和React构建，确保快速加载和响应式体验。
+                  内置完整Auth系统，快速构建产品MVP，支持多种认证方式。
                 </Paragraph>
               </div>
               
               <div className="p-6 bg-white rounded-lg shadow-md">
                 <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                   </svg>
                 </div>
-                <Title level={3} className="text-xl font-semibold">安全可靠</Title>
+                <Title level={3} className="text-xl font-semibold">文件存储</Title>
                 <Paragraph className="mt-2 text-gray-600">
-                  内置完善的认证系统和权限控制，保护您的数据安全。
+                  基于MinIO构建的高性能对象存储系统，安全可靠地管理用户文件。
                 </Paragraph>
               </div>
-              
               <div className="p-6 bg-white rounded-lg shadow-md">
                 <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
