@@ -52,7 +52,7 @@ yarn install
 复制 `.env.example` 文件为 `.env.local` 并填写相应配置:
 
 ```
-DATABASE_URL="postgresql://user:password@localhost:5432/mydb"
+DATABASE_URL="mysql://root:12345678@localhost:3306/mydb"
 NEXTAUTH_URL="http://localhost:3000"
 NEXTAUTH_SECRET="your-secret-key"
 ```

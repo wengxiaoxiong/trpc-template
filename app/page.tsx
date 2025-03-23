@@ -105,7 +105,7 @@ const LandingPage: React.FC = () => {
                   <Button
                     type="default"
                     size="large"
-                    onClick={() => window.open('https://github.com/your-repo', '_blank')}
+                    onClick={() => window.open('https://github.com/wengxiaoxiong/trpc-template', '_blank')}
                     className="ml-4 h-12 px-8 text-base font-medium"
                   >
                     查看文档
