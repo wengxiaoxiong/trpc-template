@@ -20,6 +20,7 @@ const predefinedKeys = [
   { key: 'site.footer.slogan', description: '页脚标语' },
   { key: 'site.logo.url', description: 'Logo图片在Minio中的路径' },
   { key: 'site.year', description: '版权年份' },
+  { key: 'site.logo.url', description: '' },
 ];
 
 export default function SiteConfigManager() {
