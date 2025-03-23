@@ -1,5 +1,5 @@
 import { Avatar, Button, Dropdown, Menu, Modal, Upload, message } from 'antd';
-import { SearchOutlined, SettingOutlined, UploadOutlined, UserOutlined, LogoutOutlined } from '@ant-design/icons';
+import { SearchOutlined, SettingOutlined, UploadOutlined, UserOutlined, LogoutOutlined, MenuOutlined } from '@ant-design/icons';
 import { useAuth } from '../auth/AuthProvider';
 import { useRouter } from 'next/navigation';
 import { trpc } from '@/utils/trpc/client';
@@ -17,6 +17,7 @@ export function Header() {
     const { data: user, refetch: refetchUser } = trpc.user.getCurrentUser.useQuery();
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const { logout } = useAuth();
 
     const { uploadFile } = useMinioUpload({
@@ -65,42 +66,119 @@ export function Header() {
             </Menu.Item>
         </Menu>
     );
+    
+    const mobileNavItems = [
+        ...navItems,
+        ...(user?.isAdmin ? [{ href: '/admin', label: '管理后台' }] : []),
+    ];
 
     return (
-        <header className="bg-white shadow-sm py-4 px-6 flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-8">
+        <header className="bg-white shadow-sm py-4 px-4 sm:px-6 flex flex-wrap items-center justify-between mb-6">
+            <div className="flex items-center justify-between w-full lg:w-auto">
                 <h1 className="text-xl font-semibold text-gray-800 select-none cursor-pointer" onClick={() => { router.push("/webapp") }} >模版项目</h1>
-                <nav className="flex space-x-4">
-                    {navItems.map(item => (
-                        <Button key={item.href} type="text" onClick={() => router.push(item.href)}>
-                            {item.label}
-                        </Button>
-                    ))}
-                    {user?.isAdmin && (
-                        <Button type="text" onClick={() => router.push('/admin')}>
-                            管理后台
-                        </Button>
-                    )}
-                </nav>
+                <button 
+                    className="lg:hidden p-2 rounded-md hover:bg-gray-100 focus:outline-none" 
+                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                    aria-label="打开菜单"
+                >
+                    <MenuOutlined className="text-gray-700 text-xl" />
+                </button>
             </div>
-            <div className="flex items-center space-x-4">
+            
+            {/* 桌面导航 */}
+            <nav className="hidden lg:flex lg:space-x-4">
+                {navItems.map(item => (
+                    <Button key={item.href} type="text" onClick={() => router.push(item.href)}>
+                        {item.label}
+                    </Button>
+                ))}
+                {user?.isAdmin && (
+                    <Button type="text" onClick={() => router.push('/admin')}>
+                        管理后台
+                    </Button>
+                )}
+            </nav>
+            
+            {/* 用户信息（桌面） */}
+            <div className="hidden lg:flex items-center space-x-4">
                 <Dropdown overlay={menu} trigger={['click']}>
-                    <div className="flex items-center space-x-2 cursor-pointer">
-                        {user && user.avatar ? (
-                            <MinioImage
-                                pathName={user.avatar}
-                                width={32}
-                                height={32}
-                                className="rounded-full"
-                                preview={false}
-                            />
-                        ) : (
-                            <Avatar icon={<UserOutlined />} />
-                        )}
-                        <span className="text-gray-800">{user?.username}</span>
+                    <div className="flex items-center space-x-3 cursor-pointer p-1 hover:bg-gray-50 rounded-md">
+                        <div className="flex-shrink-0">
+                            {user && user.avatar ? (
+                                <MinioImage
+                                    pathName={user.avatar}
+                                    width={36}
+                                    height={36}
+                                    className="rounded-full"
+                                    preview={false}
+                                />
+                            ) : (
+                                <Avatar icon={<UserOutlined />} size={36} />
+                            )}
+                        </div>
+                        <span className="text-gray-800 font-medium">{user?.username}</span>
                     </div>
                 </Dropdown>
             </div>
+            
+            {/* 移动端导航菜单 */}
+            {mobileMenuOpen && (
+                <div className="w-full lg:hidden mt-4 py-3 border-t border-gray-200">
+                    <div className="flex flex-col space-y-3">
+                        {mobileNavItems.map(item => (
+                            <Button 
+                                key={item.href} 
+                                type="text" 
+                                block 
+                                className="text-left" 
+                                onClick={() => {
+                                    router.push(item.href);
+                                    setMobileMenuOpen(false);
+                                }}
+                            >
+                                {item.label}
+                            </Button>
+                        ))}
+                        <div className="border-t border-gray-100 pt-3">
+                            <div className="flex items-center px-2 py-2 mb-3">
+                                <div className="flex-shrink-0 mr-3">
+                                    {user && user.avatar ? (
+                                        <MinioImage
+                                            pathName={user.avatar}
+                                            width={40}
+                                            height={40}
+                                            className="rounded-full"
+                                            preview={false}
+                                        />
+                                    ) : (
+                                        <Avatar icon={<UserOutlined />} size={40} />
+                                    )}
+                                </div>
+                                <span className="text-gray-800 text-lg">{user?.username}</span>
+                            </div>
+                            <Button 
+                                block 
+                                type="text" 
+                                className="text-left py-2 my-1" 
+                                onClick={() => setIsModalVisible(true)}
+                            >
+                                <UploadOutlined className="mr-2" /> 更换头像
+                            </Button>
+                            <Button 
+                                block 
+                                type="text" 
+                                className="text-left py-2 my-1 text-red-500" 
+                                onClick={() => {
+                                    logout();
+                                    setMobileMenuOpen(false);
+                                }}
+                            >
+                                <LogoutOutlined className="mr-2" /> 退出登录
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <Modal
                 title="更换头像"

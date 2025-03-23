@@ -74,15 +74,18 @@ export const FileList: React.FC<FileListProps> = ({
         setPagination({ ...pagination, current: 1 });
     };
 
+    // 响应式列配置
     const columns = [
         {
             title: '文件名',
             dataIndex: 'name',
             key: 'name',
+            ellipsis: true,
         },
         {
             title: '预览',
             key: 'preview',
+            width: 80,
             render: (_: unknown, record: any) => (
                 record.type.startsWith('image/') && (
                     <MinioImage
@@ -98,6 +101,7 @@ export const FileList: React.FC<FileListProps> = ({
         {
             title: '类型',
             key: 'fileType',
+            width: 120,
             render:(_:unknown, record: any)=>{
                 const typeMap: Record<FileType, string> = {
                     [FileType.AI_GENERATED_IMAGE]: 'AI生成图片',
@@ -105,23 +109,26 @@ export const FileList: React.FC<FileListProps> = ({
                     [FileType.PARAMETER_IMAGE]: '参数图片'
                 };
                 return <Tag>{typeMap[record.fileType as FileType] || '未知类型'}</Tag>
-            }
+            },
         },
         {
             title: '操作',
             key: 'action',
+            width: 100,
             render: (_: unknown, record: any) => (
-                <div className="space-x-2">
+                <div className="flex space-x-1">
                     <Button
                         type="link"
                         icon={<DownloadOutlined />}
                         onClick={() => handleDownload(record)}
+                        size="small"
                     />
                     <Button
                         type="link"
                         danger
                         icon={<DeleteOutlined />}
                         onClick={() => handleDelete(record)}
+                        size="small"
                     />
                 </div>
             ),
@@ -149,19 +156,24 @@ export const FileList: React.FC<FileListProps> = ({
                     />
                 </div>
             )}
-            <Table
-                dataSource={fileListData?.files}
-                columns={columns}
-                rowKey="id"
-                pagination={{
-                    current: pagination.current,
-                    pageSize: pagination.pageSize,
-                    total: fileListData?.total,
-                    showSizeChanger: true,
-                    pageSizeOptions: ['10', '20', '50', '100'],
-                    onChange: (page, pageSize) => setPagination({ current: page, pageSize })
-                }}
-            />
+            <div className="overflow-x-auto">
+                <Table
+                    dataSource={fileListData?.files}
+                    columns={columns}
+                    rowKey="id"
+                    pagination={{
+                        current: pagination.current,
+                        pageSize: pagination.pageSize,
+                        total: fileListData?.total,
+                        showSizeChanger: true,
+                        pageSizeOptions: ['10', '20', '50', '100'],
+                        onChange: (page, pageSize) => setPagination({ current: page, pageSize }),
+                        size: 'small',
+                    }}
+                    scroll={{ x: 'max-content' }}
+                    size="small"
+                />
+            </div>
         </div>
     );
 }; 

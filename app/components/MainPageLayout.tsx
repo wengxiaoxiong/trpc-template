@@ -37,11 +37,11 @@ export const MainPageLayout = ({ children }: DashboardLayoutProps) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
-      <div className="max-w-[1440px] mx-auto px-6">
+      <div className="max-w-[1440px] mx-auto px-3 sm:px-6">
         <Header />
-        <main className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className='cursor-pointer' onClick={() => { router.push("/files") }}>
+        <main className="space-y-4 sm:space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <Card className='cursor-pointer shadow-sm' onClick={() => { router.push("/files") }}>
               <Statistic
                 title="文件总数"
                 value={filesCount || 0}
@@ -49,7 +49,7 @@ export const MainPageLayout = ({ children }: DashboardLayoutProps) => {
                 valueStyle={{ color: '#3f8600' }}
               />
             </Card>
-            <Card className='cursor-pointer' onClick={() => { router.push("/admin") }}>
+            <Card className='cursor-pointer shadow-sm' onClick={() => { router.push("/admin") }}>
               <Statistic
                 title="用户总数"
                 value={totalUsers || 0}
@@ -58,7 +58,9 @@ export const MainPageLayout = ({ children }: DashboardLayoutProps) => {
               />
             </Card>
           </div>
-          {children}
+          <div className="bg-white rounded-lg shadow-sm p-3 sm:p-6 overflow-auto">
+            {children}
+          </div>
         </main>
       </div>
     </div>
