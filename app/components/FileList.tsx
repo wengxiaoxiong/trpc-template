@@ -4,6 +4,7 @@ import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { FileType } from '@prisma/client';
 import { trpc } from '@/utils/trpc/client';
 import { MinioImage } from './MinioImage';
+import { MinioVideo } from './MinioVideo';
 import { message } from 'antd';
 
 interface FileListProps {
@@ -22,10 +23,13 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
     const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
     const [selectedFileType, setSelectedFileType] = useState<FileType | undefined>(undefined);
     const [selectedPath, setSelectedPath] = useState<string | null>(null);
+    const [sharingPath, setSharingPath] = useState<string | null>(null);
     const [renameModalVisible, setRenameModalVisible] = useState(false);
     const [currentFile, setCurrentFile] = useState<any>(null);
     const [newFileName, setNewFileName] = useState('');
     const [form] = Form.useForm();
+    const [videoPreviewVisible, setVideoPreviewVisible] = useState(false);
+    const [previewVideoPath, setPreviewVideoPath] = useState<string | null>(null);
 
     // 数据查询
     const { data: fileListData, refetch: refetchFiles } = userId 
@@ -64,10 +68,16 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
     // 重命名文件
     const { mutateAsync: renameFileMutation } = trpc.minio.renameFile.useMutation();
 
-    // 获取文件URL
+    // 获取文件URL用于下载
     const { data: fileUrl, isLoading: isLoadingUrl } = trpc.minio.getFileUrl.useQuery(
         { path: selectedPath || '' },
         { enabled: !!selectedPath }
+    );
+
+    // 获取文件URL用于分享
+    const { data: shareUrl, isLoading: isLoadingShareUrl } = trpc.minio.getFileUrl.useQuery(
+        { path: sharingPath || '' },
+        { enabled: !!sharingPath }
     );
 
     // 处理文件下载
@@ -77,6 +87,24 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
             setSelectedPath(null);
         }
     }, [selectedPath, fileUrl, isLoadingUrl]);
+
+    // 处理文件分享URL获取完成后的复制操作
+    useEffect(() => {
+        if (sharingPath && shareUrl?.url && !isLoadingShareUrl) {
+            const copyToClipboard = async () => {
+                try {
+                    await navigator.clipboard.writeText(shareUrl.url);
+                    message.success('下载链接已复制到剪贴板');
+                } catch (error) {
+                    console.error('复制失败:', error);
+                    message.error('复制链接失败');
+                } finally {
+                    setSharingPath(null);
+                }
+            };
+            copyToClipboard();
+        }
+    }, [sharingPath, shareUrl, isLoadingShareUrl]);
 
     const handleDownload = async (file: any) => {
         try {
@@ -153,35 +181,22 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
 
     // 处理文件分享（复制下载链接）
     const handleShare = async (file: any) => {
-        try {
-            // 保存当前路径
-            const currentPath = selectedPath;
-            
-            // 设置要获取URL的文件路径
-            setSelectedPath(file.path);
-            
-            // 等待URL加载完成
-            const checkUrl = async () => {
-                if (fileUrl?.url && selectedPath === file.path) {
-                    await navigator.clipboard.writeText(fileUrl.url);
-                    message.success('下载链接已复制到剪贴板');
-                    // 恢复原来的路径
-                    setSelectedPath(currentPath);
-                } else if (!isLoadingUrl && selectedPath === file.path) {
-                    message.error('获取分享链接失败');
-                    setSelectedPath(currentPath);
-                } else {
-                    // 继续等待
-                    setTimeout(checkUrl, 100);
-                }
-            };
-            
-            // 启动检查
-            setTimeout(checkUrl, 100);
-        } catch (error) {
-            console.error('分享失败:', error);
-            message.error('复制链接失败');
-        }
+        setSharingPath(file.path);
+    };
+
+    const handleVideoPreview = (file: any) => {
+        setPreviewVideoPath(file.path);
+        setVideoPreviewVisible(true);
+    };
+
+    // 判断是否为视频文件
+    const isVideoFile = (mimeType: string) => {
+        return mimeType.startsWith('video/');
+    };
+
+    // 判断是否为图片文件
+    const isImageFile = (mimeType: string) => {
+        return mimeType.startsWith('image/');
     };
 
     // 响应式列配置
@@ -206,17 +221,34 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
             title: '预览',
             key: 'preview',
             width: 80,
-            render: (_: unknown, record: any) => (
-                record.type.startsWith('image/') && (
-                    <MinioImage
-                        pathName={record.path}
-                        width={40}
-                        height={40}
-                        preview={true}
-                        className="object-cover"
-                    />
-                )
-            ),
+            render: (_: unknown, record: any) => {
+                if (isImageFile(record.type)) {
+                    return (
+                        <MinioImage
+                            pathName={record.path}
+                            width={40}
+                            height={40}
+                            preview={true}
+                            className="object-cover"
+                        />
+                    );
+                } else if (isVideoFile(record.type)) {
+                    return (
+                        <div className="cursor-pointer" onClick={() => handleVideoPreview(record)}>
+                            <MinioVideo
+                                pathName={record.path}
+                                width={40}
+                                height={40}
+                                controls={false}
+                                autoPlay={false}
+                                muted={true}
+                                className="object-cover"
+                            />
+                        </div>
+                    );
+                }
+                return null;
+            },
         },
         {
             title: '类型',
@@ -324,6 +356,29 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
                     size="small"
                 />
             </div>
+
+            {/* 视频预览模态框 */}
+            <Modal
+                title="视频预览"
+                open={videoPreviewVisible}
+                onCancel={() => setVideoPreviewVisible(false)}
+                footer={null}
+                width={800}
+                centered
+            >
+                {previewVideoPath && (
+                    <div className="flex justify-center">
+                        <MinioVideo
+                            pathName={previewVideoPath}
+                            width="100%"
+                            height="auto"
+                            controls={true}
+                            autoPlay={true}
+                            className="max-h-[70vh]"
+                        />
+                    </div>
+                )}
+            </Modal>
 
             <Modal
                 title="重命名文件"
