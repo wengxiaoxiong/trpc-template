@@ -38,6 +38,7 @@ model User {
     password       String 
     avatar         String?
     isAdmin        Boolean          @default(false)
+    storageUsed    BigInt           @default(0) // 用户已使用的存储空间(字节)
     files          UserFile[]
     invitationCode InvitationCode?  @relation(fields: [invitationCodeId], references: [id])
     invitationCodeId Int?

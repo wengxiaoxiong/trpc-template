@@ -111,19 +111,28 @@ export const userRouter = router({
 
   getCurrentUser: protectedProcedure
     .query(async ({ ctx }) => {
-      if (!ctx.user.id) {
-        throw new Error('Unauthorized');
-      }
-      const userId = ctx.user?.id;
-      if (!userId) {
-        throw new Error('Not authenticated');
-      }
-      const user = await prisma.user.findUnique({ where: { id: userId } });
+      const user = await prisma.user.findUnique({
+        where: { id: ctx.user.id },
+        select: {
+          id: true,
+          username: true,
+          avatar: true,
+          isAdmin: true,
+          storageUsed: true,
+        }
+      });
+
       if (!user) {
-        throw new Error('User not found');
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: '用户不存在',
+        });
       }
-      const sanitizedUser = { ...user, password: undefined };
-      return sanitizedUser;
+
+      return {
+        ...user,
+        storageUsed: Number(user.storageUsed)
+      };
     }),
 
   updateAvatar: protectedProcedure
@@ -370,5 +379,33 @@ export const userRouter = router({
         where: { key: 'registration.requireInvitationCode' },
       });
       return config?.value === 'true';
+    }),
+
+  // 通过ID获取用户信息
+  getUserById: adminProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ input }) => {
+      const user = await prisma.user.findUnique({
+        where: { id: input.id },
+        select: {
+          id: true,
+          username: true,
+          avatar: true,
+          isAdmin: true,
+          storageUsed: true,
+        }
+      });
+
+      if (!user) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: '用户不存在',
+        });
+      }
+
+      return {
+        ...user,
+        storageUsed: Number(user.storageUsed)
+      };
     }),
 }); 

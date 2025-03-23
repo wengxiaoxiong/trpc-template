@@ -47,6 +47,35 @@ export const minioRouter = router({
             const uuid = crypto.randomUUID();
             const pathName = `${ctx.user.id}/${uuid}`;
 
+            // 获取用户存储使用情况和最大限制
+            const [user, maxStorageConfig] = await Promise.all([
+                prisma.user.findUnique({
+                    where: { id: ctx.user.id },
+                    select: { storageUsed: true }
+                }),
+                prisma.siteConfig.findUnique({
+                    where: { key: 'user.storage.max' }
+                })
+            ]);
+
+            if (!user) {
+                throw new TRPCError({
+                    code: 'NOT_FOUND',
+                    message: '用户不存在'
+                });
+            }
+
+            // 获取最大存储限制
+            const maxStorage = maxStorageConfig ? parseInt(maxStorageConfig.value) : 2147483648; // 默认2GB
+            
+            // 如果已超过限制，抛出错误
+            if (Number(user.storageUsed) >= maxStorage) {
+                throw new TRPCError({
+                    code: 'FORBIDDEN',
+                    message: '您的存储空间已用完，请删除一些文件后再上传'
+                });
+            }
+
             try {
                 const presignedUrl = await minioClient.presignedPutObject(
                     BUCKET_NAME,
@@ -73,18 +102,60 @@ export const minioRouter = router({
     createFile: protectedProcedure
         .input(fileInfoSchema)
         .mutation(async ({ input, ctx }) => {
-            const file = await prisma.userFile.create({
-                data: {
-                    name: input.name,
-                    size: input.size,
-                    type: input.type,
-                    fileType: input.fileType,
-                    path: input.path,
-                    description: input.description,
-                    ownerId: ctx.user.id
-                }
-            })
-            return file
+            // 获取用户当前存储使用情况和限制
+            const [user, maxStorageConfig] = await Promise.all([
+                prisma.user.findUnique({
+                    where: { id: ctx.user.id },
+                    select: { storageUsed: true }
+                }),
+                prisma.siteConfig.findUnique({
+                    where: { key: 'user.storage.max' }
+                })
+            ]);
+
+            if (!user) {
+                throw new TRPCError({
+                    code: 'NOT_FOUND',
+                    message: '用户不存在'
+                });
+            }
+
+            // 获取最大存储限制
+            const maxStorage = maxStorageConfig ? parseInt(maxStorageConfig.value) : 2147483648; // 默认2GB
+            
+            // 检查上传文件后是否会超出存储限制
+            if (Number(user.storageUsed) + input.size > maxStorage) {
+                throw new TRPCError({
+                    code: 'FORBIDDEN',
+                    message: `文件太大，会超出您的存储空间限制，剩余空间: ${(maxStorage - Number(user.storageUsed))} 字节`
+                });
+            }
+
+            // 使用事务同时创建文件记录和更新用户存储使用量
+            return await prisma.$transaction(async (prisma) => {
+                // 创建文件记录
+                const file = await prisma.userFile.create({
+                    data: {
+                        name: input.name,
+                        size: input.size,
+                        type: input.type,
+                        fileType: input.fileType,
+                        path: input.path,
+                        description: input.description,
+                        ownerId: ctx.user.id
+                    }
+                });
+
+                // 更新用户存储使用量
+                await prisma.user.update({
+                    where: { id: ctx.user.id },
+                    data: {
+                        storageUsed: { increment: BigInt(input.size) }
+                    }
+                });
+
+                return file;
+            });
         }),
 
     // 获取文件列表（带分页和下载地址）
@@ -198,17 +269,31 @@ export const minioRouter = router({
                 })
             }
 
-            try {
-                await minioClient.removeObject(BUCKET_NAME, file.path)
-            } catch (error) {
-                console.error('删除 Minio 文件失败:', error)
-            }
-
-            await prisma.userFile.delete({
-                where: { id: input.id }
-            })
-
-            return { success: true }
+            // 使用事务同时删除文件和更新存储使用量
+            return await prisma.$transaction(async (prisma) => {
+                try {
+                    await minioClient.removeObject(BUCKET_NAME, file.path)
+                } catch (error) {
+                    console.error('删除 Minio 文件失败:', error)
+                }
+    
+                // 删除文件记录
+                await prisma.userFile.delete({
+                    where: { id: input.id }
+                })
+    
+                // 更新用户存储使用量
+                await prisma.user.update({
+                    where: { id: file.ownerId },
+                    data: {
+                        storageUsed: {
+                            decrement: BigInt(file.size)
+                        }
+                    }
+                })
+    
+                return { success: true }
+            });
         }),
         
     // 重命名文件

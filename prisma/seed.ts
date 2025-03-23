@@ -30,6 +30,16 @@ async function main() {
       value: '2025',
       description: '版权年份',
     },
+    {
+      key: 'site.logo.url',
+      value: 'https://www.example.com/logo.png',
+      description: '版权年份',
+    },
+    {
+      key: 'user.storage.max',
+      value: '2147483648', // 2GB = 2 * 1024 * 1024 * 1024 = 2147483648 Bytes
+      description: '用户最大网盘空间(字节)',
+    },
   ];
 
   console.log('开始创建配置项...');

@@ -21,6 +21,7 @@ const predefinedKeys = [
   { key: 'site.logo.url', description: 'Logo图片在Minio中的路径' },
   { key: 'site.year', description: '版权年份' },
   { key: 'site.logo.url', description: '' },
+  { key: 'user.storage.max', description: '用户最大网盘空间(字节)，默认2GB = 2147483648字节' },
 ];
 
 export default function SiteConfigManager() {

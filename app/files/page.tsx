@@ -8,6 +8,7 @@ import { InboxOutlined, DeleteOutlined, CheckCircleOutlined, FileOutlined, EditO
 import { FileList, FileListRef } from "../components/FileList";
 import { FileType } from "@prisma/client";
 import Image from 'next/image';
+import { StorageUsageDashboard } from "../components/StorageUsageDashboard";
 
 const { Dragger } = Upload;
 
@@ -140,6 +141,8 @@ export default function FilesPage() {
     return (
         <MainPageLayout>
             <div className="space-y-6">
+                
+                <StorageUsageDashboard className="w-full" />
                 
                 <Card title="文件上传" className="w-full">
                     <div className="text-gray-600 mb-6">
