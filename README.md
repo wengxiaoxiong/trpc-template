@@ -27,6 +27,7 @@
 - 🔐 完整的用户认证系统
 - 🌐 API 类型安全 (tRPC)
 - 🔄 实时数据更新
+- 👨‍💼 后台管理系统
 
 ## 开始使用
 
@@ -34,6 +35,7 @@
 
 - Node.js 18+
 - pnpm
+- MySQL 8.0+
 - MinIO (可选)
 
 ### 安装
@@ -61,12 +63,26 @@ pnpm prisma generate
 pnpm prisma db push
 ```
 
+5. 创建初始管理员账号
+```sql
+INSERT INTO `User` (`id`, `createdAt`, `updatedAt`, `username`, `password`, `avatar`, `isAdmin`) VALUES
+(1, '2025-03-23 02:14:04.236', '2025-03-23 02:14:04.236', 'admin', '$2b$10$Ybj1GMWDeWbSKNMg3xRb/uUcIZmZzsK3e0vyhjJLIWUr8A95WeUXO', NULL, 1);
+```
+
 ### 开发
 
 启动开发服务器：
 ```bash
 pnpm dev
 ```
+
+访问地址：
+- 前台页面：http://localhost:3000
+- 后台管理：http://localhost:3000/admin
+
+后台管理初始账号：
+- 用户名：admin
+- 密码：adminadmin
 
 ### 构建
 
