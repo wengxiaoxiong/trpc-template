@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { protectedProcedure, publicProcedure, router, adminProcedure } from '@/utils/trpc';
 import { prisma } from '@/utils/prisma';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { generateToken } from '@/utils/jwt';
 import { TRPCError } from '@trpc/server';
 
