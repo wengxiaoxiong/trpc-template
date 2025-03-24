@@ -188,8 +188,8 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
     };
 
     // 处理文件类型变更
-    const handleFileTypeChange = (value: FileType | undefined) => {
-        setSelectedFileType(value);
+    const handleFileTypeChange = (value: FileType | null) => {
+        setSelectedFileType(value || undefined);
         setPagination({ ...pagination, current: 1 });
     };
 
@@ -345,7 +345,7 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
     ];
 
     const fileTypeOptions = [
-        { label: t('common.file_list.all_files'), value: undefined },
+        { label: t('common.file_list.all_files'), value: null },
         { label: t('common.file_list.ai_generated_images'), value: FileType.AI_GENERATED_IMAGE },
         { label: t('common.file_list.user_uploaded_files'), value: FileType.USER_UPLOADED_FILE },
         { label: t('common.file_list.parameter_images'), value: FileType.PARAMETER_IMAGE }
