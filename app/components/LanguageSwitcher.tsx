@@ -14,12 +14,6 @@ const localeNames: Record<string, string> = {
   ja: '日本語',
 };
 
-// 语言国旗表情符号映射
-const localeFlags: Record<string, string> = {
-  zh: '🇨🇳',
-  en: '🇺🇸',
-  ja: '🇯🇵',
-};
 
 export default function LanguageSwitcher() {
   const { locale, setLocale } = useI18n();
@@ -32,7 +26,7 @@ export default function LanguageSwitcher() {
     <Select
       value={locale}
       onChange={handleLocaleChange}
-      style={{ width: 150 }}
+      style={{ width: 100 }}
       dropdownStyle={{ zIndex: 2000 }}
       prefixCls="language-selector"
       bordered={false}
@@ -40,7 +34,6 @@ export default function LanguageSwitcher() {
     >
       {supportedLocales.map((localeCode) => (
         <Option key={localeCode} value={localeCode}>
-          <span style={{ marginRight: 8 }}>{localeFlags[localeCode]}</span>
           {localeNames[localeCode]}
         </Option>
       ))}
