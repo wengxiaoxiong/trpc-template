@@ -38,13 +38,19 @@ model User {
     createdAt      DateTime         @default(now())
     updatedAt      DateTime         @updatedAt
     username       String           @unique
-    password       String 
+    password       String?          // 改为可选，因为 Google 登录的用户可能没有密码
+    email          String?          @unique
+    googleId       String?          @unique
     avatar         String?
     isAdmin        Boolean          @default(false)
-    storageUsed    BigInt           @default(0) // 用户已使用的存储空间(字节)
+    storageUsed    BigInt           @default(0)
     files          UserFile[]
     invitationCode InvitationCode?  @relation(fields: [invitationCodeId], references: [id])
     invitationCodeId Int?
+    // 新增认证相关字段
+    accessToken    String?          @db.Text
+    refreshToken   String?          @db.Text
+    tokenExpiresAt DateTime?
 }
 
 // 文件类型枚举

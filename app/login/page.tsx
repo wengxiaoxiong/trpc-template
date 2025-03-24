@@ -4,14 +4,32 @@ import { useRouter } from 'next/navigation'
 import { trpc } from '@/utils/trpc/client'
 import { useState } from 'react'
 import { useAuth } from '../auth/AuthProvider'
-import { Input, Button, message, Form } from 'antd'
-import { UserOutlined, LockOutlined } from '@ant-design/icons'
+import { Input, Button, message, Form, Divider } from 'antd'
+import { UserOutlined, LockOutlined, GoogleOutlined } from '@ant-design/icons'
 import { MinioImage } from '../components/MinioImage'
 import { AuthLayout } from '../components/AuthLayout'
 import { AuthHeader } from '../components/AuthHeader'
 import { AuthPageLink } from '../components/AuthPageLink'
 import { Logo } from '../components/Logo'
 import { useI18n } from '../i18n-provider'
+
+// 声明 google 全局变量
+declare global {
+  interface Window {
+    google: {
+      accounts: {
+        oauth2: {
+          initCodeClient(config: {
+            client_id: string;
+            scope: string;
+            redirect_uri: string;
+            callback: (response: { code: string }) => void;
+          }): { requestCode(): void };
+        };
+      };
+    };
+  }
+}
 
 export default function LoginPage() {
   const router = useRouter()
@@ -40,6 +58,55 @@ export default function LoginPage() {
       await loginMutation({ username: values.username, password: values.password })
     } catch (error) {
       setLoading(false)
+    }
+  }
+
+  const handleGoogleLogin = async () => {
+    try {
+      // 加载 Google Sign-In API
+      await new Promise((resolve) => {
+        const script = document.createElement('script')
+        script.src = 'https://accounts.google.com/gsi/client'
+        script.async = true
+        script.defer = true
+        script.onload = resolve
+        document.head.appendChild(script)
+      })
+
+      // 初始化 Google Sign-In
+      const client = window.google.accounts.oauth2.initCodeClient({
+        client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
+        scope: 'email profile',
+        redirect_uri: 'http://localhost:3000/login/',
+        callback: async (response) => {
+          if (response.code) {
+            try {
+              const res = await fetch('/api/auth/google', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ code: response.code }),
+              })
+
+              if (!res.ok) {
+                throw new Error('Google 登录失败')
+              }
+
+              const data = await res.json()
+              login(data.token)
+              message.success(t('auth.login_success', '登录成功'))
+              router.push('/webapp')
+            } catch (error) {
+              message.error(t('auth.google_login_error', 'Google 登录失败'))
+            }
+          }
+        },
+      })
+
+      client.requestCode()
+    } catch (error) {
+      message.error(t('auth.google_login_error', 'Google 登录失败'))
     }
   }
 
@@ -84,6 +151,19 @@ export default function LoginPage() {
     <AuthLayout>
       <AuthHeader />
 
+      {/* Google 登录按钮 */}
+      <Button
+        type="default"
+        icon={<GoogleOutlined />}
+        onClick={handleGoogleLogin}
+        className="w-full h-11 mb-4 border-gray-300 hover:border-gray-400"
+        size="large"
+      >
+        {t('auth.google_login', '使用 Google 账号登录')}
+      </Button>
+
+      <Divider>{t('auth.or', '或')}</Divider>
+
       {/* 登录表单 */}
       <Form onFinish={handleSubmit} layout="vertical">
         <Form.Item
@@ -109,6 +189,10 @@ export default function LoginPage() {
             className="rounded-lg border-gray-300"
           />
         </Form.Item>
+
+        {error && (
+          <div className="text-red-500 text-sm">{error}</div>
+        )}
 
         <Form.Item className="mb-4">
           <Button

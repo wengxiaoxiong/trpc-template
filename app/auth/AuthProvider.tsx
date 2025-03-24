@@ -4,8 +4,15 @@
 
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { User } from '@prisma/client'
 import { trpc } from '@/utils/trpc/client'
+
+interface User {
+  id: number
+  username: string
+  email: string | null
+  avatar: string | null
+  isAdmin: boolean
+}
 
 interface AuthContextType {
   login: (token: string) => void
@@ -24,14 +31,23 @@ const TOKEN_KEY = 'token'
 
 const tokenUtils = {
   set: (token: string) => {
-    localStorage.setItem(TOKEN_KEY, token)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(TOKEN_KEY, token)
+    }
     document.cookie = `${TOKEN_KEY}=${token}; path=/`
   },
   remove: () => {
-    localStorage.removeItem(TOKEN_KEY)
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(TOKEN_KEY)
+    }
     document.cookie = `${TOKEN_KEY}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`
   },
-  get: () => localStorage.getItem(TOKEN_KEY)
+  get: () => {
+    if (typeof window === 'undefined') {
+      return null
+    }
+    return localStorage.getItem(TOKEN_KEY)
+  }
 }
 
 // 定义需要登录才能访问的路径
@@ -55,30 +71,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { data: currentUser, error } = trpc.user.getCurrentUser.useQuery(undefined, {
     retry: false,
     refetchOnWindowFocus: false,
-    refetchOnMount: true
+    refetchOnMount: true,
+    enabled: !!tokenUtils.get()
   })
 
   useEffect(() => {
     if (currentUser) {
-      setUser(currentUser as unknown as User)
+      setUser(currentUser)
     }
   }, [currentUser])
 
   useEffect(() => {
     const isAuthRoute = ['/login', '/register'].includes(pathname)
+    const token = tokenUtils.get()
     
-    // 如果是受保护路由但用户未登录，则重定向到登录页
-    if (error && isProtectedRoute(pathname) && !isAuthRoute) {
-      tokenUtils.remove()
+    if (!token && isProtectedRoute(pathname) && !isAuthRoute) {
       router.push('/login')
     }
-  }, [error, pathname, router])
+    
+    if (token && isAuthRoute) {
+      router.push('/webapp')
+    }
+  }, [pathname, router])
 
   const utils = trpc.useUtils()
   
   const login = useCallback((token: string) => {
     tokenUtils.set(token)
-    // 立即获取用户信息
     utils.user.getCurrentUser.invalidate()
     router.push('/webapp')
   }, [router, utils])
@@ -96,7 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   )
 }
 
-// 简化 useAuth hook，移除 Recoil
+// 简化 useAuth hook
 export function useAuth() {
   return useContext(AuthContext)
 }

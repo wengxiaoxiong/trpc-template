@@ -109,6 +109,9 @@ export const userRouter = router({
       if (!user) {
         throw new Error(t('errors.user.notFound', '用户不存在'));
       }
+      if (!user.password) {
+        throw new Error(t('errors.auth.noPassword', '用户没有设置密码'));
+      }
       const isValid = await bcrypt.compare(password, user.password);
       if (!isValid) {
         throw new Error(t('errors.auth.invalidCredentials', '用户名或密码错误'));
