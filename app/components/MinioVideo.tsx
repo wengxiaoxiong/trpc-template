@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, forwardRef } from 'react';
 import { trpc } from '@/utils/trpc/client';
 import { useI18n } from '../i18n-provider';
 
@@ -13,7 +13,7 @@ interface MinioVideoProps {
   muted?: boolean;
 }
 
-export const MinioVideo = ({
+export const MinioVideo = forwardRef<HTMLVideoElement, MinioVideoProps>(({
   pathName,
   width = 300,
   height = 'auto',
@@ -22,7 +22,7 @@ export const MinioVideo = ({
   autoPlay = false,
   loop = false,
   muted = false,
-}: MinioVideoProps) => {
+}, ref) => {
   const [videoUrl, setVideoUrl] = useState<string>('');
   const utils = trpc.useUtils();
   const { t } = useI18n();
@@ -48,6 +48,7 @@ export const MinioVideo = ({
 
   return (
     <video
+      ref={ref}
       src={videoUrl}
       width={width}
       height={height}
@@ -58,4 +59,6 @@ export const MinioVideo = ({
       muted={muted}
     />
   );
-}; 
+});
+
+MinioVideo.displayName = 'MinioVideo'; 

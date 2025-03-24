@@ -1,6 +1,6 @@
 import { Button, Select, Table, Tag, Tooltip, Modal, Input, Form } from 'antd';
 import { DownloadOutlined, DeleteOutlined, EditOutlined, ShareAltOutlined } from '@ant-design/icons';
-import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
+import { useState, useEffect, forwardRef, useImperativeHandle, useRef } from 'react';
 import { FileType } from '@prisma/client';
 import { trpc } from '@/utils/trpc/client';
 import { MinioImage } from './MinioImage';
@@ -32,6 +32,7 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
     const [form] = Form.useForm();
     const [videoPreviewVisible, setVideoPreviewVisible] = useState(false);
     const [previewVideoPath, setPreviewVideoPath] = useState<string | null>(null);
+    const videoRef = useRef<HTMLVideoElement>(null);
 
     // 数据查询
     const { data: fileListData, refetch: refetchFiles } = userId 
@@ -201,6 +202,15 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
     const handleVideoPreview = (file: any) => {
         setPreviewVideoPath(file.path);
         setVideoPreviewVisible(true);
+    };
+
+    // 处理视频预览关闭
+    const handleVideoPreviewClose = () => {
+        if (videoRef.current) {
+            videoRef.current.pause();
+            videoRef.current.currentTime = 0;
+        }
+        setVideoPreviewVisible(false);
     };
 
     // 判断是否为视频文件
@@ -378,7 +388,7 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
             <Modal
                 title={t('common.file_list.preview')}
                 open={videoPreviewVisible}
-                onCancel={() => setVideoPreviewVisible(false)}
+                onCancel={handleVideoPreviewClose}
                 footer={null}
                 width={800}
                 centered
@@ -386,6 +396,7 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
                 {previewVideoPath && (
                     <div className="flex justify-center">
                         <MinioVideo
+                            ref={videoRef}
                             pathName={previewVideoPath}
                             width="100%"
                             height="auto"
