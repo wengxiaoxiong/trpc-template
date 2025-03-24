@@ -9,9 +9,10 @@ import { trpc } from '@/utils/trpc/client'
 interface User {
   id: number
   username: string
-  email: string | null
+  email?: string | null
   avatar: string | null
   isAdmin: boolean
+  storageUsed: number
 }
 
 interface AuthContextType {

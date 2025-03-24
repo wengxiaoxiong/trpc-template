@@ -77,7 +77,7 @@ export default function LoginPage() {
       const client = window.google.accounts.oauth2.initCodeClient({
         client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
         scope: 'email profile',
-        redirect_uri: 'http://localhost:3000/login/',
+        redirect_uri: 'http://localhost:3000/login',
         callback: async (response) => {
           if (response.code) {
             try {
