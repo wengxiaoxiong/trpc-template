@@ -11,6 +11,7 @@ import { AuthLayout } from '../components/AuthLayout'
 import { AuthHeader } from '../components/AuthHeader'
 import { AuthPageLink } from '../components/AuthPageLink'
 import { Logo } from '../components/Logo'
+import { useI18n } from '../i18n-provider'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -19,11 +20,12 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const { t } = useI18n()
 
   const { mutateAsync: loginMutation } = trpc.user.login.useMutation({
     onSuccess: (data) => {
       login(data.token)
-      message.success('登录成功')
+      message.success(t('auth.login_success', '登录成功'))
       router.push('/webapp')
     },
     onError: (error) => {
@@ -47,11 +49,11 @@ export default function LoginPage() {
       <AuthLayout>
         <div className="text-center">
           <div className="text-2xl font-bold text-gray-800 mb-4">
-            您已登录
+            {t('auth.already_logged_in', '您已登录')}
           </div>
           <div className="text-gray-600 mb-6 text-center flex items-center justify-evenly flex-col space-y-4 h-36">
             <MinioImage pathName={user.avatar || ''} className="rounded-full mx-auto" />
-            当前登录账号：{user.username}
+            {t('auth.current_account', '当前登录账号')}：{user.username}
           </div>
           <Button
             type="primary"
@@ -59,7 +61,7 @@ export default function LoginPage() {
             className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 mb-4"
             onClick={() => router.push('/webapp')}
           >
-            进入应用
+            {t('auth.enter_app', '进入应用')}
           </Button>
           <Button
             type="link"
@@ -71,7 +73,7 @@ export default function LoginPage() {
               setPassword('')
             }}
           >
-            切换账号
+            {t('auth.switch_account', '切换账号')}
           </Button>
         </div>
       </AuthLayout>
@@ -86,11 +88,11 @@ export default function LoginPage() {
       <Form onFinish={handleSubmit} layout="vertical">
         <Form.Item
           name="username"
-          rules={[{ required: true, message: '请输入用户名' }]}
+          rules={[{ required: true, message: t('auth.username_required', '请输入用户名') }]}
         >
           <Input
             prefix={<UserOutlined className="text-gray-400" />}
-            placeholder="请输入用户名"
+            placeholder={t('auth.username_placeholder', '请输入用户名')}
             size="large"
             className="rounded-lg border-gray-300"
           />
@@ -98,11 +100,11 @@ export default function LoginPage() {
 
         <Form.Item
           name="password"
-          rules={[{ required: true, message: '请输入密码' }]}
+          rules={[{ required: true, message: t('auth.password_required', '请输入密码') }]}
         >
           <Input.Password
             prefix={<LockOutlined className="text-gray-400" />}
-            placeholder="请输入密码"
+            placeholder={t('auth.password_placeholder', '请输入密码')}
             size="large"
             className="rounded-lg border-gray-300"
           />
@@ -115,7 +117,7 @@ export default function LoginPage() {
             className="w-full h-11 bg-gradient-to-r from-blue-500 to-indigo-600 !rounded-button"
             loading={loading}
           >
-            登录
+            {t('auth.login', '登录')}
           </Button>
         </Form.Item>
       </Form>

@@ -1,6 +1,9 @@
+'use client'
+
 import { Progress, Card, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 import { trpc } from '@/utils/trpc/client';
+import { useI18n } from '../i18n-provider';
 
 const { Title, Text } = Typography;
 
@@ -13,6 +16,7 @@ export const StorageUsageDashboard = ({ userId, className }: StorageUsageDashboa
   const [totalUsage, setTotalUsage] = useState(0);
   const [maxStorage, setMaxStorage] = useState(2147483648); // 默认2GB
   const [percentage, setPercentage] = useState(0);
+  const { t } = useI18n();
 
   // 获取当前用户信息（包含存储使用量）
   const { data: userData } = trpc.user.getCurrentUser.useQuery(undefined, {
@@ -72,7 +76,7 @@ export const StorageUsageDashboard = ({ userId, className }: StorageUsageDashboa
 
   return (
     <Card className={className}>
-      <Title level={4}>存储空间使用情况</Title>
+      <Title level={4}>{t('storage.usage_title', '存储空间使用情况')}</Title>
       <div className="mt-4">
         <Progress
           percent={parseFloat(percentage.toFixed(2))}
@@ -80,14 +84,14 @@ export const StorageUsageDashboard = ({ userId, className }: StorageUsageDashboa
           strokeWidth={10}
         />
         <div className="flex justify-between mt-2">
-          <Text>已使用: {formatFileSize(totalUsage)}</Text>
-          <Text>总容量: {formatFileSize(maxStorage)}</Text>
+          <Text>{t('storage.used', '已使用')}: {formatFileSize(totalUsage)}</Text>
+          <Text>{t('storage.total', '总容量')}: {formatFileSize(maxStorage)}</Text>
         </div>
         <div className="mt-2">
           <Text type={percentage > 90 ? "danger" : "secondary"}>
             {percentage > 90 
-              ? "存储空间即将用完，请及时清理文件！" 
-              : `剩余空间: ${formatFileSize(maxStorage - totalUsage)}`}
+              ? t('storage.almost_full', '存储空间即将用完，请及时清理文件！')
+              : t('storage.remaining', '剩余空间') + ': ' + formatFileSize(maxStorage - totalUsage)}
           </Text>
         </div>
       </div>

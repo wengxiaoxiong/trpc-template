@@ -6,6 +6,7 @@ import { InboxOutlined } from '@ant-design/icons';
 import { trpc } from '@/utils/trpc/client';
 import { useState } from 'react';
 import { MinioUploader } from '@/utils/minio/uploader';
+import { useI18n } from '../i18n-provider';
 
 const { Dragger } = Upload;
 
@@ -15,6 +16,7 @@ export const MinioFileUploader: React.FC<{
 }> = ({ onUploadComplete, description }) => {
   const [uploading, setUploading] = useState(false);
   const utils = trpc.useUtils();
+  const { t } = useI18n();
 
   const uploadProps: UploadProps = {
     name: 'file',
@@ -57,7 +59,7 @@ export const MinioFileUploader: React.FC<{
         onUploadComplete?.();
 
       } catch (error) {
-        console.error('上传失败:', error);
+        console.error(t('file.upload_failed_log', '上传失败:'), error);
       } finally {
         setUploading(false);
       }
@@ -70,14 +72,14 @@ export const MinioFileUploader: React.FC<{
         <p className="ant-upload-drag-icon">
           <InboxOutlined />
         </p>
-        <p className="ant-upload-text">点击或拖拽文件到此区域上传</p>
+        <p className="ant-upload-text">{t('file.drop_hint', '点击或拖拽文件到此区域上传')}</p>
         <p className="ant-upload-hint">
-          支持单个或批量上传
+          {t('file.support_batch_upload', '支持单个或批量上传')}
         </p>
       </Dragger>
       {uploading && (
         <div className="mt-4 text-gray-600">
-          上传中...
+          {t('common.uploading', '上传中...')}
         </div>
       )}
     </div>

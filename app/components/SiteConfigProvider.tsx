@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { trpc } from '@/utils/trpc/client';
+import { useI18n } from '../i18n-provider';
 
 interface SiteConfigContextType {
   siteConfig: Record<string, string>;
@@ -32,8 +33,11 @@ interface SiteConfigProviderProps {
 export const SiteConfigProvider: React.FC<SiteConfigProviderProps> = ({ children }) => {
   const [siteConfig, setSiteConfig] = useState<Record<string, string>>(defaultConfig);
   const [isLoading, setIsLoading] = useState(true);
+  const { locale } = useI18n();
 
-  const { data: configData, isLoading: isQueryLoading } = trpc.config.getConfigs.useQuery({});
+  const { data: configData, isLoading: isQueryLoading } = trpc.config.getConfigs.useQuery({
+    locale
+  });
 
   useEffect(() => {
     if (configData) {

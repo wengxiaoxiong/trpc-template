@@ -4,6 +4,7 @@ import { prisma } from '@/utils/prisma'
 import { TRPCError } from '@trpc/server'
 import { Client } from 'minio'
 import { FileType } from '@prisma/client'
+import { getTranslation } from '../i18n'
 
 // Minio 客户端配置
 const minioClient = new Client({
@@ -53,15 +54,18 @@ export const minioRouter = router({
                     where: { id: ctx.user.id },
                     select: { storageUsed: true }
                 }),
-                prisma.siteConfig.findUnique({
+                prisma.siteConfig.findFirst({
                     where: { key: 'user.storage.max' }
                 })
             ]);
 
             if (!user) {
+                // 获取翻译函数
+                const t = (ctx.t ?? getTranslation(ctx.locale || 'zh').t)!;
+                
                 throw new TRPCError({
                     code: 'NOT_FOUND',
-                    message: '用户不存在'
+                    message: t('errors.user.notFound', '用户不存在')
                 });
             }
 
@@ -70,9 +74,12 @@ export const minioRouter = router({
             
             // 如果已超过限制，抛出错误
             if (Number(user.storageUsed) >= maxStorage) {
+                // 获取翻译函数
+                const t = (ctx.t ?? getTranslation(ctx.locale || 'zh').t)!;
+                
                 throw new TRPCError({
                     code: 'FORBIDDEN',
-                    message: '您的存储空间已用完，请删除一些文件后再上传'
+                    message: t('errors.file.storageLimit', '您的存储空间已用完，请删除一些文件后再上传')
                 });
             }
 
@@ -108,15 +115,18 @@ export const minioRouter = router({
                     where: { id: ctx.user.id },
                     select: { storageUsed: true }
                 }),
-                prisma.siteConfig.findUnique({
+                prisma.siteConfig.findFirst({
                     where: { key: 'user.storage.max' }
                 })
             ]);
 
             if (!user) {
+                // 获取翻译函数
+                const t = (ctx.t ?? getTranslation(ctx.locale || 'zh').t)!;
+                
                 throw new TRPCError({
                     code: 'NOT_FOUND',
-                    message: '用户不存在'
+                    message: t('errors.user.notFound', '用户不存在')
                 });
             }
 
@@ -125,9 +135,14 @@ export const minioRouter = router({
             
             // 检查上传文件后是否会超出存储限制
             if (Number(user.storageUsed) + input.size > maxStorage) {
+                // 获取翻译函数
+                const t = (ctx.t ?? getTranslation(ctx.locale || 'zh').t)!;
+                
+                const remainingSpace = maxStorage - Number(user.storageUsed);
                 throw new TRPCError({
                     code: 'FORBIDDEN',
-                    message: `文件太大，会超出您的存储空间限制，剩余空间: ${(maxStorage - Number(user.storageUsed))} 字节`
+                    message: t('errors.file.exceededLimit', '文件太大，会超出您的存储空间限制') + ', ' + 
+                             t('errors.file.remainingSpace', '剩余空间: {space} 字节').replace('{space}', remainingSpace.toString())
                 });
             }
 

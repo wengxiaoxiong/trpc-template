@@ -1,0 +1,299 @@
+{
+  "title": "TRPC Template",
+  "header": {
+    "home": "Home",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "admin": "Admin",
+    "profile": "Profile",
+    "file_management": "File Management"
+  },
+  "auth": {
+    "username": "Username",
+    "password": "Password",
+    "login": "Login",
+    "register": "Register",
+    "email": "Email",
+    "forgot_password": "Forgot Password",
+    "reset_password": "Reset Password",
+    "no_user": "User does not exist",
+    "invalid_password": "Invalid password",
+    "token_missing": "Authentication token missing",
+    "invalid_token": "Invalid authentication token",
+    "token_expired": "Authentication token expired",
+    "invalid_expired_token": "Invalid or expired authentication token",
+    "admin_required": "Admin privileges required",
+    "username_required": "Please enter username",
+    "username_placeholder": "Please enter username",
+    "password_required": "Please enter password",
+    "password_placeholder": "Please enter password",
+    "login_success": "Login successful",
+    "already_logged_in": "You are already logged in",
+    "current_account": "Current account",
+    "enter_app": "Enter Application",
+    "switch_account": "Switch Account",
+    "register_success": "Registration successful",
+    "passwords_not_match": "Passwords do not match",
+    "confirm_password_required": "Please confirm password",
+    "confirm_password_placeholder": "Please confirm password",
+    "invitation_code_required": "Please enter invitation code",
+    "invitation_code_placeholder": "Please enter invitation code",
+    "have_account": "Already have an account?",
+    "login_now": "Login now",
+    "no_account": "Don't have an account?",
+    "register_now": "Register now"
+  },
+  "admin": {
+    "dashboard": "Dashboard",
+    "users": "User Management",
+    "files": "File Management",
+    "settings": "System Settings",
+    "pagination_total": "Total {total} records",
+    "user_management": {
+      "title": "User Management",
+      "create_user": "Create User",
+      "edit_user": "Edit User",
+      "delete_user": "Delete User",
+      "username": "Username",
+      "is_admin": "Admin",
+      "storage_used": "Storage Used",
+      "file_count": "File Count",
+      "created_at": "Created At",
+      "actions": "Actions",
+      "confirm_delete": "Are you sure you want to delete this user?",
+      "confirm_delete_title": "Confirm Delete",
+      "search_placeholder": "Search username",
+      "create_success": "User created successfully",
+      "update_success": "User updated successfully",
+      "delete_success": "User deleted successfully",
+      "view_files": "View Files"
+    },
+    "file_management": {
+      "title": "File Management",
+      "upload": "Upload",
+      "delete": "Delete",
+      "filename": "Filename",
+      "size": "Size",
+      "type": "Type",
+      "created_at": "Upload Time",
+      "actions": "Actions",
+      "confirm_delete": "Are you sure you want to delete this file?",
+      "no_files": "No files",
+      "search_placeholder": "Search filename"
+    },
+    "invitation_code": {
+      "title": "Invitation Code Management",
+      "create": "Create Invitation Code",
+      "code": "Code",
+      "max_uses": "Max Uses",
+      "used_count": "Used Count",
+      "status": "Status",
+      "expires_at": "Expires At",
+      "created_at": "Created At",
+      "active": "Active",
+      "inactive": "Inactive",
+      "actions": "Actions",
+      "enable": "Enable",
+      "disable": "Disable",
+      "delete": "Delete",
+      "confirm_delete": "Are you sure you want to delete this invitation code?",
+      "require_for_registration": "Require invitation code for registration",
+      "usage": "Usage",
+      "registered_users": "Registered Users",
+      "generate": "Generate Invitation Code",
+      "invitation_code_status": {
+        "used_up": "Used Up",
+        "expired": "Expired",
+        "disabled": "Disabled",
+        "active": "Active"
+      },
+      "never_expires": "Never Expires",
+      "edit": "Edit Invitation Code",
+      "create_success": "Invitation code created successfully",
+      "update_success": "Invitation code updated successfully",
+      "delete_success": "Invitation code deleted successfully"
+    },
+    "site_config": {
+      "title": "Site Configuration",
+      "key": "Configuration Key",
+      "value": "Configuration Value",
+      "locale": "Language",
+      "description": "Description",
+      "add_config": "Add Configuration",
+      "edit_config": "Edit Configuration",
+      "confirm_delete": "Are you sure you want to delete this configuration?",
+      "update_success": "Configuration updated successfully",
+      "delete_success": "Configuration deleted successfully",
+      "predefined_keys": "Predefined Configuration Keys",
+      "predefined_keys_tip": "The following are system predefined configuration keys, click to use:",
+      "view_predefined_keys": "View Predefined Keys",
+      "key_placeholder": "Example: site.title",
+      "value_placeholder": "Configuration value",
+      "description_placeholder": "Optional description",
+      "please_input_key": "Please enter configuration key",
+      "please_input_value": "Please enter configuration value",
+      "please_select_locale": "Please select language",
+      "predefined": {
+        "site_title": "Site Title",
+        "site_description": "Site Description",
+        "footer_copyright": "Footer Copyright Information",
+        "footer_slogan": "Footer Slogan",
+        "logo_url": "Logo Image Path in Minio",
+        "year": "Copyright Year",
+        "max_storage": "User Maximum Storage Space (bytes), Default: 2GB = 2147483648 bytes"
+      }
+    }
+  },
+  "common": {
+    "actions":"Actions",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "submit": "Submit",
+    "loading": "Loading",
+    "error": "Error",
+    "success": "Success",
+    "confirm": "Confirm",
+    "back": "Back",
+    "search": "Search",
+    "reset": "Reset",
+    "upload": "Upload",
+    "download": "Download",
+    "preview": "Preview",
+    "yes": "Yes",
+    "no": "No",
+    "enable": "Enable",
+    "disable": "Disable",
+    "active": "Active",
+    "inactive": "Inactive",
+    "page": "Page",
+    "of": "of",
+    "items_per_page": "Items per page",
+    "next": "Next",
+    "previous": "Previous",
+    "go_to": "Go to",
+    "show_more": "Show more",
+    "show_less": "Show less",
+    "change_avatar": "Change Avatar",
+    "upload_avatar": "Upload Avatar",
+    "upload_hint": "Click or drag image to this area to upload",
+    "upload_format_hint": "Support JPG, PNG and other common image formats",
+    "uploading": "Uploading...",
+    "logout": "Logout",
+    "file_list": {
+      "all_files": "All Files",
+      "ai_generated_images": "AI Generated Images",
+      "user_uploaded_files": "User Uploaded Files",
+      "parameter_images": "Parameter Images",
+      "select_file_type": "Select File Type",
+      "rename": "Rename",
+      "rename_success": "File renamed successfully",
+      "rename_failed": "File rename failed",
+      "share_link": "Copy Download Link",
+      "preview": "Preview"
+    }
+  },
+  "errors": {
+    "invitationCode": {
+      "required": "Invitation code is required for registration",
+      "invalid": "Invalid invitation code",
+      "disabled": "This invitation code has been disabled",
+      "expired": "This invitation code has expired",
+      "maxUsesReached": "This invitation code has reached its maximum uses"
+    },
+    "user": {
+      "notFound": "User not found",
+      "alreadyExists": "Username already exists"
+    },
+    "auth": {
+      "invalidCredentials": "Invalid username or password"
+    },
+    "common": {
+      "internalError": "Internal server error",
+      "unauthorized": "Unauthorized operation",
+      "forbidden": "Access forbidden"
+    },
+    "file": {
+      "uploadFailed": "File upload failed",
+      "deleteFailed": "File deletion failed",
+      "notFound": "File not found",
+      "sizeExceeded": "File size exceeded limit",
+      "typeNotAllowed": "File type not allowed",
+      "storageLimit": "Your storage space is full, please delete some files before uploading",
+      "exceededLimit": "File is too large, it would exceed your storage limit",
+      "remainingSpace": "Remaining space: {space} bytes"
+    },
+    "config": {
+      "notFound": "Configuration {key} not found"
+    }
+  },
+  "site": {
+    "description": "A full-stack application template based on TRPC",
+    "copyright": "All rights reserved",
+    "slogan": "Quickly build modern web applications",
+    "year": "2024"
+  },
+  "features": {
+    "development": {
+      "title": "Efficient Development",
+      "description": "Enjoy end-to-end type-safe development with TypeScript and TRPC"
+    },
+    "security": {
+      "title": "Secure & Reliable",
+      "description": "Built-in user authentication, access control, and data validation"
+    },
+    "scalability": {
+      "title": "Scalability",
+      "description": "Modular design for easy extension and maintenance"
+    },
+    "storage": {
+      "title": "Storage Service",
+      "description": "Built-in file storage service, supporting file upload, download and management"
+    },
+    "architecture": {
+      "title": "Flexible Architecture",
+      "description": "Modern frontend-backend separated architecture, easy to customize and extend"
+    }
+  },
+  "dashboard": {
+    "total_files": "Total Files",
+    "total_users": "Total Users",
+    "storage_usage": "Storage Usage",
+    "used_storage": "Used Storage",
+    "max_storage": "Maximum Storage",
+    "remaining_storage": "Remaining Storage"
+  },
+  "storage": {
+    "usage_title": "Storage Space Usage",
+    "used": "Used",
+    "total": "Total Capacity",
+    "remaining": "Remaining Space",
+    "almost_full": "Storage space is almost full, please clean up files!"
+  },
+  "file": {
+    "upload_title": "File Upload",
+    "support_formats": "Supports image and non-image formats",
+    "drop_hint": "Click or drag files to this area to upload",
+    "batch_upload_hint": "Supports single or batch upload, select files and click 'Start Upload' button",
+    "waiting_upload": "Files to Upload",
+    "clear": "Clear",
+    "edit_filename": "Edit File Name",
+    "preview": "Preview",
+    "start_upload": "Start Upload",
+    "file_list": "File List",
+    "enter_new_filename": "Enter new file name",
+    "please_select_files": "Please select files to upload first",
+    "cannot_get_credentials": "Failed to get upload credentials",
+    "uploaded_via_file_manager": "File uploaded via File Manager",
+    "upload_success": "file uploaded successfully",
+    "upload_failed": "Upload failed",
+    "upload_failed_log": "Upload failed:",
+    "support_batch_upload": "Supports single or batch upload"
+  },
+  "webapp": {
+    "welcome": "Welcome to"
+  }
+} 

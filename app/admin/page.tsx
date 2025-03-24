@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Input, Switch, message, Space, Pagination, Tabs, ConfigProvider, Progress, Tooltip, Statistic, Row, Col } from 'antd';
 import { trpc } from '@/utils/trpc/client';
-import { PlusOutlined, EditOutlined, DeleteOutlined, FileOutlined, HddOutlined, UserOutlined, CloudOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, DeleteOutlined, FileOutlined, HddOutlined, UserOutlined, CloudOutlined, KeyOutlined, SettingOutlined } from '@ant-design/icons';
 import UserFilesModal from './components/UserFilesModal';
 import { AdminRouteGuard } from '../components/AdminRouteGuard';
 import { MainPageLayout } from '../components/MainPageLayout';
@@ -13,6 +13,7 @@ import InvitationCodeManager from './components/InvitationCodeManager';
 // 导入dayjs和中文语言包
 import dayjs from 'dayjs';
 import zhCN from 'antd/locale/zh_CN';
+import { useI18n } from '../i18n-provider';
 
 export default function AdminPage() {
   const [form] = Form.useForm();
@@ -23,6 +24,14 @@ export default function AdminPage() {
   const [searchText, setSearchText] = useState('');
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState('users');
+  const { t, locale } = useI18n();
+
+  // 根据当前语言选择对应的Antd语言包
+  const getAntdLocale = () => {
+    if (locale === 'zh') return zhCN;
+    // 如果需要其他语言支持，可以在这里添加
+    return undefined; // 默认英文
+  };
 
   const utils = trpc.useUtils();
   const { data, isLoading, refetch } = trpc.user.getUsers.useQuery({
@@ -67,7 +76,7 @@ export default function AdminPage() {
 
   const createUser = trpc.user.createUser.useMutation({
     onSuccess: () => {
-      message.success('用户创建成功');
+      message.success(t('admin.user_management.create_success', '用户创建成功'));
       setIsModalVisible(false);
       form.resetFields();
       utils.user.getUsers.invalidate();
@@ -79,7 +88,7 @@ export default function AdminPage() {
 
   const updateUser = trpc.user.updateUser.useMutation({
     onSuccess: () => {
-      message.success('用户更新成功');
+      message.success(t('admin.user_management.update_success', '用户更新成功'));
       setIsModalVisible(false);
       form.resetFields();
       utils.user.getUsers.invalidate();
@@ -92,7 +101,7 @@ export default function AdminPage() {
 
   const deleteUser = trpc.user.deleteUser.useMutation({
     onSuccess: () => {
-      message.success('用户删除成功');
+      message.success(t('admin.user_management.delete_success', '用户删除成功'));
       utils.user.getUsers.invalidate();
     },
     onError: (error) => {
@@ -120,10 +129,10 @@ export default function AdminPage() {
 
   const handleDelete = (id: number) => {
     Modal.confirm({
-      title: '确认删除',
-      content: '确定要删除此用户吗？',
-      okText: '确定',
-      cancelText: '取消',
+      title: t('admin.user_management.confirm_delete_title', '确认删除'),
+      content: t('admin.user_management.confirm_delete', '确定要删除此用户吗？'),
+      okText: t('common.confirm', '确定'),
+      cancelText: t('common.cancel', '取消'),
       onOk: () => {
         deleteUser.mutate({ id });
       },
@@ -159,18 +168,18 @@ export default function AdminPage() {
       key: 'id',
     },
     {
-      title: '用户名',
+      title: t('admin.user_management.username', '用户名'),
       dataIndex: 'username',
       key: 'username',
     },
     {
-      title: '创建时间',
+      title: t('admin.user_management.created_at', '创建时间'),
       dataIndex: 'createdAt',
       key: 'createdAt',
       render: (date: string) => new Date(date).toLocaleString(),
     },
     {
-      title: '管理员',
+      title: t('admin.user_management.is_admin', '管理员'),
       dataIndex: 'isAdmin',
       key: 'isAdmin',
       render: (isAdmin: boolean, record: any) => (
@@ -183,18 +192,18 @@ export default function AdminPage() {
             });
           }}
         >
-          {isAdmin ? '是' : '否'}
+          {isAdmin ? t('common.yes', '是') : t('common.no', '否')}
         </Button>
       ),
     },
     {
-      title: '文件数',
+      title: t('admin.user_management.file_count', '文件数'),
       dataIndex: 'files',
       key: 'files',
       render: (files: any[]) => files.length,
     },
     {
-      title: '存储空间使用',
+      title: t('admin.user_management.storage_used', '存储空间使用'),
       key: 'storageUsed',
       sorter: (a: any, b: any) => Number(a.storageUsed) - Number(b.storageUsed),
       render: (_: any, record: any) => {
@@ -226,7 +235,7 @@ export default function AdminPage() {
       },
     },
     {
-      title: '操作',
+      title: t('admin.user_management.actions', '操作'),
       key: 'action',
       render: (_: any, record: any) => (
         <Space>
@@ -235,7 +244,7 @@ export default function AdminPage() {
             icon={<EditOutlined />}
             onClick={() => handleEdit(record)}
           >
-            编辑
+            {t('common.edit', '编辑')}
           </Button>
           <Button
             type="link"
@@ -243,14 +252,14 @@ export default function AdminPage() {
             icon={<DeleteOutlined />}
             onClick={() => handleDelete(record.id)}
           >
-            删除
+            {t('common.delete', '删除')}
           </Button>
           <Button
             type="link"
             icon={<FileOutlined />}
             onClick={() => handleViewFiles(record.id)}
           >
-            查看文件
+            {t('admin.user_management.view_files', '查看文件')}
           </Button>
         </Space>
       ),
@@ -285,85 +294,107 @@ export default function AdminPage() {
   // 用户管理页面的标签页
   const tabItems = [
     {
-      key: 'users',
-      label: '用户管理',
+      key: 'dashboard',
+      label: (
+        <span>
+          <CloudOutlined />
+          {t('admin.dashboard', '控制面板')}
+        </span>
+      ),
       children: (
-        <Card title="用户管理">
-          <div className="mb-4">
-            <Row gutter={16}>
-              <Col span={12}>
-                <Card>
-                  <Statistic
-                    title="用户总数"
-                    value={data?.total || 0}
-                    prefix={<UserOutlined />}
-                    valueStyle={{ color: '#1890ff' }}
-                  />
-                </Card>
-              </Col>
-              <Col span={12}>
-                <Card>
-                  <Statistic
-                    title="存储空间使用总量"
-                    value={Number((totalStorageUsed / (1024 * 1024 * 1024)).toFixed(2))}
-                    precision={2}
-                    suffix="GB"
-                    prefix={<CloudOutlined />}
-                    valueStyle={{ color: '#52c41a' }}
-                  />
-                  <Progress 
-                    percent={parseFloat(((totalStorageUsed / (maxStorage * (data?.total || 1))) * 100).toFixed(1))} 
-                    size="small"
-                    status={totalStorageUsed > (maxStorage * (data?.total || 1) * 0.8) ? "exception" : "success"}
-                    className="mt-2"
-                  />
-                </Card>
-              </Col>
-            </Row>
-          </div>
+        <div className="space-y-6">
+          {/* 统计卡片 */}
+          <Row gutter={16}>
+            <Col span={8}>
+              <Card>
+                <Statistic 
+                  title={t('dashboard.total_users', '用户总数')}
+                  value={data?.total || 0}
+                  prefix={<UserOutlined />}
+                />
+              </Card>
+            </Col>
+            <Col span={8}>
+              <Card>
+                <Statistic 
+                  title={t('dashboard.storage_usage', '存储使用情况')}
+                  value={data ? formatFileSize(totalStorageUsed) : '0 B'}
+                  prefix={<HddOutlined />}
+                />
+              </Card>
+            </Col>
+          </Row>
           
-          <div className="mb-4 flex justify-between items-center">
-            <Input.Search
-              placeholder="搜索用户"
-              style={{ width: 200 }}
-              onSearch={setSearchText}
-            />
+          {/* 更多统计信息可以在这里添加 */}
+        </div>
+      ),
+    },
+    {
+      key: 'users',
+      label: (
+        <span>
+          <UserOutlined />
+          {t('admin.users', '用户管理')}
+        </span>
+      ),
+      children: (
+        <div>
+          <div className="mb-4 flex justify-between">
             <Button
               type="primary"
               icon={<PlusOutlined />}
               onClick={handleCreate}
             >
-              创建用户
+              {t('admin.user_management.create_user', '创建用户')}
             </Button>
+            <Input.Search
+              placeholder={t('admin.user_management.search_placeholder', '搜索用户名')}
+              allowClear
+              style={{ width: 200 }}
+              onSearch={(value) => {
+                setSearchText(value);
+                setCurrentPage(1);
+              }}
+            />
           </div>
-
           <Table
+            dataSource={data?.users || []}
             columns={columns}
-            dataSource={data?.users}
-            loading={isLoading}
             rowKey="id"
-            pagination={{
-              total: data?.total,
-              current: currentPage,
-              pageSize: pageSize,
-              onChange: (page, size) => {
-                setCurrentPage(page);
-                setPageSize(size);
-              },
-            }}
+            loading={isLoading}
+            pagination={false}
           />
-        </Card>
+          <div className="mt-4 flex justify-end">
+            <Pagination
+              current={currentPage}
+              pageSize={pageSize}
+              total={data?.total || 0}
+              onChange={(page) => setCurrentPage(page)}
+              showSizeChanger
+              onShowSizeChange={(current, size) => {
+                setPageSize(size);
+                setCurrentPage(1);
+              }}
+              showTotal={(total) => t('admin.pagination_total', '共 {total} 条记录').replace('{total}', total.toString())}
+            />
+          </div>
+        </div>
       ),
     },
     {
       key: 'invitationCodes',
-      label: '邀请码管理',
+      label: (
+        <span>
+          <KeyOutlined />
+          {t('admin.invitation_code.title', '邀请码管理')}
+        </span>
+      ),
       children: (
         <Card 
-          title="邀请码管理"
+          title={t('admin.invitation_code.title', '邀请码管理')}
           extra={
             <div className="flex items-center">
-              <span className="mr-2">需要邀请码注册：</span>
+              <span className="mr-2">{t('admin.invitation_code.require_for_registration', '需要邀请码注册')}：</span>
               <Switch 
                 checked={requireInvitationCode} 
                 onChange={handleToggleInvitationCodeRequirement}
@@ -378,9 +409,14 @@ export default function AdminPage() {
     },
     {
       key: 'configs',
-      label: '站点配置',
+      label: (
+        <span>
+          <SettingOutlined />
+          {t('admin.settings', '系统设置')}
+        </span>
+      ),
       children: (
-        <Card title="站点配置">
+        <Card title={t('admin.site_config.title', '站点配置')}>
           <SiteConfigManager />
         </Card>
       ),
@@ -389,7 +425,7 @@ export default function AdminPage() {
 
   return (
     <AdminRouteGuard>
-      <ConfigProvider locale={zhCN}>
+      <ConfigProvider locale={getAntdLocale()}>
         <MainPageLayout>
           <Tabs 
             items={tabItems} 
@@ -400,7 +436,7 @@ export default function AdminPage() {
           />
 
           <Modal
-            title={editingUser ? '编辑用户' : '创建用户'}
+            title={editingUser ? t('admin.user_management.edit_user', '编辑用户') : t('admin.user_management.create_user', '创建用户')}
             open={isModalVisible}
             onOk={handleModalOk}
             onCancel={() => setIsModalVisible(false)}

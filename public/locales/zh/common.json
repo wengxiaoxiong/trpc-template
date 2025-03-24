@@ -1,0 +1,299 @@
+{
+  "title": "TRPC模板",
+  "header": {
+    "home": "首页",
+    "login": "登录",
+    "register": "注册",
+    "logout": "退出",
+    "admin": "管理后台",
+    "profile": "个人信息",
+    "file_management": "文件管理"
+  },
+  "auth": {
+    "username": "用户名",
+    "password": "密码",
+    "login": "登录",
+    "register": "注册",
+    "email": "电子邮件",
+    "forgot_password": "忘记密码",
+    "reset_password": "重置密码",
+    "no_user": "用户不存在",
+    "invalid_password": "密码错误",
+    "token_missing": "缺少认证令牌",
+    "invalid_token": "无效的认证令牌",
+    "token_expired": "认证令牌已过期",
+    "invalid_expired_token": "无效或已过期的认证令牌",
+    "admin_required": "需要管理员权限",
+    "username_required": "请输入用户名",
+    "username_placeholder": "请输入用户名",
+    "password_required": "请输入密码",
+    "password_placeholder": "请输入密码",
+    "login_success": "登录成功",
+    "already_logged_in": "您已登录",
+    "current_account": "当前登录账号",
+    "enter_app": "进入应用",
+    "switch_account": "切换账号",
+    "register_success": "注册成功",
+    "passwords_not_match": "两次输入的密码不一致",
+    "confirm_password_required": "请确认密码",
+    "confirm_password_placeholder": "请确认密码",
+    "invitation_code_required": "请输入邀请码",
+    "invitation_code_placeholder": "请输入邀请码",
+    "have_account": "已经有账号？",
+    "login_now": "立即登录",
+    "no_account": "还没有账号？",
+    "register_now": "立即注册"
+  },
+  "admin": {
+    "dashboard": "控制面板",
+    "users": "用户管理",
+    "files": "文件管理",
+    "settings": "系统设置",
+    "pagination_total": "共 {total} 条记录",
+    "user_management": {
+      "title": "用户管理",
+      "create_user": "创建用户",
+      "edit_user": "编辑用户",
+      "delete_user": "删除用户",
+      "username": "用户名",
+      "is_admin": "管理员",
+      "storage_used": "已用存储",
+      "file_count": "文件数",
+      "created_at": "创建时间",
+      "actions": "操作",
+      "confirm_delete": "确定要删除此用户吗？",
+      "confirm_delete_title": "确认删除",
+      "search_placeholder": "搜索用户名",
+      "create_success": "用户创建成功",
+      "update_success": "用户更新成功",
+      "delete_success": "用户删除成功",
+      "view_files": "查看文件"
+    },
+    "file_management": {
+      "title": "文件管理",
+      "upload": "上传",
+      "delete": "删除",
+      "filename": "文件名",
+      "size": "大小",
+      "type": "类型",
+      "created_at": "上传时间",
+      "actions": "操作",
+      "confirm_delete": "确定要删除此文件吗？",
+      "no_files": "暂无文件",
+      "search_placeholder": "搜索文件名"
+    },
+    "invitation_code": {
+      "title": "邀请码管理",
+      "create": "创建邀请码",
+      "code": "邀请码",
+      "max_uses": "最大使用次数",
+      "used_count": "已使用次数",
+      "status": "状态",
+      "expires_at": "过期时间",
+      "created_at": "创建时间",
+      "active": "激活",
+      "inactive": "禁用",
+      "actions": "操作",
+      "enable": "启用",
+      "disable": "禁用",
+      "delete": "删除",
+      "confirm_delete": "确定要删除此邀请码吗？",
+      "require_for_registration": "需要邀请码注册",
+      "usage": "使用情况",
+      "registered_users": "已注册用户",
+      "generate": "生成邀请码",
+      "invitation_code_status": {
+        "used_up": "已用完",
+        "expired": "已过期",
+        "disabled": "已禁用",
+        "active": "有效"
+      },
+      "never_expires": "永不过期",
+      "edit": "编辑邀请码",
+      "create_success": "邀请码创建成功",
+      "update_success": "邀请码更新成功",
+      "delete_success": "邀请码删除成功"
+    },
+    "site_config": {
+      "title": "站点配置",
+      "key": "配置键",
+      "value": "配置值",
+      "locale": "语言",
+      "description": "描述",
+      "add_config": "添加配置",
+      "edit_config": "编辑配置",
+      "confirm_delete": "确定要删除此配置吗?",
+      "update_success": "配置更新成功",
+      "delete_success": "配置删除成功",
+      "predefined_keys": "预定义配置键",
+      "predefined_keys_tip": "以下是系统预定义的配置键，点击可直接使用：",
+      "view_predefined_keys": "查看预定义配置键",
+      "key_placeholder": "例如: site.title",
+      "value_placeholder": "配置的值",
+      "description_placeholder": "可选的配置描述",
+      "please_input_key": "请输入配置键",
+      "please_input_value": "请输入配置值",
+      "please_select_locale": "请选择语言",
+      "predefined": {
+        "site_title": "站点标题",
+        "site_description": "站点描述",
+        "footer_copyright": "页脚版权信息",
+        "footer_slogan": "页脚标语",
+        "logo_url": "Logo图片在Minio中的路径",
+        "year": "版权年份",
+        "max_storage": "用户最大网盘空间(字节)，默认2GB = 2147483648字节"
+      }
+    }
+  },
+  "common": {
+    "actions": "操作",
+    "save": "保存",
+    "cancel": "取消",
+    "delete": "删除",
+    "edit": "编辑",
+    "create": "创建",
+    "submit": "提交",
+    "loading": "加载中",
+    "error": "错误",
+    "success": "成功",
+    "confirm": "确认",
+    "back": "返回",
+    "search": "搜索",
+    "reset": "重置",
+    "upload": "上传",
+    "download": "下载",
+    "preview": "预览",
+    "yes": "是",
+    "no": "否",
+    "enable": "启用",
+    "disable": "禁用",
+    "active": "激活",
+    "inactive": "停用",
+    "page": "页",
+    "of": "共",
+    "items_per_page": "每页条数",
+    "next": "下一页",
+    "previous": "上一页",
+    "go_to": "跳转至",
+    "show_more": "显示更多",
+    "show_less": "显示更少",
+    "change_avatar": "更换头像",
+    "upload_avatar": "上传头像",
+    "upload_hint": "点击或拖拽图片到此区域上传",
+    "upload_format_hint": "支持 jpg、png 等常见图片格式",
+    "uploading": "上传中...",
+    "logout": "退出登录",
+    "file_list": {
+      "all_files": "全部文件",
+      "ai_generated_images": "AI生成图片",
+      "user_uploaded_files": "用户上传文件",
+      "parameter_images": "参数图片",
+      "select_file_type": "选择文件类型",
+      "rename": "重命名",
+      "rename_success": "文件重命名成功",
+      "rename_failed": "文件重命名失败",
+      "share_link": "复制下载链接",
+      "preview": "预览"
+    }
+  },
+  "errors": {
+    "invitationCode": {
+      "required": "注册需要邀请码",
+      "invalid": "邀请码无效",
+      "disabled": "邀请码已被禁用",
+      "expired": "邀请码已过期",
+      "maxUsesReached": "邀请码已达到最大使用次数"
+    },
+    "user": {
+      "notFound": "用户不存在",
+      "alreadyExists": "用户名已存在"
+    },
+    "auth": {
+      "invalidCredentials": "用户名或密码错误"
+    },
+    "common": {
+      "internalError": "内部服务器错误",
+      "unauthorized": "未授权操作",
+      "forbidden": "禁止访问"
+    },
+    "file": {
+      "uploadFailed": "文件上传失败",
+      "deleteFailed": "文件删除失败",
+      "notFound": "文件不存在",
+      "sizeExceeded": "文件大小超出限制",
+      "typeNotAllowed": "文件类型不允许",
+      "storageLimit": "您的存储空间已用完，请删除一些文件后再上传",
+      "exceededLimit": "文件太大，会超出您的存储空间限制",
+      "remainingSpace": "剩余空间: {space} 字节"
+    },
+    "config": {
+      "notFound": "配置 {key} 不存在"
+    }
+  },
+  "site": {
+    "description": "一个基于TRPC的全栈应用模板",
+    "copyright": "保留所有权利",
+    "slogan": "快速构建现代Web应用",
+    "year": "2024"
+  },
+  "features": {
+    "development": {
+      "title": "高效开发",
+      "description": "使用TypeScript和TRPC，享受端到端类型安全的开发体验"
+    },
+    "security": {
+      "title": "安全可靠",
+      "description": "内置用户认证、权限控制和数据验证"
+    },
+    "scalability": {
+      "title": "可扩展性",
+      "description": "模块化设计，易于扩展和维护"
+    },
+    "storage": {
+      "title": "存储服务",
+      "description": "内置文件存储服务，支持文件上传、下载和管理"
+    },
+    "architecture": {
+      "title": "灵活架构",
+      "description": "采用现代化的前后端分离架构，易于定制和扩展"
+    }
+  },
+  "dashboard": {
+    "total_files": "文件总数",
+    "total_users": "用户总数",
+    "storage_usage": "存储使用情况",
+    "used_storage": "已用存储",
+    "max_storage": "最大存储",
+    "remaining_storage": "剩余存储"
+  },
+  "storage": {
+    "usage_title": "存储空间使用情况",
+    "used": "已使用",
+    "total": "总容量",
+    "remaining": "剩余空间",
+    "almost_full": "存储空间即将用完，请及时清理文件！"
+  },
+  "file": {
+    "upload_title": "文件上传",
+    "support_formats": "支持图片和非图片格式",
+    "drop_hint": "点击或拖拽文件到此区域上传",
+    "batch_upload_hint": "支持单个或批量上传，选择后点击「开始上传」按钮",
+    "waiting_upload": "待上传文件",
+    "clear": "清空",
+    "edit_filename": "修改文件名",
+    "preview": "预览",
+    "start_upload": "开始上传",
+    "file_list": "文件列表",
+    "enter_new_filename": "输入新文件名",
+    "please_select_files": "请先选择要上传的文件",
+    "cannot_get_credentials": "无法获取上传凭证",
+    "uploaded_via_file_manager": "通过文件管理页面上传的文件",
+    "upload_success": "文件上传成功",
+    "upload_failed": "上传失败",
+    "upload_failed_log": "上传失败:",
+    "support_batch_upload": "支持单个或批量上传"
+  },
+  "webapp": {
+    "welcome": "欢迎使用"
+  }
+} 

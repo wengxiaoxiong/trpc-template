@@ -22,9 +22,13 @@ export default function Provider({ children }: ProviderProps): JSX.Element {
             links: [
                 httpBatchLink({
                     url: '/api/trpc',
-                    // optional
                     headers() {
-                        return {}
+                        const locale = typeof window !== 'undefined' 
+                            ? localStorage.getItem('app_locale') || 'zh' 
+                            : 'zh';
+                        return {
+                            'Accept-Language': locale,
+                        }
                     },
                 }),
             ],

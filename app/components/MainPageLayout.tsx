@@ -6,6 +6,7 @@ import { Card, Statistic } from 'antd';
 import { useRouter } from 'next/navigation';
 import { FolderOutlined, DashboardOutlined, UserOutlined } from '@ant-design/icons';
 import { trpc } from '@/utils/trpc/client';
+import { useI18n } from '../i18n-provider';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -13,6 +14,7 @@ interface DashboardLayoutProps {
 
 export const MainPageLayout = ({ children }: DashboardLayoutProps) => {
   const router = useRouter();
+  const { t, locale } = useI18n();
   const { data: filesCount, refetch: refetchFilesCount } = trpc.minio.countFiles.useQuery();
   const { data: totalUsers } = trpc.user.getTotalUsers.useQuery();
 
@@ -43,7 +45,7 @@ export const MainPageLayout = ({ children }: DashboardLayoutProps) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <Card className='cursor-pointer shadow-sm' onClick={() => { router.push("/files") }}>
               <Statistic
-                title="文件总数"
+                title={t("dashboard.total_files")}
                 value={filesCount || 0}
                 prefix={<FolderOutlined />}
                 valueStyle={{ color: '#3f8600' }}
@@ -51,7 +53,7 @@ export const MainPageLayout = ({ children }: DashboardLayoutProps) => {
             </Card>
             <Card className='cursor-pointer shadow-sm' onClick={() => { router.push("/admin") }}>
               <Statistic
-                title="用户总数"
+                title={t("dashboard.total_users")}
                 value={totalUsers || 0}
                 prefix={<UserOutlined />}
                 valueStyle={{ color: '#3f8600' }}

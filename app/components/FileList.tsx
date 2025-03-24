@@ -6,6 +6,7 @@ import { trpc } from '@/utils/trpc/client';
 import { MinioImage } from './MinioImage';
 import { MinioVideo } from './MinioVideo';
 import { message } from 'antd';
+import { useI18n } from '../i18n-provider';
 
 interface FileListProps {
     className?: string;
@@ -20,6 +21,7 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
     className,
     userId
 }, ref) => {
+    const { t } = useI18n();
     const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
     const [selectedFileType, setSelectedFileType] = useState<FileType | undefined>(undefined);
     const [selectedPath, setSelectedPath] = useState<string | null>(null);
@@ -94,58 +96,68 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
             const copyToClipboard = async () => {
                 try {
                     await navigator.clipboard.writeText(shareUrl.url);
-                    message.success('下载链接已复制到剪贴板');
+                    message.success(t('common.success'));
                 } catch (error) {
                     console.error('复制失败:', error);
-                    message.error('复制链接失败');
+                    message.error(t('common.error'));
                 } finally {
                     setSharingPath(null);
                 }
             };
             copyToClipboard();
         }
-    }, [sharingPath, shareUrl, isLoadingShareUrl]);
+    }, [sharingPath, shareUrl, isLoadingShareUrl, t]);
 
+    // 处理文件下载
     const handleDownload = async (file: any) => {
         try {
             setSelectedPath(null);
             await new Promise(resolve => setTimeout(resolve, 100));
             setSelectedPath(file.path);
         } catch (error) {
-            message.error('下载失败');
+            console.error('获取文件URL失败:', error);
+            message.error(t('errors.file.notFound'));
         }
     };
 
+    // 处理文件删除
     const handleDelete = async (file: any) => {
         Modal.confirm({
-            title: '确认删除',
-            content: `确定要删除文件 "${file.name}" 吗？`,
-            okText: '确认',
-            cancelText: '取消',
+            title: t('common.confirm_delete'),
+            content: `${t('common.confirm_delete_file')} "${file.name}" ?`,
+            okText: t('common.confirm'),
+            cancelText: t('common.cancel'),
             onOk: async () => {
                 try {
                     await deleteFileMutation({ id: file.id });
-                    message.success('文件删除成功');
+                    message.success(t('common.success'));
                     refetchFiles();
+                    
+                    // 触发存储空间变化事件
+                    window.dispatchEvent(new Event('storageChanged'));
                 } catch (error) {
-                    message.error('文件删除失败');
+                    console.error('删除文件失败:', error);
+                    message.error(t('errors.file.deleteFailed'));
                 }
             }
         });
     };
 
+    // 处理文件重命名点击
     const handleRenameClick = (file: any) => {
         setCurrentFile(file);
-        // 分离文件名和扩展名
-        const fileNameParts = file.name.split('.');
-        const extension = fileNameParts.length > 1 ? fileNameParts.pop() : '';
-        const baseName = fileNameParts.join('.');
         
-        // 只设置基本文件名（不含扩展名）
+        // 获取文件名（不包含扩展名）
+        const fileNameParts = file.name.split('.');
+        const baseName = fileNameParts.length > 1 
+            ? fileNameParts.slice(0, -1).join('.')
+            : file.name;
+            
         form.setFieldsValue({ baseName });
         setRenameModalVisible(true);
     };
 
+    // 处理文件重命名提交
     const handleRenameSubmit = async () => {
         try {
             await form.validateFields();
@@ -164,16 +176,17 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
                         id: currentFile.id,
                         newName: newFullName
                     });
-                    message.success('文件重命名成功');
+                    message.success(t('common.file_list.rename_success'));
                     refetchFiles();
                 }
             }
             setRenameModalVisible(false);
         } catch (error) {
-            message.error('文件重命名失败');
+            message.error(t('common.file_list.rename_failed'));
         }
     };
 
+    // 处理文件类型变更
     const handleFileTypeChange = (value: FileType | undefined) => {
         setSelectedFileType(value);
         setPagination({ ...pagination, current: 1 });
@@ -184,6 +197,7 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
         setSharingPath(file.path);
     };
 
+    // 处理视频预览
     const handleVideoPreview = (file: any) => {
         setPreviewVideoPath(file.path);
         setVideoPreviewVisible(true);
@@ -202,7 +216,7 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
     // 响应式列配置
     const columns = [
         {
-            title: '文件名',
+            title: t('admin.file_management.filename'),
             dataIndex: 'name',
             key: 'name',
             ellipsis: true,
@@ -218,7 +232,7 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
             },
         },
         {
-            title: '预览',
+            title: t('common.preview'),
             key: 'preview',
             width: 80,
             render: (_: unknown, record: any) => {
@@ -251,20 +265,20 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
             },
         },
         {
-            title: '类型',
+            title: t('admin.file_management.type'),
             key: 'fileType',
             width: 120,
             render:(_:unknown, record: any)=>{
                 const typeMap: Record<FileType, string> = {
-                    [FileType.AI_GENERATED_IMAGE]: 'AI生成图片',
-                    [FileType.USER_UPLOADED_FILE]: '用户上传文件',
-                    [FileType.PARAMETER_IMAGE]: '参数图片'
+                    [FileType.AI_GENERATED_IMAGE]: t('common.file_list.ai_generated_images'),
+                    [FileType.USER_UPLOADED_FILE]: t('common.file_list.user_uploaded_files'),
+                    [FileType.PARAMETER_IMAGE]: t('common.file_list.parameter_images')
                 };
                 return <Tag>{typeMap[record.fileType as FileType] || '未知类型'}</Tag>
             },
         },
         {
-            title: '大小',
+            title: t('admin.file_management.size'),
             key: 'size',
             width: 100,
             render: (_: unknown, record: any) => {
@@ -281,7 +295,7 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
             },
         },
         {
-            title: '操作',
+            title: t('admin.file_management.actions'),
             key: 'action',
             width: 180,
             render: (_: unknown, record: any) => (
@@ -291,19 +305,21 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
                         icon={<EditOutlined />}
                         onClick={() => handleRenameClick(record)}
                         size="small"
+                        title={t('common.file_list.rename')}
                     />
                     <Button
                         type="link"
                         icon={<DownloadOutlined />}
                         onClick={() => handleDownload(record)}
                         size="small"
+                        title={t('common.download')}
                     />
                     <Button
                         type="link"
                         icon={<ShareAltOutlined />}
                         onClick={() => handleShare(record)}
                         size="small"
-                        title="复制下载链接"
+                        title={t('common.file_list.share_link')}
                     />
                     <Button
                         type="link"
@@ -311,6 +327,7 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
                         icon={<DeleteOutlined />}
                         onClick={() => handleDelete(record)}
                         size="small"
+                        title={t('common.delete')}
                     />
                 </div>
             ),
@@ -318,10 +335,10 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
     ];
 
     const fileTypeOptions = [
-        { label: '全部文件', value: undefined },
-        { label: 'AI生成图片', value: FileType.AI_GENERATED_IMAGE },
-        { label: '用户上传文件', value: FileType.USER_UPLOADED_FILE },
-        { label: '参数图片', value: FileType.PARAMETER_IMAGE }
+        { label: t('common.file_list.all_files'), value: undefined },
+        { label: t('common.file_list.ai_generated_images'), value: FileType.AI_GENERATED_IMAGE },
+        { label: t('common.file_list.user_uploaded_files'), value: FileType.USER_UPLOADED_FILE },
+        { label: t('common.file_list.parameter_images'), value: FileType.PARAMETER_IMAGE }
     ];
 
     return (
@@ -329,7 +346,7 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
             {!userId && (
                 <div className="mb-4">
                     <Select
-                        placeholder="选择文件类型"
+                        placeholder={t('common.file_list.select_file_type')}
                         style={{ width: 200 }}
                         options={fileTypeOptions}
                         value={selectedFileType}
@@ -359,7 +376,7 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
 
             {/* 视频预览模态框 */}
             <Modal
-                title="视频预览"
+                title={t('common.file_list.preview')}
                 open={videoPreviewVisible}
                 onCancel={() => setVideoPreviewVisible(false)}
                 footer={null}
@@ -380,8 +397,9 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
                 )}
             </Modal>
 
+            {/* 重命名模态框 */}
             <Modal
-                title="重命名文件"
+                title={t('common.file_list.rename')}
                 open={renameModalVisible}
                 onOk={handleRenameSubmit}
                 onCancel={() => setRenameModalVisible(false)}
@@ -390,16 +408,16 @@ export const FileList = forwardRef<FileListRef, FileListProps>(({
                 <Form form={form} layout="vertical">
                     <Form.Item
                         name="baseName"
-                        label="文件名"
+                        label={t('admin.file_management.filename')}
                         rules={[
-                            { required: true, message: '请输入文件名' },
-                            { max: 255, message: '文件名不能超过255个字符' },
+                            { required: true, message: t('errors.file.name_required') },
+                            { max: 255, message: t('errors.file.nameLength') },
                             { 
                                 pattern: /^[^\/\\:*?"<>|]+$/, 
-                                message: '文件名不能包含以下字符: / \\ : * ? " < > |' 
+                                message: t('errors.file.name_invalid_chars') 
                             }
                         ]}
-                        extra={currentFile?.name.includes('.') ? `文件扩展名 ".${currentFile?.name.split('.').pop()}" 将被保留` : ''}
+                        extra={currentFile?.name.includes('.') ? `${t('common.file_list.extension_preserved')} ".${currentFile?.name.split('.').pop()}"` : ''}
                     >
                         <Input />
                     </Form.Item>

@@ -1,0 +1,299 @@
+{
+  "title": "TRPCテンプレート",
+  "header": {
+    "home": "ホーム",
+    "login": "ログイン",
+    "register": "登録",
+    "logout": "ログアウト",
+    "admin": "管理画面",
+    "profile": "プロフィール",
+    "file_management": "ファイル管理"
+  },
+  "auth": {
+    "username": "ユーザー名",
+    "password": "パスワード",
+    "login": "ログイン",
+    "register": "登録",
+    "email": "メールアドレス",
+    "forgot_password": "パスワードをお忘れですか",
+    "reset_password": "パスワードをリセット",
+    "no_user": "ユーザーが存在しません",
+    "invalid_password": "パスワードが無効です",
+    "token_missing": "認証トークンがありません",
+    "invalid_token": "無効な認証トークン",
+    "token_expired": "認証トークンの有効期限が切れています",
+    "invalid_expired_token": "無効または期限切れの認証トークン",
+    "admin_required": "管理者権限が必要です",
+    "username_required": "ユーザー名を入力してください",
+    "username_placeholder": "ユーザー名を入力してください",
+    "password_required": "パスワードを入力してください",
+    "password_placeholder": "パスワードを入力してください",
+    "login_success": "ログインに成功しました",
+    "already_logged_in": "すでにログインしています",
+    "current_account": "現在のアカウント",
+    "enter_app": "アプリに入る",
+    "switch_account": "アカウントを切り替える",
+    "register_success": "登録に成功しました",
+    "passwords_not_match": "パスワードが一致しません",
+    "confirm_password_required": "パスワードを確認してください",
+    "confirm_password_placeholder": "パスワードを確認してください",
+    "invitation_code_required": "招待コードを入力してください",
+    "invitation_code_placeholder": "招待コードを入力してください",
+    "have_account": "すでにアカウントをお持ちですか？",
+    "login_now": "今すぐログイン",
+    "no_account": "アカウントをお持ちでないですか？",
+    "register_now": "今すぐ登録"
+  },
+  "admin": {
+    "dashboard": "ダッシュボード",
+    "users": "ユーザー管理",
+    "files": "ファイル管理",
+    "settings": "システム設定",
+    "pagination_total": "合計 {total} 件",
+    "user_management": {
+      "title": "ユーザー管理",
+      "create_user": "ユーザーを作成",
+      "edit_user": "ユーザーを編集",
+      "delete_user": "ユーザーを削除",
+      "username": "ユーザー名",
+      "is_admin": "管理者",
+      "storage_used": "ストレージ使用量",
+      "file_count": "ファイル数",
+      "created_at": "作成日時",
+      "actions": "アクション",
+      "confirm_delete": "このユーザーを削除してもよろしいですか？",
+      "confirm_delete_title": "削除の確認",
+      "search_placeholder": "ユーザー名を検索",
+      "create_success": "ユーザーが正常に作成されました",
+      "update_success": "ユーザーが正常に更新されました",
+      "delete_success": "ユーザーが正常に削除されました",
+      "view_files": "ファイルを表示"
+    },
+    "file_management": {
+      "title": "ファイル管理",
+      "upload": "アップロード",
+      "delete": "削除",
+      "filename": "ファイル名",
+      "size": "サイズ",
+      "type": "タイプ",
+      "created_at": "アップロード日時",
+      "actions": "アクション",
+      "confirm_delete": "このファイルを削除してもよろしいですか？",
+      "no_files": "ファイルがありません",
+      "search_placeholder": "ファイル名を検索"
+    },
+    "invitation_code": {
+      "title": "招待コード管理",
+      "create": "招待コードを作成",
+      "code": "コード",
+      "max_uses": "最大使用回数",
+      "used_count": "使用回数",
+      "status": "ステータス",
+      "expires_at": "有効期限",
+      "created_at": "作成日時",
+      "active": "アクティブ",
+      "inactive": "非アクティブ",
+      "actions": "アクション",
+      "enable": "有効にする",
+      "disable": "無効にする",
+      "delete": "削除",
+      "confirm_delete": "この招待コードを削除してもよろしいですか？",
+      "require_for_registration": "登録に招待コードが必要",
+      "usage": "使用状況",
+      "registered_users": "登録済みユーザー",
+      "generate": "招待コードを生成",
+      "invitation_code_status": {
+        "used_up": "使用済み",
+        "expired": "期限切れ",
+        "disabled": "無効",
+        "active": "有効"
+      },
+      "never_expires": "無期限",
+      "edit": "招待コードを編集",
+      "create_success": "招待コードが正常に作成されました",
+      "update_success": "招待コードが正常に更新されました",
+      "delete_success": "招待コードが正常に削除されました"
+    },
+    "site_config": {
+      "title": "サイト設定",
+      "key": "設定キー",
+      "value": "設定値",
+      "locale": "言語",
+      "description": "説明",
+      "add_config": "設定を追加",
+      "edit_config": "設定を編集",
+      "confirm_delete": "この設定を削除してもよろしいですか？",
+      "update_success": "設定が正常に更新されました",
+      "delete_success": "設定が正常に削除されました",
+      "predefined_keys": "定義済み設定キー",
+      "predefined_keys_tip": "以下はシステムで定義済みの設定キーです。クリックして使用できます：",
+      "view_predefined_keys": "定義済み設定キーを表示",
+      "key_placeholder": "例: site.title",
+      "value_placeholder": "設定の値",
+      "description_placeholder": "オプションの説明",
+      "please_input_key": "設定キーを入力してください",
+      "please_input_value": "設定値を入力してください",
+      "please_select_locale": "言語を選択してください",
+      "predefined": {
+        "site_title": "サイトのタイトル",
+        "site_description": "サイトの説明",
+        "footer_copyright": "フッターの著作権情報",
+        "footer_slogan": "フッターのスローガン",
+        "logo_url": "MinioにあるLogoの画像パス",
+        "year": "著作権年",
+        "max_storage": "ユーザーの最大ストレージ容量（バイト）、デフォルト：2GB = 2147483648バイト"
+      }
+    }
+  },
+  "common": {
+    "actions":"操作",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "delete": "削除",
+    "edit": "編集",
+    "create": "作成",
+    "submit": "送信",
+    "loading": "読み込み中",
+    "error": "エラー",
+    "success": "成功",
+    "confirm": "確認",
+    "back": "戻る",
+    "search": "検索",
+    "reset": "リセット",
+    "upload": "アップロード",
+    "download": "ダウンロード",
+    "preview": "プレビュー",
+    "yes": "はい",
+    "no": "いいえ",
+    "enable": "有効にする",
+    "disable": "無効にする",
+    "active": "有効",
+    "inactive": "無効",
+    "page": "ページ",
+    "of": "の",
+    "items_per_page": "ページあたりのアイテム数",
+    "next": "次へ",
+    "previous": "前へ",
+    "go_to": "移動",
+    "show_more": "もっと見る",
+    "show_less": "少なく表示",
+    "change_avatar": "アバターを変更",
+    "upload_avatar": "アバターをアップロード",
+    "upload_hint": "ここにクリックまたはドラッグして画像をアップロード",
+    "upload_format_hint": "JPG、PNGなどの一般的な画像形式をサポート",
+    "uploading": "アップロード中...",
+    "logout": "ログアウト",
+    "file_list": {
+      "all_files": "すべてのファイル",
+      "ai_generated_images": "AI生成画像",
+      "user_uploaded_files": "ユーザーアップロードファイル",
+      "parameter_images": "パラメータ画像",
+      "select_file_type": "ファイルタイプを選択",
+      "rename": "名前を変更",
+      "rename_success": "ファイル名の変更に成功しました",
+      "rename_failed": "ファイル名の変更に失敗しました",
+      "share_link": "ダウンロードリンクをコピー",
+      "preview": "プレビュー"
+    }
+  },
+  "errors": {
+    "invitationCode": {
+      "required": "登録には招待コードが必要です",
+      "invalid": "無効な招待コード",
+      "disabled": "この招待コードは無効になっています",
+      "expired": "この招待コードは期限切れです",
+      "maxUsesReached": "この招待コードは最大使用回数に達しました"
+    },
+    "user": {
+      "notFound": "ユーザーが見つかりません",
+      "alreadyExists": "ユーザー名はすでに存在します"
+    },
+    "auth": {
+      "invalidCredentials": "ユーザー名またはパスワードが無効です"
+    },
+    "common": {
+      "internalError": "内部サーバーエラー",
+      "unauthorized": "未承認の操作",
+      "forbidden": "アクセスが禁止されています"
+    },
+    "file": {
+      "uploadFailed": "ファイルのアップロードに失敗しました",
+      "deleteFailed": "ファイルの削除に失敗しました",
+      "notFound": "ファイルが見つかりません",
+      "sizeExceeded": "ファイルサイズが制限を超えています",
+      "typeNotAllowed": "このファイルタイプは許可されていません",
+      "storageLimit": "ストレージ容量がいっぱいです。アップロードする前にいくつかのファイルを削除してください",
+      "exceededLimit": "ファイルが大きすぎて、ストレージ制限を超えます",
+      "remainingSpace": "残りの容量：{space} バイト"
+    },
+    "config": {
+      "notFound": "設定 {key} が見つかりません"
+    }
+  },
+  "site": {
+    "description": "TRPCベースのフルスタックアプリケーションテンプレート",
+    "copyright": "すべての権利予約",
+    "slogan": "現代的なウェブアプリケーションを迅速に構築",
+    "year": "2024"
+  },
+  "features": {
+    "development": {
+      "title": "効率的な開発",
+      "description": "TypeScriptとTRPCによるエンドツーエンドの型安全な開発を楽しむ"
+    },
+    "security": {
+      "title": "安全性と信頼性",
+      "description": "ユーザー認証、アクセス制御、データ検証が組み込まれています"
+    },
+    "scalability": {
+      "title": "拡張性",
+      "description": "簡単に拡張とメンテナンスができるモジュラー設計"
+    },
+    "storage": {
+      "title": "ストレージサービス",
+      "description": "ファイルのアップロード、ダウンロード、管理をサポートする組み込みのファイルストレージサービス"
+    },
+    "architecture": {
+      "title": "柔軟なアーキテクチャ",
+      "description": "カスタマイズと拡張が容易な現代的なフロントエンドとバックエンドの分離アーキテクチャ"
+    }
+  },
+  "dashboard": {
+    "total_files": "ファイル総数",
+    "total_users": "ユーザー総数",
+    "storage_usage": "ストレージ使用状況",
+    "used_storage": "使用済みストレージ",
+    "max_storage": "最大ストレージ",
+    "remaining_storage": "残りのストレージ"
+  },
+  "storage": {
+    "usage_title": "ストレージ使用状況",
+    "used": "使用済み",
+    "total": "総容量",
+    "remaining": "残り容量",
+    "almost_full": "ストレージがほぼいっぱいです。ファイルを整理してください！"
+  },
+  "file": {
+    "upload_title": "ファイルアップロード",
+    "support_formats": "画像と非画像フォーマットをサポート",
+    "drop_hint": "ここにファイルをクリックまたはドラッグしてアップロード",
+    "batch_upload_hint": "単一またはバッチアップロードをサポート、ファイルを選択して「アップロード開始」ボタンをクリック",
+    "waiting_upload": "アップロード待ちファイル",
+    "clear": "クリア",
+    "edit_filename": "ファイル名の編集",
+    "preview": "プレビュー",
+    "start_upload": "アップロード開始",
+    "file_list": "ファイルリスト",
+    "enter_new_filename": "新しいファイル名を入力",
+    "please_select_files": "まずアップロードするファイルを選択してください",
+    "cannot_get_credentials": "アップロード認証情報を取得できません",
+    "uploaded_via_file_manager": "ファイル管理ページからアップロードされたファイル",
+    "upload_success": "ファイルのアップロードに成功しました",
+    "upload_failed": "アップロード失敗",
+    "upload_failed_log": "アップロード失敗:",
+    "support_batch_upload": "単一またはバッチアップロードをサポート"
+  },
+  "webapp": {
+    "welcome": "ようこそ"
+  }
+} 

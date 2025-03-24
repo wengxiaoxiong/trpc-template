@@ -8,13 +8,16 @@ import { FileType } from '@prisma/client';
 import { MinioImage } from './MinioImage';
 import { useMinioUpload } from '@/utils/minio/useMinioUpload';
 import { useSiteConfig } from './SiteConfigProvider';
+import { useI18n } from '../i18n-provider';
+import LanguageSwitcher from './LanguageSwitcher';
 
 const navItems = [
-    { href: '/files', label: '文件管理' },
+    { href: '/files', label: 'file_management' },
 ]
 
 export function Header() {
     const router = useRouter();
+    const { t, locale } = useI18n();
     const { data: user, refetch: refetchUser } = trpc.user.getCurrentUser.useQuery();
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [uploading, setUploading] = useState(false);
@@ -24,7 +27,7 @@ export function Header() {
     const { getConfigValue } = useSiteConfig();
   
     // 获取配置
-    const siteTitle = getConfigValue('site.title', '模版项目');
+    const siteTitle = getConfigValue('site.title', t('title'));
 
     const { uploadFile } = useMinioUpload({
         onSuccess: () => {
@@ -32,18 +35,18 @@ export function Header() {
         },
         onError: () => {
             setUploading(false);
-            message.error('上传失败');
+            message.error(t('errors.file.uploadFailed'));
         }
     });
 
     const { mutateAsync: updateAvatar } = trpc.user.updateAvatar.useMutation({
         onSuccess: () => {
-            message.success('头像更新成功');
+            message.success(t('common.success'));
             refetchUser();
             setIsModalVisible(false);
         },
         onError: () => {
-            message.error('头像更新失败');
+            message.error(t('errors.file.uploadFailed'));
         }
     });
 
@@ -54,7 +57,7 @@ export function Header() {
             await updateAvatar({ avatarPath: pathName });
         } catch (error) {
             console.error('上传头像失败:', error);
-            message.error('上传头像失败');
+            message.error(t('errors.file.uploadFailed'));
         } finally {
             setUploading(false);
         }
@@ -63,80 +66,128 @@ export function Header() {
     const menu = (
         <Menu>
             <Menu.Item key="avatar" onClick={() => setIsModalVisible(true)}>
-                <UploadOutlined /> 更换头像
+                <UploadOutlined /> {t('common.change_avatar')}
             </Menu.Item>
             <Menu.Item key="logout" onClick={() => {
                 logout();
             }}>
-                退出登录
+                {t('common.logout')}
             </Menu.Item>
         </Menu>
     );
     
     const mobileNavItems = [
-        ...navItems,
-        ...(user?.isAdmin ? [{ href: '/admin', label: '管理后台' }] : []),
+        ...navItems.map(item => ({ ...item, label: t(`header.${item.label}`) })),
+        ...(user?.isAdmin ? [{ href: '/admin', label: t('header.admin') }] : []),
     ];
 
     return (
-        <header className="bg-white shadow-sm py-4 px-4 sm:px-6 flex flex-wrap items-center justify-between mb-6">
-            <div className="flex items-center justify-between w-full lg:w-auto">
-                <h1 className="text-xl font-semibold text-gray-800 select-none cursor-pointer" onClick={() => { router.push("/webapp") }} >{siteTitle}</h1>
-                <button 
-                    className="lg:hidden p-2 rounded-md hover:bg-gray-100 focus:outline-none" 
-                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                    aria-label="打开菜单"
-                >
-                    <MenuOutlined className="text-gray-700 text-xl" />
-                </button>
-            </div>
-            
-            {/* 桌面导航 */}
-            <nav className="hidden lg:flex lg:space-x-4">
-                {navItems.map(item => (
-                    <Button key={item.href} type="text" onClick={() => router.push(item.href)}>
-                        {item.label}
-                    </Button>
-                ))}
-                {user?.isAdmin && (
-                    <Button type="text" onClick={() => router.push('/admin')}>
-                        管理后台
-                    </Button>
-                )}
-            </nav>
-            
-            {/* 用户信息（桌面） */}
-            <div className="hidden lg:flex items-center space-x-4">
-                <Dropdown overlay={menu} trigger={['click']}>
-                    <div className="flex items-center space-x-3 cursor-pointer p-1 hover:bg-gray-50 rounded-md">
-                        <div className="flex-shrink-0">
+        <header className="bg-white sticky top-0 z-10 shadow-sm py-2 mb-4">
+            <div className="container flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                    <button
+                        className="lg:hidden text-gray-600 p-2"
+                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                    >
+                        <MenuOutlined style={{ fontSize: '20px' }} />
+                    </button>
+                    
+                    <div 
+                        className="flex items-center space-x-2 cursor-pointer"
+                        onClick={() => router.push('/')}
+                    >
+                        <span className="text-xl font-bold text-gray-800">{siteTitle}</span>
+                    </div>
+                </div>
+                
+                <div className="hidden lg:flex items-center space-x-4">
+                    {navItems.map((item, index) => (
+                        <Button
+                            key={index}
+                            type="link"
+                            className="text-gray-600 hover:text-indigo-600"
+                            onClick={() => router.push(item.href)}
+                        >
+                            {t(`header.${item.label}`)}
+                        </Button>
+                    ))}
+                    {user?.isAdmin && (
+                        <Button
+                            type="link"
+                            className="text-gray-600 hover:text-indigo-600"
+                            onClick={() => router.push('/admin')}
+                        >
+                            {t('header.admin')}
+                        </Button>
+                    )}
+                </div>
+                
+                <div className="hidden lg:flex items-center space-x-4">
+                    {/* 语言切换器 */}
+                    <LanguageSwitcher />
+                    
+                    <Dropdown overlay={menu} trigger={['click']}>
+                        <div className="flex items-center space-x-3 cursor-pointer p-1 hover:bg-gray-50 rounded-md">
+                            <div className="flex-shrink-0">
+                                {user && user.avatar ? (
+                                    <MinioImage
+                                        pathName={user.avatar}
+                                        width={36}
+                                        height={36}
+                                        className="rounded-full"
+                                        preview={false}
+                                    />
+                                ) : (
+                                    <Avatar icon={<UserOutlined />} size={36} />
+                                )}
+                            </div>
+                            <span className="text-gray-800 font-medium">{user?.username}</span>
+                        </div>
+                    </Dropdown>
+                </div>
+                
+                {/* 移动端导航菜单 */}
+                <div className="lg:hidden flex items-center space-x-2">
+                    <LanguageSwitcher />
+                    <Dropdown
+                        overlay={
+                            <Menu>
+                                <Menu.Item key="avatar" onClick={() => setIsModalVisible(true)}>
+                                    <UploadOutlined /> {t('common.change_avatar')}
+                                </Menu.Item>
+                                <Menu.Item key="logout" onClick={logout}>
+                                    <LogoutOutlined /> {t('common.logout')}
+                                </Menu.Item>
+                            </Menu>
+                        }
+                        trigger={['click']}
+                    >
+                        <div className="cursor-pointer">
                             {user && user.avatar ? (
                                 <MinioImage
                                     pathName={user.avatar}
-                                    width={36}
-                                    height={36}
+                                    width={32}
+                                    height={32}
                                     className="rounded-full"
                                     preview={false}
                                 />
                             ) : (
-                                <Avatar icon={<UserOutlined />} size={36} />
+                                <Avatar icon={<UserOutlined />} size={32} />
                             )}
                         </div>
-                        <span className="text-gray-800 font-medium">{user?.username}</span>
-                    </div>
-                </Dropdown>
+                    </Dropdown>
+                </div>
             </div>
             
-            {/* 移动端导航菜单 */}
+            {/* 移动端菜单展开 */}
             {mobileMenuOpen && (
-                <div className="w-full lg:hidden mt-4 py-3 border-t border-gray-200">
-                    <div className="flex flex-col space-y-3">
-                        {mobileNavItems.map(item => (
-                            <Button 
-                                key={item.href} 
-                                type="text" 
-                                block 
-                                className="text-left" 
+                <div className="lg:hidden bg-white border-t border-gray-100 mt-2 px-4 py-2">
+                    <div className="flex flex-col space-y-2">
+                        {mobileNavItems.map((item, index) => (
+                            <Button
+                                key={index}
+                                type="link"
+                                className="text-gray-600 hover:text-indigo-600 text-left pl-0"
                                 onClick={() => {
                                     router.push(item.href);
                                     setMobileMenuOpen(false);
@@ -145,49 +196,12 @@ export function Header() {
                                 {item.label}
                             </Button>
                         ))}
-                        <div className="border-t border-gray-100 pt-3">
-                            <div className="flex items-center px-2 py-2 mb-3">
-                                <div className="flex-shrink-0 mr-3">
-                                    {user && user.avatar ? (
-                                        <MinioImage
-                                            pathName={user.avatar}
-                                            width={40}
-                                            height={40}
-                                            className="rounded-full"
-                                            preview={false}
-                                        />
-                                    ) : (
-                                        <Avatar icon={<UserOutlined />} size={40} />
-                                    )}
-                                </div>
-                                <span className="text-gray-800 text-lg">{user?.username}</span>
-                            </div>
-                            <Button 
-                                block 
-                                type="text" 
-                                className="text-left py-2 my-1" 
-                                onClick={() => setIsModalVisible(true)}
-                            >
-                                <UploadOutlined className="mr-2" /> 更换头像
-                            </Button>
-                            <Button 
-                                block 
-                                type="text" 
-                                className="text-left py-2 my-1 text-red-500" 
-                                onClick={() => {
-                                    logout();
-                                    setMobileMenuOpen(false);
-                                }}
-                            >
-                                <LogoutOutlined className="mr-2" /> 退出登录
-                            </Button>
-                        </div>
                     </div>
                 </div>
             )}
 
             <Modal
-                title="更换头像"
+                title={t('common.change_avatar')}
                 open={isModalVisible}
                 onCancel={() => setIsModalVisible(false)}
                 footer={null}
@@ -204,10 +218,10 @@ export function Header() {
                     <p className="ant-upload-drag-icon">
                         <UploadOutlined />
                     </p>
-                    <p className="ant-upload-text">点击或拖拽图片到此区域上传</p>
-                    <p className="ant-upload-hint">支持 jpg、png 等常见图片格式</p>
+                    <p className="ant-upload-text">{t('common.upload_hint')}</p>
+                    <p className="ant-upload-hint">{t('common.upload_format_hint')}</p>
                 </Upload.Dragger>
-                {uploading && <div className="text-center mt-4">上传中...</div>}
+                {uploading && <div className="text-center mt-4">{t('common.uploading')}</div>}
             </Modal>
         </header>
     );

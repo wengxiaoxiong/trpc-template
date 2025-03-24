@@ -9,6 +9,7 @@ import { UserOutlined, LockOutlined, KeyOutlined } from '@ant-design/icons'
 import { AuthLayout } from '../components/AuthLayout'
 import { AuthHeader } from '../components/AuthHeader'
 import { AuthPageLink } from '../components/AuthPageLink'
+import { useI18n } from '../i18n-provider'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -19,6 +20,7 @@ export default function RegisterPage() {
   const [invitationCode, setInvitationCode] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const { t } = useI18n()
 
   // 获取是否需要邀请码的设置
   const { data: requireInvitationCode, isLoading: isLoadingConfig } = 
@@ -27,7 +29,7 @@ export default function RegisterPage() {
   const { mutateAsync: register } = trpc.user.register.useMutation({
     onSuccess: (data) => {
       login(data.token)
-      message.success('注册成功')
+      message.success(t('auth.register_success', '注册成功'))
       router.push('/')
     },
     onError: (error) => {
@@ -45,7 +47,7 @@ export default function RegisterPage() {
 
   const handleSubmit = async (values: any) => {
     if (password !== confirmPassword) {
-      setError('两次输入的密码不一致')
+      setError(t('auth.passwords_not_match', '两次输入的密码不一致'))
       return
     }
     setLoading(true)
@@ -68,11 +70,11 @@ export default function RegisterPage() {
       <Form onFinish={handleSubmit} layout="vertical">
         <Form.Item
           name="username"
-          rules={[{ required: true, message: '请输入用户名' }]}
+          rules={[{ required: true, message: t('auth.username_required', '请输入用户名') }]}
         >
           <Input
             prefix={<UserOutlined className="text-gray-400" />}
-            placeholder="请输入用户名"
+            placeholder={t('auth.username_placeholder', '请输入用户名')}
             size="large"
             className="rounded-lg border-gray-300"
           />
@@ -80,11 +82,11 @@ export default function RegisterPage() {
 
         <Form.Item
           name="password"
-          rules={[{ required: true, message: '请输入密码' }]}
+          rules={[{ required: true, message: t('auth.password_required', '请输入密码') }]}
         >
           <Input.Password
             prefix={<LockOutlined className="text-gray-400" />}
-            placeholder="请输入密码"
+            placeholder={t('auth.password_placeholder', '请输入密码')}
             size="large"
             className="rounded-lg border-gray-300"
           />
@@ -92,11 +94,11 @@ export default function RegisterPage() {
 
         <Form.Item
           name="confirmPassword"
-          rules={[{ required: true, message: '请确认密码' }]}
+          rules={[{ required: true, message: t('auth.confirm_password_required', '请确认密码') }]}
         >
           <Input.Password
             prefix={<LockOutlined className="text-gray-400" />}
-            placeholder="请确认密码"
+            placeholder={t('auth.confirm_password_placeholder', '请确认密码')}
             size="large"
             className="rounded-lg border-gray-300"
           />
@@ -109,13 +111,13 @@ export default function RegisterPage() {
             rules={[
               { 
                 required: requireInvitationCode, 
-                message: '请输入邀请码' 
+                message: t('auth.invitation_code_required', '请输入邀请码')
               }
             ]}
           >
             <Input
               prefix={<KeyOutlined className="text-gray-400" />}
-              placeholder="请输入邀请码"
+              placeholder={t('auth.invitation_code_placeholder', '请输入邀请码')}
               size="large"
               className="rounded-lg border-gray-300"
             />
@@ -133,7 +135,7 @@ export default function RegisterPage() {
             className="w-full h-11 bg-gradient-to-r from-blue-500 to-indigo-600 !rounded-button"
             loading={loading}
           >
-            注册
+            {t('auth.register', '注册')}
           </Button>
         </Form.Item>
       </Form>

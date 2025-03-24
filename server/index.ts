@@ -7,6 +7,10 @@ import { router } from '@/utils/trpc'
 import { userRouter } from './routers/user'
 import { minioRouter } from './routers/minio'
 import { configRouter } from './routers/config'
+import { createI18nMiddleware } from './i18n'
+
+// 创建i18n中间件
+export const i18nMiddleware = createI18nMiddleware();
 
 export const appRouter = router({
     user: userRouter,

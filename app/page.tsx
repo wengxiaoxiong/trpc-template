@@ -7,6 +7,8 @@ import { useAuth } from './auth/AuthProvider';
 import { UserOutlined } from '@ant-design/icons';
 import { MinioImage } from './components/MinioImage';
 import { useSiteConfig } from './components/SiteConfigProvider';
+import { useI18n } from './i18n-provider';
+import LanguageSwitcher from './components/LanguageSwitcher';
 
 const { Title, Paragraph } = Typography;
 
@@ -14,12 +16,13 @@ const LandingPage: React.FC = () => {
   const router = useRouter();
   const { user, logout } = useAuth();
   const { getConfigValue } = useSiteConfig();
+  const { t, locale } = useI18n();
   
   // 获取配置
-  const siteTitle = getConfigValue('site.title', '模版项目');
-  const siteDesc = getConfigValue('site.description', '高级平台');
-  const siteCopyright = getConfigValue('site.footer.copyright', `© ${getConfigValue('site.year', '2025')} ${siteTitle}. All rights reserved.`);
-  const siteSlogan = getConfigValue('site.footer.slogan', '高性能 · 安全可靠 · 企业级解决方案');
+  const siteTitle = getConfigValue('site.title', t('title'));
+  const siteDesc = getConfigValue('site.description', t('site.description'));
+  const siteCopyright = getConfigValue('site.footer.copyright', `© ${getConfigValue('site.year', '2025')} ${siteTitle}. ${t('site.copyright')}`);
+  const siteSlogan = getConfigValue('site.footer.slogan', t('site.slogan'));
   const logoUrl = getConfigValue('site.logo.url', '');
 
   return (
@@ -30,6 +33,7 @@ const LandingPage: React.FC = () => {
             <span className="text-xl sm:text-2xl font-bold text-indigo-600">{siteTitle}</span>
           </div>
           <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+            <LanguageSwitcher />
             {user ? (
               <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <div className="flex items-center gap-2">
@@ -52,7 +56,7 @@ const LandingPage: React.FC = () => {
                   className="bg-indigo-600 border-indigo-600 hover:bg-indigo-700 text-xs sm:text-sm"
                   size="middle"
                 >
-                  进入系统
+                  {t('header.admin')}
                 </Button>
                 <Button 
                   type="link"
@@ -60,7 +64,7 @@ const LandingPage: React.FC = () => {
                   className="text-gray-600 hover:text-indigo-600 text-xs sm:text-sm px-1 sm:px-4"
                   size="middle"
                 >
-                  退出
+                  {t('header.logout')}
                 </Button>
               </div>
             ) : (
@@ -71,7 +75,7 @@ const LandingPage: React.FC = () => {
                   className="text-gray-600 hover:text-indigo-600 text-xs sm:text-sm px-2 sm:px-4"
                   size="middle"
                 >
-                  登录
+                  {t('header.login')}
                 </Button>
                 <Button 
                   type="primary"
@@ -79,7 +83,7 @@ const LandingPage: React.FC = () => {
                   className="bg-indigo-600 border-indigo-600 hover:bg-indigo-700 text-xs sm:text-sm"
                   size="middle"
                 >
-                  注册
+                  {t('header.register')}
                 </Button>
               </>
             )}
@@ -102,7 +106,7 @@ const LandingPage: React.FC = () => {
                   onClick={() => router.push('/webapp')}
                   className="h-10 sm:h-12 px-6 sm:px-8 text-base font-medium bg-indigo-600 border-indigo-600 hover:bg-indigo-700 w-full sm:w-auto"
                 >
-                  进入应用
+                  {t('header.admin')}
                 </Button>
               ) : (
                 <>
@@ -112,7 +116,7 @@ const LandingPage: React.FC = () => {
                     onClick={() => router.push('/login')}
                     className="h-10 sm:h-12 px-6 sm:px-8 text-base font-medium bg-indigo-600 border-indigo-600 hover:bg-indigo-700 w-full sm:w-auto"
                   >
-                    立即体验
+                    {t('header.login')}
                   </Button>
                   <Button
                     type="default"
@@ -120,7 +124,7 @@ const LandingPage: React.FC = () => {
                     onClick={() => window.open('https://github.com/wengxiaoxiong/trpc-template', '_blank')}
                     className="h-10 sm:h-12 px-6 sm:px-8 text-base font-medium w-full sm:w-auto mt-3 sm:mt-0"
                   >
-                    查看文档
+                    {t('common.back')}
                   </Button>
                 </>
               )}
@@ -135,9 +139,9 @@ const LandingPage: React.FC = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                   </svg>
                 </div>
-                <Title level={3} className="text-lg sm:text-xl font-semibold">高效开发</Title>
+                <Title level={3} className="text-lg sm:text-xl font-semibold">{t('features.development.title')}</Title>
                 <Paragraph className="mt-2 text-sm sm:text-base text-gray-600">
-                  内置完整Auth系统，快速构建产品MVP，支持多种认证方式。
+                  {t('features.development.description')}
                 </Paragraph>
               </div>
               
@@ -147,9 +151,9 @@ const LandingPage: React.FC = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                   </svg>
                 </div>
-                <Title level={3} className="text-lg sm:text-xl font-semibold">文件存储</Title>
+                <Title level={3} className="text-lg sm:text-xl font-semibold">{t('features.storage.title')}</Title>
                 <Paragraph className="mt-2 text-sm sm:text-base text-gray-600">
-                  基于MinIO构建的高性能对象存储系统，安全可靠地管理用户文件。
+                  {t('features.storage.description')}
                 </Paragraph>
               </div>
               <div className="p-5 sm:p-6 bg-white rounded-lg shadow-md">
@@ -158,9 +162,9 @@ const LandingPage: React.FC = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
                   </svg>
                 </div>
-                <Title level={3} className="text-lg sm:text-xl font-semibold">可扩展架构</Title>
+                <Title level={3} className="text-lg sm:text-xl font-semibold">{t('features.architecture.title')}</Title>
                 <Paragraph className="mt-2 text-sm sm:text-base text-gray-600">
-                  基于tRPC和Prisma的架构，方便扩展和维护。
+                  {t('features.architecture.description')}
                 </Paragraph>
               </div>
             </div>

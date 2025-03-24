@@ -2,6 +2,7 @@
 
 import { useSiteConfig } from './SiteConfigProvider'
 import { Logo } from './Logo'
+import { useI18n } from '../i18n-provider'
 
 type AuthHeaderProps = {
   showDesc?: boolean
@@ -9,8 +10,9 @@ type AuthHeaderProps = {
 
 export function AuthHeader({ showDesc = true }: AuthHeaderProps) {
   const { getConfigValue } = useSiteConfig()
-  const siteTitle = getConfigValue('site.title', '模版项目')
-  const siteDesc = getConfigValue('site.description', '高级平台')
+  const { t } = useI18n()
+  const siteTitle = getConfigValue('site.title', t('title', '模版项目'))
+  const siteDesc = getConfigValue('site.description', t('site.description', '高级平台'))
 
   return (
     <div className="text-center mb-8">

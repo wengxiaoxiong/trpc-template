@@ -3,7 +3,7 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   images: {
-    domains: ['minio.wengxiaoxiong.com'],
+    domains: ['minio.wengxiaoxiong.com','www.example.com'],
   },
   webpack: (config, { isServer }) => {
     if (!isServer) {

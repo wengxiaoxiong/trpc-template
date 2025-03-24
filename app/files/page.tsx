@@ -9,6 +9,7 @@ import { FileList, FileListRef } from "../components/FileList";
 import { FileType } from "@prisma/client";
 import Image from 'next/image';
 import { StorageUsageDashboard } from "../components/StorageUsageDashboard";
+import { useI18n } from "../i18n-provider";
 
 const { Dragger } = Upload;
 
@@ -19,6 +20,7 @@ export default function FilesPage() {
     const [newFileName, setNewFileName] = useState<string>('');
     const utils = trpc.useUtils();
     const fileListRef = useRef<FileListRef>(null);
+    const { t } = useI18n();
     
     const {
         mutateAsync: createFileMutation,
@@ -49,7 +51,7 @@ export default function FilesPage() {
 
     const handleUpload = async () => {
         if (fileList.length === 0) {
-            message.warning('请先选择要上传的文件');
+            message.warning(t('file.please_select_files', '请先选择要上传的文件'));
             return;
         }
 
@@ -66,7 +68,7 @@ export default function FilesPage() {
                 });
                 
                 if (!newCredentials) {
-                    throw new Error('无法获取上传凭证');
+                    throw new Error(t('file.cannot_get_credentials', '无法获取上传凭证'));
                 }
 
                 const uploadUrl = newCredentials.uploadUrl;
@@ -87,15 +89,15 @@ export default function FilesPage() {
                             name: uploadFile.name, // 使用可能已修改的文件名
                             size: file.size,
                             fileType: FileType.USER_UPLOADED_FILE,
-                            description: '通过文件管理页面上传的文件'
+                            description: t('file.uploaded_via_file_manager', '通过文件管理页面上传的文件')
                         }
                     )
-                    message.success(`${uploadFile.name} 文件上传成功`);
+                    message.success(`${uploadFile.name} ${t('file.upload_success', '文件上传成功')}`);
                 } else {
-                    throw new Error('上传失败');
+                    throw new Error(t('file.upload_failed', '上传失败'));
                 }
             } catch (error) {
-                message.error(`${uploadFile.name} ${(error as Error).message || '文件上传失败'}`);
+                message.error(`${uploadFile.name} ${(error as Error).message || t('errors.file.uploadFailed', '文件上传失败')}`);
             }
         }
         
@@ -144,23 +146,23 @@ export default function FilesPage() {
                 
                 <StorageUsageDashboard className="w-full" />
                 
-                <Card title="文件上传" className="w-full">
+                <Card title={t('file.upload_title', '文件上传')} className="w-full">
                     <div className="text-gray-600 mb-6">
-                        支持图片和非图片格式
+                        {t('file.support_formats', '支持图片和非图片格式')}
                     </div>
                     <Dragger {...uploadProps}>
                         <p className="ant-upload-drag-icon">
                             <InboxOutlined />
                         </p>
-                        <p className="ant-upload-text">点击或拖拽文件到此区域上传</p>
-                        <p className="ant-upload-hint">支持单个或批量上传，选择后点击「开始上传」按钮</p>
+                        <p className="ant-upload-text">{t('file.drop_hint', '点击或拖拽文件到此区域上传')}</p>
+                        <p className="ant-upload-hint">{t('file.batch_upload_hint', '支持单个或批量上传，选择后点击「开始上传」按钮')}</p>
                     </Dragger>
                     
                     {fileList.length > 0 && (
                         <div className="mt-4">
                             <div className="flex justify-between items-center mb-2">
-                                <div className="font-medium">待上传文件 ({fileList.length})</div>
-                                <Button size="small" onClick={clearFileList}>清空</Button>
+                                <div className="font-medium">{t('file.waiting_upload', '待上传文件')} ({fileList.length})</div>
+                                <Button size="small" onClick={clearFileList}>{t('file.clear', '清空')}</Button>
                             </div>
                             <List
                                 size="small"
@@ -169,7 +171,7 @@ export default function FilesPage() {
                                 renderItem={(item) => (
                                     <List.Item
                                         actions={[
-                                            <Tooltip key="edit" title="修改文件名">
+                                            <Tooltip key="edit" title={t('file.edit_filename', '修改文件名')}>
                                                 <Button 
                                                     type="text" 
                                                     icon={<EditOutlined />}
@@ -177,7 +179,7 @@ export default function FilesPage() {
                                                     size="small"
                                                 />
                                             </Tooltip>,
-                                            <Tooltip key="delete" title="删除">
+                                            <Tooltip key="delete" title={t('common.delete', '删除')}>
                                                 <Button 
                                                     type="text" 
                                                     danger 
@@ -192,7 +194,7 @@ export default function FilesPage() {
                                             {item.type?.startsWith('image/') ? (
                                                 <Image 
                                                     src={URL.createObjectURL(item.originFileObj as File)}
-                                                    alt="预览"
+                                                    alt={t('file.preview', '预览')}
                                                     width={32}
                                                     height={32}
                                                     className="object-cover mr-2 rounded"
@@ -223,16 +225,16 @@ export default function FilesPage() {
                                     loading={uploading} 
                                     icon={<CheckCircleOutlined />}
                                 >
-                                    开始上传
+                                    {t('file.start_upload', '开始上传')}
                                 </Button>
                             </div>
                         </div>
                     )}
                     
-                    {uploading && <div className="text-gray-600 mt-4">上传中...</div>}
+                    {uploading && <div className="text-gray-600 mt-4">{t('common.uploading', '上传中...')}</div>}
                 </Card>
 
-                <Card title="文件列表" className="w-full">
+                <Card title={t('file.file_list', '文件列表')} className="w-full">
                     <FileList 
                         ref={fileListRef}
                     />
@@ -240,22 +242,18 @@ export default function FilesPage() {
             </div>
 
             <Modal
-                title="修改文件名"
+                title={t('file.edit_filename', '修改文件名')}
                 open={!!editFileId}
                 onOk={saveFileName}
                 onCancel={() => setEditFileId(null)}
-                okText="确定"
-                cancelText="取消"
+                okText={t('common.confirm', '确定')}
+                cancelText={t('common.cancel', '取消')}
             >
                 <Input
                     value={newFileName}
                     onChange={(e) => setNewFileName(e.target.value)}
-                    placeholder="请输入新的文件名"
-                    autoFocus
+                    placeholder={t('file.enter_new_filename', '输入新文件名')}
                 />
-                <div className="text-gray-500 text-xs mt-2">
-                    Tips: 如果您需要更改文件扩展名，请输入包含扩展名的完整文件名（例如 &quot;文件名.jpg&quot;）
-                </div>
             </Modal>
         </MainPageLayout>
     );

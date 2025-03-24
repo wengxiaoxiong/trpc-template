@@ -23,6 +23,7 @@ import {
 } from '@ant-design/icons';
 import type { TableColumnsType } from 'antd';
 import dayjs from 'dayjs';
+import { useI18n } from '@/app/i18n-provider';
 
 interface InvitationCode {
   id: number;
@@ -38,32 +39,35 @@ interface InvitationCode {
 
 // 邀请码状态标签
 const StatusTag = ({ code }: { code: InvitationCode }) => {
+  const { t } = useI18n();
+  
   if (!code.isActive) {
-    return <Tag color="red">已禁用</Tag>;
+    return <Tag color="red">{t('admin.invitation_code.invitation_code_status.disabled', '已禁用')}</Tag>;
   }
   
   if (code.expiresAt && new Date(code.expiresAt) < new Date()) {
-    return <Tag color="orange">已过期</Tag>;
+    return <Tag color="orange">{t('admin.invitation_code.invitation_code_status.expired', '已过期')}</Tag>;
   }
   
   if (code.usedCount >= code.maxUses) {
-    return <Tag color="purple">已用完</Tag>;
+    return <Tag color="purple">{t('admin.invitation_code.invitation_code_status.used_up', '已用完')}</Tag>;
   }
   
-  return <Tag color="green">有效</Tag>;
+  return <Tag color="green">{t('admin.invitation_code.invitation_code_status.active', '有效')}</Tag>;
 };
 
 export default function InvitationCodeManager() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingCode, setEditingCode] = useState<InvitationCode | null>(null);
   const [form] = Form.useForm();
+  const { t } = useI18n();
   
   const utils = trpc.useUtils();
   const { data: codes, isLoading } = trpc.user.getAllInvitationCodes.useQuery();
   
   const { mutate: createCode } = trpc.user.createInvitationCode.useMutation({
     onSuccess: () => {
-      message.success('邀请码创建成功');
+      message.success(t('admin.invitation_code.create_success', '邀请码创建成功'));
       setIsModalVisible(false);
       utils.user.getAllInvitationCodes.invalidate();
     },
@@ -74,7 +78,7 @@ export default function InvitationCodeManager() {
   
   const { mutate: updateCode } = trpc.user.updateInvitationCode.useMutation({
     onSuccess: () => {
-      message.success('邀请码更新成功');
+      message.success(t('admin.invitation_code.update_success', '邀请码更新成功'));
       setIsModalVisible(false);
       utils.user.getAllInvitationCodes.invalidate();
     },
@@ -85,7 +89,7 @@ export default function InvitationCodeManager() {
   
   const { mutate: deleteCode } = trpc.user.deleteInvitationCode.useMutation({
     onSuccess: () => {
-      message.success('邀请码删除成功');
+      message.success(t('admin.invitation_code.delete_success', '邀请码删除成功'));
       utils.user.getAllInvitationCodes.invalidate();
     },
     onError: (error) => {
@@ -131,7 +135,7 @@ export default function InvitationCodeManager() {
   
   const columns: TableColumnsType<InvitationCode> = [
     {
-      title: '邀请码',
+      title: t('admin.invitation_code.code', '邀请码'),
       dataIndex: 'code',
       key: 'code',
       render: (code: string) => (
@@ -139,12 +143,12 @@ export default function InvitationCodeManager() {
       ),
     },
     {
-      title: '状态',
+      title: t('admin.invitation_code.status', '状态'),
       key: 'status',
       render: (_: any, record: InvitationCode) => <StatusTag code={record} />,
     },
     {
-      title: '使用情况',
+      title: t('admin.invitation_code.usage', '使用情况'),
       key: 'usage',
       render: (_: any, record: InvitationCode) => (
         <span>
@@ -153,7 +157,7 @@ export default function InvitationCodeManager() {
       ),
     },
     {
-      title: '已注册用户',
+      title: t('admin.invitation_code.registered_users', '已注册用户'),
       key: 'users',
       render: (_: any, record: InvitationCode) => (
         <span>
@@ -178,19 +182,19 @@ export default function InvitationCodeManager() {
       ),
     },
     {
-      title: '过期时间',
+      title: t('admin.invitation_code.expires_at', '过期时间'),
       dataIndex: 'expiresAt',
       key: 'expiresAt',
-      render: (date: Date | null) => date ? new Date(date).toLocaleString() : '永不过期',
+      render: (date: Date | null) => date ? new Date(date).toLocaleString() : t('admin.invitation_code.never_expires', '永不过期'),
     },
     {
-      title: '创建时间',
+      title: t('admin.invitation_code.created_at', '创建时间'),
       dataIndex: 'createdAt',
       key: 'createdAt',
       render: (date: Date) => new Date(date).toLocaleString(),
     },
     {
-      title: '操作',
+      title: t('common.actions', '操作'),
       key: 'action',
       render: (_: any, record: InvitationCode) => (
         <Space>
@@ -199,16 +203,16 @@ export default function InvitationCodeManager() {
             icon={<EditOutlined />}
             onClick={() => showEditModal(record)}
           >
-            编辑
+            {t('common.edit', '编辑')}
           </Button>
           <Popconfirm
-            title="确定要删除此邀请码吗?"
+            title={t('admin.invitation_code.confirm_delete', '确定要删除此邀请码吗?')}
             onConfirm={() => deleteCode({ id: record.id })}
-            okText="确定"
-            cancelText="取消"
+            okText={t('common.confirm', '确定')}
+            cancelText={t('common.cancel', '取消')}
           >
             <Button type="link" danger icon={<DeleteOutlined />}>
-              删除
+              {t('common.delete', '删除')}
             </Button>
           </Popconfirm>
         </Space>
@@ -224,7 +228,7 @@ export default function InvitationCodeManager() {
           icon={<PlusOutlined />} 
           onClick={showCreateModal}
         >
-          生成邀请码
+          {t('admin.invitation_code.generate', '生成邀请码')}
         </Button>
       </div>
 
@@ -237,7 +241,7 @@ export default function InvitationCodeManager() {
       />
 
       <Modal
-        title={editingCode ? '编辑邀请码' : '生成新邀请码'}
+        title={editingCode ? t('admin.invitation_code.edit', '编辑邀请码') : t('admin.invitation_code.create', '生成新邀请码')}
         open={isModalVisible}
         onCancel={() => setIsModalVisible(false)}
         footer={null}
@@ -250,7 +254,7 @@ export default function InvitationCodeManager() {
           {editingCode && (
             <Form.Item
               name="isActive"
-              label="是否启用"
+              label={t('admin.invitation_code.is_active', '是否启用')}
               valuePropName="checked"
             >
               <Switch />
@@ -259,30 +263,30 @@ export default function InvitationCodeManager() {
 
           <Form.Item
             name="maxUses"
-            label="最大使用次数"
-            rules={[{ required: true, message: '请输入最大使用次数' }]}
+            label={t('admin.invitation_code.max_uses', '最大使用次数')}
+            rules={[{ required: true, message: t('admin.invitation_code.please_input_max_uses', '请输入最大使用次数') }]}
           >
             <InputNumber min={1} style={{ width: '100%' }} />
           </Form.Item>
 
           <Form.Item
             name="expiresAt"
-            label="过期时间 (可选)"
+            label={t('admin.invitation_code.expires_at_optional', '过期时间 (可选)')}
           >
             <DatePicker 
               showTime 
               format="YYYY-MM-DD HH:mm:ss" 
               style={{ width: '100%' }} 
-              placeholder="不设置则永不过期"
+              placeholder={t('admin.invitation_code.never_expires_if_not_set', '不设置则永不过期')}
             />
           </Form.Item>
 
           <Form.Item className="mb-0 flex justify-end">
             <Button className="mr-2" onClick={() => setIsModalVisible(false)}>
-              取消
+              {t('common.cancel', '取消')}
             </Button>
             <Button type="primary" htmlType="submit">
-              {editingCode ? '更新' : '生成'}
+              {editingCode ? t('common.update', '更新') : t('admin.invitation_code.generate', '生成')}
             </Button>
           </Form.Item>
         </Form>

@@ -4,6 +4,7 @@ import { prisma } from '@/utils/prisma';
 import bcrypt from 'bcryptjs';
 import { generateToken } from '@/utils/jwt';
 import { TRPCError } from '@trpc/server';
+import { getTranslation } from '../i18n';
 
 export const userRouter = router({
   // 认证相关
@@ -15,18 +16,20 @@ export const userRouter = router({
         invitationCode: z.string().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { username, password, invitationCode } = input;
+      // 使用非空断言确保TypeScript知道t函数一定存在
+      const t = (ctx.t ?? getTranslation(ctx.locale || 'zh').t)!;
       
       // 检查是否需要邀请码
-      const requireInvitationCode = await prisma.siteConfig.findUnique({
+      const requireInvitationCode = await prisma.siteConfig.findFirst({
         where: { key: 'registration.requireInvitationCode' },
       });
       
       if (requireInvitationCode && requireInvitationCode.value === 'true' && !invitationCode) {
         throw new TRPCError({
           code: 'BAD_REQUEST',
-          message: '注册需要邀请码',
+          message: t('errors.invitationCode.required', '注册需要邀请码'),
         });
       }
 
@@ -39,28 +42,28 @@ export const userRouter = router({
         if (!invitationCodeRecord) {
           throw new TRPCError({
             code: 'BAD_REQUEST',
-            message: '邀请码无效',
+            message: t('errors.invitationCode.invalid', '邀请码无效'),
           });
         }
 
         if (!invitationCodeRecord.isActive) {
           throw new TRPCError({
             code: 'BAD_REQUEST',
-            message: '邀请码已被禁用',
+            message: t('errors.invitationCode.disabled', '邀请码已被禁用'),
           });
         }
 
         if (invitationCodeRecord.expiresAt && invitationCodeRecord.expiresAt < new Date()) {
           throw new TRPCError({
             code: 'BAD_REQUEST',
-            message: '邀请码已过期',
+            message: t('errors.invitationCode.expired', '邀请码已过期'),
           });
         }
 
         if (invitationCodeRecord.usedCount >= invitationCodeRecord.maxUses) {
           throw new TRPCError({
             code: 'BAD_REQUEST',
-            message: '邀请码已达到最大使用次数',
+            message: t('errors.invitationCode.maxUsesReached', '邀请码已达到最大使用次数'),
           });
         }
       }
@@ -94,15 +97,18 @@ export const userRouter = router({
         password: z.string(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { username, password } = input;
+      // 使用非空断言确保TypeScript知道t函数一定存在
+      const t = (ctx.t ?? getTranslation(ctx.locale || 'zh').t)!;
+      
       const user = await prisma.user.findUnique({ where: { username } });
       if (!user) {
-        throw new Error('User not found');
+        throw new Error(t('errors.user.notFound', '用户不存在'));
       }
       const isValid = await bcrypt.compare(password, user.password);
       if (!isValid) {
-        throw new Error('Invalid password');
+        throw new Error(t('errors.auth.invalidCredentials', '用户名或密码错误'));
       }
       const token = generateToken(user.id);
       const sanitizedUser = { ...user, password: undefined };
@@ -111,6 +117,9 @@ export const userRouter = router({
 
   getCurrentUser: protectedProcedure
     .query(async ({ ctx }) => {
+      // 使用非空断言确保TypeScript知道t函数一定存在
+      const t = (ctx.t ?? getTranslation(ctx.locale || 'zh').t)!;
+      
       const user = await prisma.user.findUnique({
         where: { id: ctx.user.id },
         select: {
@@ -125,7 +134,7 @@ export const userRouter = router({
       if (!user) {
         throw new TRPCError({
           code: 'NOT_FOUND',
-          message: '用户不存在',
+          message: t('errors.user.notFound', '用户不存在'),
         });
       }
 
@@ -142,8 +151,11 @@ export const userRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
+      // 获取翻译函数
+      const t = (ctx.t ?? getTranslation(ctx.locale || 'zh').t)!;
+      
       if (!ctx.user.id) {
-        throw new Error('Unauthorized');
+        throw new Error(t('errors.common.unauthorized', '未授权操作'));
       }
 
       const updatedUser = await prisma.user.update({
@@ -200,7 +212,10 @@ export const userRouter = router({
       isAdmin: z.boolean().default(false),
       avatar: z.string().optional(),
     }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      // 获取翻译函数
+      const t = (ctx.t ?? getTranslation(ctx.locale || 'zh').t)!;
+      
       try {
         // 检查用户名是否已存在
         const existingUser = await prisma.user.findUnique({
@@ -210,7 +225,7 @@ export const userRouter = router({
         if (existingUser) {
           throw new TRPCError({
             code: 'BAD_REQUEST',
-            message: '用户名已存在'
+            message: t('errors.user.alreadyExists', '用户名已存在')
           });
         }
 
@@ -227,7 +242,7 @@ export const userRouter = router({
         }
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
-          message: '创建用户失败：' + (error instanceof Error ? error.message : '未知错误')
+          message: t('errors.common.internalError', '内部服务器错误') + ': ' + (error instanceof Error ? error.message : '未知错误')
         });
       }
     }),
@@ -393,7 +408,7 @@ export const userRouter = router({
   // 获取注册是否需要邀请码
   getRequireInvitationCodeSetting: publicProcedure
     .query(async () => {
-      const config = await prisma.siteConfig.findUnique({
+      const config = await prisma.siteConfig.findFirst({
         where: { key: 'registration.requireInvitationCode' },
       });
       return config?.value === 'true';
@@ -402,7 +417,10 @@ export const userRouter = router({
   // 通过ID获取用户信息
   getUserById: adminProcedure
     .input(z.object({ id: z.number() }))
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
+      // 获取翻译函数
+      const t = (ctx.t ?? getTranslation(ctx.locale || 'zh').t)!;
+      
       const user = await prisma.user.findUnique({
         where: { id: input.id },
         select: {
@@ -417,7 +435,7 @@ export const userRouter = router({
       if (!user) {
         throw new TRPCError({
           code: 'NOT_FOUND',
-          message: '用户不存在',
+          message: t('errors.user.notFound', '用户不存在'),
         });
       }
 

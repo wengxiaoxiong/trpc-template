@@ -12,9 +12,12 @@ model SiteConfig {
     id         Int      @id @default(autoincrement())
     createdAt  DateTime @default(now())
     updatedAt  DateTime @updatedAt
-    key        String   @unique
+    key        String   
     value      String   @db.Text
     description String?  @db.Text
+    locale     String   @default("zh")
+
+    @@unique([key, locale])
 }
 
 // 邀请码模型
