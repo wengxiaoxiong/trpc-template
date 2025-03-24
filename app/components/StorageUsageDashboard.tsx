@@ -31,7 +31,8 @@ export const StorageUsageDashboard = ({ userId, className }: StorageUsageDashboa
 
   // 获取最大存储空间配置
   const { data: configData } = trpc.config.getConfig.useQuery({
-    key: 'user.storage.max'
+    key: 'user.storage.max',
+    locale: 'common'
   });
 
   useEffect(() => {

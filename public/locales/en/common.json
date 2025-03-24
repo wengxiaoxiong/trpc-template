@@ -134,6 +134,7 @@
       "please_input_key": "Please enter configuration key",
       "please_input_value": "Please enter configuration value",
       "please_select_locale": "Please select language",
+      "locale_type": "Language",
       "predefined": {
         "site_title": "Site Title",
         "site_description": "Site Description",
@@ -141,7 +142,8 @@
         "footer_slogan": "Footer Slogan",
         "logo_url": "Logo Image Path in Minio",
         "year": "Copyright Year",
-        "max_storage": "User Maximum Storage Space (bytes), Default: 2GB = 2147483648 bytes"
+        "max_storage": "User Maximum Storage Space (bytes), Default: 2GB = 2147483648 bytes",
+        "require_invitation_code": "Require invitation code for registration"
       }
     }
   },
@@ -295,5 +297,11 @@
   },
   "webapp": {
     "welcome": "Welcome to"
+  },
+  "languages": {
+    "zh": "Chinese",
+    "en": "English",
+    "ja": "Japanese",
+    "common": "Common Config"
   }
 } 

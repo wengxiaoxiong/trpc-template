@@ -134,6 +134,7 @@
       "please_input_key": "設定キーを入力してください",
       "please_input_value": "設定値を入力してください",
       "please_select_locale": "言語を選択してください",
+      "locale_type": "言語",
       "predefined": {
         "site_title": "サイトのタイトル",
         "site_description": "サイトの説明",
@@ -141,7 +142,8 @@
         "footer_slogan": "フッターのスローガン",
         "logo_url": "MinioにあるLogoの画像パス",
         "year": "著作権年",
-        "max_storage": "ユーザーの最大ストレージ容量（バイト）、デフォルト：2GB = 2147483648バイト"
+        "max_storage": "ユーザーの最大ストレージ容量（バイト）、デフォルト：2GB = 2147483648バイト",
+        "require_invitation_code": "登録に招待コードが必要かどうか"
       }
     }
   },
@@ -295,5 +297,11 @@
   },
   "webapp": {
     "welcome": "ようこそ"
+  },
+  "languages": {
+    "zh": "中国語",
+    "en": "英語",
+    "ja": "日本語",
+    "common": "共通設定"
   }
 } 

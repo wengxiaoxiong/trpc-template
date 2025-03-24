@@ -42,7 +42,8 @@ export default function AdminPage() {
   
   // 获取最大存储空间配置
   const { data: maxStorageConfig } = trpc.config.getConfig.useQuery({
-    key: 'user.storage.max'
+    key: 'user.storage.max',
+    locale: 'common'
   });
   
   const maxStorage = maxStorageConfig ? parseInt(maxStorageConfig.value) : 2147483648; // 默认2GB
@@ -284,7 +285,8 @@ export default function AdminPage() {
     updateConfig({
       key: 'registration.requireInvitationCode',
       value: checked ? 'true' : 'false',
-      description: '是否需要邀请码注册'
+      description: '是否需要邀请码注册',
+      locale: 'common'
     });
   };
 

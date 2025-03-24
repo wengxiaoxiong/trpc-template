@@ -15,7 +15,7 @@ model SiteConfig {
     key        String   
     value      String   @db.Text
     description String?  @db.Text
-    locale     String   @default("zh")
+    locale     String   @default("zh") // 语言：zh(中文)、en(英文)、ja(日语)、common(通用配置)
 
     @@unique([key, locale])
 }

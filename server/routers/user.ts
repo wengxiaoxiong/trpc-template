@@ -23,7 +23,10 @@ export const userRouter = router({
       
       // 检查是否需要邀请码
       const requireInvitationCode = await prisma.siteConfig.findFirst({
-        where: { key: 'registration.requireInvitationCode' },
+        where: { 
+          key: 'registration.requireInvitationCode',
+          locale: 'common'
+        },
       });
       
       if (requireInvitationCode && requireInvitationCode.value === 'true' && !invitationCode) {
@@ -409,7 +412,10 @@ export const userRouter = router({
   getRequireInvitationCodeSetting: publicProcedure
     .query(async () => {
       const config = await prisma.siteConfig.findFirst({
-        where: { key: 'registration.requireInvitationCode' },
+        where: { 
+          key: 'registration.requireInvitationCode',
+          locale: 'common'
+        },
       });
       return config?.value === 'true';
     }),

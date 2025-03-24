@@ -35,20 +35,31 @@ export const SiteConfigProvider: React.FC<SiteConfigProviderProps> = ({ children
   const [isLoading, setIsLoading] = useState(true);
   const { locale } = useI18n();
 
-  const { data: configData, isLoading: isQueryLoading } = trpc.config.getConfigs.useQuery({
+  // 先获取通用配置
+  const { data: commonConfigData, isLoading: isCommonLoading } = trpc.config.getConfigs.useQuery({
+    locale: 'common'
+  });
+  
+  // 再获取语言特定配置
+  const { data: localeConfigData, isLoading: isLocaleLoading } = trpc.config.getConfigs.useQuery({
     locale
+  }, {
+    enabled: !isCommonLoading // 等通用配置加载完成后再请求
   });
 
   useEffect(() => {
-    if (configData) {
-      // 合并默认配置和数据库配置
-      setSiteConfig({ ...defaultConfig, ...configData });
-    }
-    
-    if (!isQueryLoading) {
+    if (!isCommonLoading && !isLocaleLoading) {
+      // 合并配置，优先级：locale 配置 < common 配置 < 默认配置
+      const mergedConfig = {
+        ...defaultConfig,
+        ...(localeConfigData || {}),
+        ...(commonConfigData || {})
+      };
+      
+      setSiteConfig(mergedConfig);
       setIsLoading(false);
     }
-  }, [configData, isQueryLoading]);
+  }, [commonConfigData, localeConfigData, isCommonLoading, isLocaleLoading]);
 
   const getConfigValue = (key: string, defaultValue?: string) => {
     return siteConfig[key] || defaultValue || defaultConfig[key] || '';

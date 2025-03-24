@@ -29,7 +29,8 @@ export default function SiteConfigManager() {
     { key: 'site.footer.slogan', description: t('admin.site_config.predefined.footer_slogan', '页脚标语') },
     { key: 'site.logo.url', description: t('admin.site_config.predefined.logo_url', 'Logo图片在Minio中的路径') },
     { key: 'site.year', description: t('admin.site_config.predefined.year', '版权年份') },
-    { key: 'user.storage.max', description: t('admin.site_config.predefined.max_storage', '用户最大网盘空间(字节)，默认2GB = 2147483648字节') },
+    { key: 'user.storage.max', description: t('admin.site_config.predefined.max_storage', '用户最大网盘空间(字节)，默认2GB = 2147483648字节'), locale: 'common' },
+    { key: 'registration.requireInvitationCode', description: t('admin.site_config.predefined.require_invitation_code', '是否需要邀请码注册'), locale: 'common' },
   ];
 
   const utils = trpc.useUtils();
@@ -69,11 +70,17 @@ export default function SiteConfigManager() {
   };
 
   const handleSubmit = (values: any) => {
+    // 查找是否是预定义键
+    const predefinedKey = predefinedKeys.find(item => item.key === values.key);
+    
+    // 如果是预定义键且有指定locale，则使用预定义的locale
+    const locale = predefinedKey?.locale || values.locale;
+    
     updateConfig({
       key: values.key,
       value: values.value,
       description: values.description,
-      locale: values.locale
+      locale: locale
     });
   };
 
@@ -142,11 +149,15 @@ export default function SiteConfigManager() {
                 form.setFieldsValue({
                   key: item.key,
                   description: item.description,
+                  locale: item.locale || currentLocale
                 });
                 Modal.destroyAll();
               }}>
                 <div className="font-medium">{item.key}</div>
                 <div className="text-gray-500 text-sm">{item.description}</div>
+                {item.locale && (
+                  <div className="text-gray-500 text-xs">({t('admin.site_config.locale_type', '语言')}：{item.locale})</div>
+                )}
               </li>
             ))}
           </ul>
@@ -173,6 +184,7 @@ export default function SiteConfigManager() {
             onChange={handleLocaleChange}
             style={{ width: 120 }}
             options={[
+              { value: 'common', label: t('languages.common', '通用配置') },
               { value: 'zh', label: t('languages.zh', '中文') },
               { value: 'en', label: t('languages.en', 'English') },
               { value: 'ja', label: t('languages.ja', '日本語') },
@@ -232,6 +244,7 @@ export default function SiteConfigManager() {
           >
             <Select
               options={[
+                { value: 'common', label: t('languages.common', '通用配置') },
                 { value: 'zh', label: t('languages.zh', '中文') },
                 { value: 'en', label: t('languages.en', 'English') },
                 { value: 'ja', label: t('languages.ja', '日本語') },

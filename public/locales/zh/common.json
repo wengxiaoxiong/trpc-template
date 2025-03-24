@@ -134,6 +134,7 @@
       "please_input_key": "请输入配置键",
       "please_input_value": "请输入配置值",
       "please_select_locale": "请选择语言",
+      "locale_type": "语言",
       "predefined": {
         "site_title": "站点标题",
         "site_description": "站点描述",
@@ -141,7 +142,8 @@
         "footer_slogan": "页脚标语",
         "logo_url": "Logo图片在Minio中的路径",
         "year": "版权年份",
-        "max_storage": "用户最大网盘空间(字节)，默认2GB = 2147483648字节"
+        "max_storage": "用户最大网盘空间(字节)，默认2GB = 2147483648字节",
+        "require_invitation_code": "是否需要邀请码注册"
       }
     }
   },
@@ -295,5 +297,11 @@
   },
   "webapp": {
     "welcome": "欢迎使用"
+  },
+  "languages": {
+    "zh": "中文",
+    "en": "English",
+    "ja": "日本語",
+    "common": "通用配置"
   }
 } 

@@ -55,7 +55,10 @@ export const minioRouter = router({
                     select: { storageUsed: true }
                 }),
                 prisma.siteConfig.findFirst({
-                    where: { key: 'user.storage.max' }
+                    where: { 
+                        key: 'user.storage.max',
+                        locale: 'common'
+                    }
                 })
             ]);
 
@@ -116,7 +119,10 @@ export const minioRouter = router({
                     select: { storageUsed: true }
                 }),
                 prisma.siteConfig.findFirst({
-                    where: { key: 'user.storage.max' }
+                    where: { 
+                        key: 'user.storage.max',
+                        locale: 'common'
+                    }
                 })
             ]);
 
