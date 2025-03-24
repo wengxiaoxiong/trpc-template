@@ -570,6 +570,187 @@ const TaskList = () => {
 };
 ```
 
+### 国际化开发指南
+
+项目内置了完整的国际化支持，基于 i18next 和 react-i18next 实现，支持中文、英文和日语三种语言。
+
+#### 国际化架构
+
+系统的国际化主要分为以下几个部分：
+
+1. **前端国际化**：通过 `i18n-provider` 实现，提供 React Context API
+2. **后端国际化**：通过 tRPC 中间件实现，支持服务端渲染和响应中的多语言
+3. **翻译资源**：存放于 `public/locales/{语言代码}/common.json` 中
+
+支持的语言：
+- 简体中文 (zh)
+- 英文 (en)
+- 日语 (ja)
+
+#### 翻译文件结构
+
+翻译文件采用嵌套的 JSON 结构，方便组织和管理：
+
+```json
+{
+  "title": "网站标题",
+  "header": {
+    "home": "首页",
+    "login": "登录"
+  },
+  "nested": {
+    "key": {
+      "deep": "深层嵌套的文本"
+    }
+  }
+}
+```
+
+#### 前端使用国际化
+
+1. **基础用法**：
+
+```tsx
+import { useI18n } from '@/app/i18n-provider';
+
+const MyComponent = () => {
+  // 获取翻译函数和当前语言
+  const { t, locale } = useI18n();
+  
+  return (
+    <div>
+      <h1>{t('title')}</h1>
+      <p>{t('header.home')}</p>
+      
+      {/* 带默认值的用法 */}
+      <p>{t('some.missing.key', '默认值')}</p>
+      
+      {/* 当前语言代码 */}
+      <p>当前语言: {locale}</p>
+    </div>
+  );
+};
+```
+
+2. **切换语言**：
+
+```tsx
+import { useI18n } from '@/app/i18n-provider';
+
+const LanguageSelector = () => {
+  const { locale, setLocale } = useI18n();
+  
+  return (
+    <select value={locale} onChange={(e) => setLocale(e.target.value)}>
+      <option value="zh">简体中文</option>
+      <option value="en">English</option>
+      <option value="ja">日本語</option>
+    </select>
+  );
+};
+```
+
+系统已内置语言切换组件 `LanguageSwitcher`，可直接使用：
+
+```tsx
+import LanguageSwitcher from '@/app/components/LanguageSwitcher';
+
+const Header = () => (
+  <div className="header">
+    <LanguageSwitcher />
+  </div>
+);
+```
+
+#### 后端国际化使用
+
+tRPC API 中可以通过 `ctx` 访问国际化功能：
+
+```typescript
+export const exampleRouter = router({
+  greeting: publicProcedure
+    .query(({ ctx }) => {
+      // 获取当前请求的语言
+      const locale = ctx.locale; // 'zh', 'en', 'ja'
+      
+      // 使用翻译函数
+      const message = ctx.t('greeting.welcome', '欢迎');
+      
+      return {
+        message,
+        locale
+      };
+    })
+});
+```
+
+#### 添加新的翻译
+
+1. 在 `public/locales/{语言}/common.json` 中添加新的翻译键值对
+2. 确保所有支持的语言都添加了对应的翻译
+
+示例：
+
+```json
+// public/locales/zh/common.json
+{
+  "new_feature": {
+    "title": "新功能",
+    "description": "这是一个新的功能描述"
+  }
+}
+
+// public/locales/en/common.json
+{
+  "new_feature": {
+    "title": "New Feature",
+    "description": "This is a description of the new feature"
+  }
+}
+
+// public/locales/ja/common.json
+{
+  "new_feature": {
+    "title": "新機能",
+    "description": "これは新機能の説明です"
+  }
+}
+```
+
+#### 添加新语言支持
+
+如需添加新的语言支持，需要修改以下文件：
+
+1. 添加新的翻译文件：`public/locales/{新语言代码}/common.json`
+2. 更新 `app/i18n-provider.tsx` 中的支持语言列表
+3. 更新 `server/i18n.ts` 中的支持语言列表
+4. 更新 `LanguageSwitcher.tsx` 中的语言显示名称
+
+示例添加韩语支持：
+
+```typescript
+// app/i18n-provider.tsx
+export const supportedLocales = ['zh', 'en', 'ja', 'ko']; // 添加 'ko'
+
+// server/i18n.ts
+export const supportedLocales = ['zh', 'en', 'ja', 'ko']; // 添加 'ko'
+
+// app/components/LanguageSwitcher.tsx
+const localeNames: Record<string, string> = {
+  zh: '简体中文',
+  en: 'English',
+  ja: '日本語',
+  ko: '한국어',  // 添加韩语显示名称
+};
+```
+
+#### 国际化最佳实践
+
+1. **使用嵌套结构**：按功能模块组织翻译键，避免扁平结构导致的命名冲突
+2. **保持一致性**：为所有支持的语言提供完整的翻译
+3. **提供默认值**：使用 `t('key', '默认值')` 形式，确保在翻译缺失时有适当的回退
+4. **模块化管理**：将大型应用的翻译拆分为多个命名空间，提高管理效率
+
 ## 贡献指南
 
 欢迎提交 Issue 和 Pull Request！
