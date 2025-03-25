@@ -61,8 +61,8 @@ export function NotificationIcon() {
       overlayStyle={{ width: '350px' }}
     >
       <div className="cursor-pointer p-2 hover:bg-gray-50 rounded-full">
-        <Badge count={unreadCount} overflowCount={99}>
-          <BellOutlined style={{ fontSize: '20px' }} />
+        <Badge count={unreadCount} overflowCount={99} size="small">
+          <BellOutlined style={{ fontSize: '16px' }} />
         </Badge>
       </div>
     </Popover>

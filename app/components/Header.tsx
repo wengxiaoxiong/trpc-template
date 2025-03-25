@@ -16,6 +16,9 @@ const navItems = [
     { href: '/files', label: 'file_management' },
 ]
 
+// 统一图标样式
+const iconStyle = { fontSize: '16px' };
+
 export function Header() {
     const router = useRouter();
     const { t, locale } = useI18n();
@@ -67,12 +70,12 @@ export function Header() {
     const menu = (
         <Menu>
             <Menu.Item key="avatar" onClick={() => setIsModalVisible(true)}>
-                <UploadOutlined /> {t('common.change_avatar')}
+                <UploadOutlined style={iconStyle} /> {t('common.change_avatar')}
             </Menu.Item>
             <Menu.Item key="logout" onClick={() => {
                 logout();
             }}>
-                {t('common.logout')}
+                <LogoutOutlined style={iconStyle} /> {t('common.logout')}
             </Menu.Item>
         </Menu>
     );
@@ -90,7 +93,7 @@ export function Header() {
                         className="lg:hidden text-gray-600 p-2"
                         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                     >
-                        <MenuOutlined style={{ fontSize: '20px' }} />
+                        <MenuOutlined style={iconStyle} />
                     </button>
                     
                     <div 
@@ -101,7 +104,7 @@ export function Header() {
                     </div>
                 </div>
                 
-                <div className="hidden lg:flex items-center space-x-4">
+                <div className="hidden lg:flex items-center space-x-6">
                     {navItems.map((item, index) => (
                         <Button
                             key={index}
@@ -123,7 +126,7 @@ export function Header() {
                     )}
                 </div>
                 
-                <div className="hidden lg:flex items-center space-x-4">
+                <div className="hidden lg:flex items-center space-x-6 mr-4">
                     {/* 语言切换器 */}
                     <LanguageSwitcher />
                     
@@ -131,7 +134,7 @@ export function Header() {
                     <NotificationIcon />
                     
                     <Dropdown overlay={menu} trigger={['click']}>
-                        <div className="flex items-center space-x-3 cursor-pointer p-1 hover:bg-gray-50 rounded-md">
+                        <div className="flex items-center space-x-3 cursor-pointer p-1.5 hover:bg-gray-50 rounded-md">
                             <div className="flex-shrink-0">
                                 {user && user.avatar ? (
                                     <MinioImage
@@ -142,7 +145,7 @@ export function Header() {
                                         preview={false}
                                     />
                                 ) : (
-                                    <Avatar icon={<UserOutlined />} size={36} />
+                                    <Avatar icon={<UserOutlined style={iconStyle} />} size={36} />
                                 )}
                             </div>
                             <span className="text-gray-800 font-medium">{user?.username}</span>
@@ -151,17 +154,17 @@ export function Header() {
                 </div>
                 
                 {/* 移动端导航菜单 */}
-                <div className="lg:hidden flex items-center space-x-2">
+                <div className="lg:hidden flex items-center space-x-4">
                     <LanguageSwitcher />
                     <NotificationIcon />
                     <Dropdown
                         overlay={
                             <Menu>
                                 <Menu.Item key="avatar" onClick={() => setIsModalVisible(true)}>
-                                    <UploadOutlined /> {t('common.change_avatar')}
+                                    <UploadOutlined style={iconStyle} /> {t('common.change_avatar')}
                                 </Menu.Item>
                                 <Menu.Item key="logout" onClick={logout}>
-                                    <LogoutOutlined /> {t('common.logout')}
+                                    <LogoutOutlined style={iconStyle} /> {t('common.logout')}
                                 </Menu.Item>
                             </Menu>
                         }
@@ -177,7 +180,7 @@ export function Header() {
                                     preview={false}
                                 />
                             ) : (
-                                <Avatar icon={<UserOutlined />} size={32} />
+                                <Avatar icon={<UserOutlined style={iconStyle} />} size={32} />
                             )}
                         </div>
                     </Dropdown>
@@ -221,7 +224,7 @@ export function Header() {
                     }}
                 >
                     <p className="ant-upload-drag-icon">
-                        <UploadOutlined />
+                        <UploadOutlined style={{ ...iconStyle, fontSize: '24px' }} />
                     </p>
                     <p className="ant-upload-text">{t('common.upload_hint')}</p>
                     <p className="ant-upload-hint">{t('common.upload_format_hint')}</p>
