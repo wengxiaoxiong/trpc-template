@@ -10,6 +10,7 @@ import { useMinioUpload } from '@/utils/minio/useMinioUpload';
 import { useSiteConfig } from './SiteConfigProvider';
 import { useI18n } from '../i18n-provider';
 import LanguageSwitcher from './LanguageSwitcher';
+import { NotificationIcon } from './NotificationIcon';
 
 const navItems = [
     { href: '/files', label: 'file_management' },
@@ -126,6 +127,9 @@ export function Header() {
                     {/* 语言切换器 */}
                     <LanguageSwitcher />
                     
+                    {/* 通知图标 */}
+                    <NotificationIcon />
+                    
                     <Dropdown overlay={menu} trigger={['click']}>
                         <div className="flex items-center space-x-3 cursor-pointer p-1 hover:bg-gray-50 rounded-md">
                             <div className="flex-shrink-0">
@@ -149,6 +153,7 @@ export function Header() {
                 {/* 移动端导航菜单 */}
                 <div className="lg:hidden flex items-center space-x-2">
                     <LanguageSwitcher />
+                    <NotificationIcon />
                     <Dropdown
                         overlay={
                             <Menu>

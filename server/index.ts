@@ -7,6 +7,7 @@ import { router } from '@/utils/trpc'
 import { userRouter } from './routers/user'
 import { minioRouter } from './routers/minio'
 import { configRouter } from './routers/config'
+import { notificationRouter } from './routers/notification'
 import { createI18nMiddleware } from './i18n'
 
 // 创建i18n中间件
@@ -16,6 +17,7 @@ export const appRouter = router({
     user: userRouter,
     minio: minioRouter,
     config: configRouter,
+    notification: notificationRouter,
 })
 
 // export type definition of API

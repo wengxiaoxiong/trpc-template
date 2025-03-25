@@ -51,6 +51,8 @@ model User {
     accessToken    String?          @db.Text
     refreshToken   String?          @db.Text
     tokenExpiresAt DateTime?
+    // 用户通知关联
+    notifications  NotificationRecipient[]
 }
 
 // 文件类型枚举
@@ -77,4 +79,46 @@ model UserFile {
     fileType    FileType @default(USER_UPLOADED_FILE)
 
     @@index([ownerId])
+}
+
+// 通知类型枚举
+enum NotificationType {
+    SYSTEM       // 系统全站消息
+    USER         // 用户个人消息
+}
+
+// 通知状态枚举
+enum NotificationStatus {
+    UNREAD       // 未读
+    READ         // 已读
+}
+
+// 系统通知模型
+model Notification {
+    id          Int               @id @default(autoincrement())
+    createdAt   DateTime          @default(now())
+    updatedAt   DateTime          @updatedAt
+    title       String            // 通知标题
+    content     String            @db.Text  // Markdown格式内容
+    type        NotificationType  // 通知类型
+    isGlobal    Boolean           @default(false) // 是否是全站消息
+    
+    // 通知接收关系
+    recipients  NotificationRecipient[]
+}
+
+// 用户通知关系模型
+model NotificationRecipient {
+    id             Int               @id @default(autoincrement())
+    notificationId Int               // 通知ID
+    notification   Notification      @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+    userId         Int               // 用户ID
+    user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+    status         NotificationStatus @default(UNREAD) // 通知状态
+    createdAt      DateTime          @default(now())
+    readAt         DateTime?         // 读取时间
+    
+    @@unique([notificationId, userId])
+    @@index([userId])
+    @@index([notificationId])
 }

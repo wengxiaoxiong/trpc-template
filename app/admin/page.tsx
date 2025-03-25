@@ -3,13 +3,14 @@
 import { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Input, Switch, message, Space, Pagination, Tabs, ConfigProvider, Progress, Tooltip, Statistic, Row, Col, Avatar, Typography } from 'antd';
 import { trpc } from '@/utils/trpc/client';
-import { PlusOutlined, EditOutlined, DeleteOutlined, FileOutlined, HddOutlined, UserOutlined, CloudOutlined, KeyOutlined, SettingOutlined, MailOutlined, GoogleOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, DeleteOutlined, FileOutlined, HddOutlined, UserOutlined, CloudOutlined, KeyOutlined, SettingOutlined, MailOutlined, GoogleOutlined, BellOutlined } from '@ant-design/icons';
 import UserFilesModal from './components/UserFilesModal';
 import { AdminRouteGuard } from '../components/AdminRouteGuard';
 import { MainPageLayout } from '../components/MainPageLayout';
 import { Card } from 'antd';
 import SiteConfigManager from './components/SiteConfigManager';
 import InvitationCodeManager from './components/InvitationCodeManager';
+import NotificationManager from './components/NotificationManager';
 // 导入dayjs和中文语言包
 import dayjs from 'dayjs';
 import zhCN from 'antd/locale/zh_CN';
@@ -73,6 +74,8 @@ export default function AdminPage() {
       utils.user.getRequireInvitationCodeSetting.invalidate();
     } else if (activeTab === 'configs') {
       utils.config.getAllConfigs.invalidate();
+    } else if (activeTab === 'notifications') {
+      utils.notification.getAllNotifications.invalidate();
     }
   }, [activeTab, utils, refetch]);
 
@@ -464,6 +467,20 @@ export default function AdminPage() {
       children: (
         <Card title={t('admin.site_config.title', '站点配置')}>
           <SiteConfigManager />
+        </Card>
+      ),
+    },
+    {
+      key: 'notifications',
+      label: (
+        <span>
+          <BellOutlined />
+          {t('admin.notification_management', '通知管理')}
+        </span>
+      ),
+      children: (
+        <Card title={t('admin.notification_management', '通知管理')}>
+          <NotificationManager />
         </Card>
       ),
     },

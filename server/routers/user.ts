@@ -455,4 +455,22 @@ export const userRouter = router({
         storageUsed: Number(user.storageUsed)
       };
     }),
+
+  // 获取所有用户（管理员用）
+  getAllUsers: adminProcedure
+    .query(async () => {
+      return await prisma.user.findMany({
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          isAdmin: true,
+          avatar: true,
+          createdAt: true,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+    }),
 }); 
