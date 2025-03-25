@@ -1,17 +1,19 @@
 'use client'
 
+import React, { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { trpc } from '@/utils/trpc/client'
 import { useState } from 'react'
 import { useAuth } from '../auth/AuthProvider'
 import { Input, Button, message, Form, Divider } from 'antd'
-import { UserOutlined, LockOutlined, GoogleOutlined } from '@ant-design/icons'
+import { UserOutlined, LockOutlined } from '@ant-design/icons'
 import { MinioImage } from '../components/MinioImage'
 import { AuthLayout } from '../components/AuthLayout'
 import { AuthHeader } from '../components/AuthHeader'
 import { AuthPageLink } from '../components/AuthPageLink'
 import { Logo } from '../components/Logo'
 import { useI18n } from '../i18n-provider'
+import GoogleLoginButton from '@/app/components/GoogleLoginButton'
 
 // 声明 google 全局变量
 declare global {
@@ -61,53 +63,34 @@ export default function LoginPage() {
     }
   }
 
-  const handleGoogleLogin = async () => {
-    try {
-      // 加载 Google Sign-In API
-      await new Promise((resolve) => {
-        const script = document.createElement('script')
-        script.src = 'https://accounts.google.com/gsi/client'
-        script.async = true
-        script.defer = true
-        script.onload = resolve
-        document.head.appendChild(script)
-      })
-
-      // 初始化 Google Sign-In
-      const client = window.google.accounts.oauth2.initCodeClient({
-        client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
-        scope: 'email profile',
-        redirect_uri: 'http://localhost:3000/login',
-        callback: async (response) => {
-          if (response.code) {
-            try {
-              const res = await fetch('/api/auth/google', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ code: response.code }),
-              })
-
-              if (!res.ok) {
-                throw new Error('Google 登录失败')
-              }
-
-              const data = await res.json()
-              login(data.token)
-              message.success(t('auth.login_success', '登录成功'))
-              router.push('/webapp')
-            } catch (error) {
-              message.error(t('auth.google_login_error', 'Google 登录失败'))
-            }
-          }
-        },
-      })
-
-      client.requestCode()
-    } catch (error) {
-      message.error(t('auth.google_login_error', 'Google 登录失败'))
+  // 处理Google登录成功
+  const handleGoogleLoginSuccess = (data: any) => {
+    if (data && data.token) {
+      try {
+        // 保存token到localStorage
+        localStorage.setItem('authToken', data.token);
+        
+        // 保存用户信息到localStorage
+        if (data.user) {
+          localStorage.setItem('user', JSON.stringify(data.user));
+        }
+        
+        // 调用登录函数并跳转
+        login(data.token);
+        message.success(t('auth.login_success', '登录成功'));
+        router.push('/webapp');
+      } catch (err) {
+        console.error('保存登录信息出错:', err);
+        message.error(t('auth.login_error', '登录处理失败，请重试'));
+      }
+    } else {
+      message.error(t('auth.google_login_error', 'Google 登录失败'));
     }
+  };
+
+  // 处理Google登录错误
+  const handleGoogleLoginError = (error: Error) => {
+    message.error(error.message || t('auth.google_login_error', 'Google 登录失败'))
   }
 
   // 如果用户已登录，显示已登录状态
@@ -151,16 +134,13 @@ export default function LoginPage() {
     <AuthLayout>
       <AuthHeader />
 
-      {/* Google 登录按钮 */}
-      <Button
-        type="default"
-        icon={<GoogleOutlined />}
-        onClick={handleGoogleLogin}
-        className="w-full h-11 mb-4 border-gray-300 hover:border-gray-400"
-        size="large"
-      >
-        {t('auth.google_login', '使用 Google 账号登录')}
-      </Button>
+      {/* 新的Google登录按钮组件 */}
+      <GoogleLoginButton 
+        onLoginSuccess={handleGoogleLoginSuccess}
+        onLoginError={handleGoogleLoginError}
+        buttonText={t('auth.google_login', '使用 Google 账号登录')}
+        className="w-full h-11 mb-4"
+      />
 
       <Divider>{t('auth.or', '或')}</Divider>
 
