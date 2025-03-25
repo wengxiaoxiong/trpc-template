@@ -4,7 +4,7 @@ import { generateToken } from '@/utils/jwt'
 import { google } from 'googleapis'
 
 // 配置OAuth2客户端，这个URI必须与Google控制台中配置的一致
-const redirectUri = 'http://localhost:3000/api/auth/google/callback';
+const redirectUri = process.env.NEXT_PUBLIC_GOOGLE_CALLBACK_URL || 'http://localhost:3000/api/auth/google/callback';
 console.log('Google OAuth2 使用的重定向URI:', redirectUri);
 
 // 为了防止在开发过程中的非关键连接错误使整个过程失败，添加一些重试逻辑

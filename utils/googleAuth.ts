@@ -18,7 +18,7 @@ export function getGoogleAuthUrl(): string {
     
     // 确保与后端API和Google控制台配置完全相同的重定向URI
     // 这必须和Google Cloud Console中的配置以及后端route.ts中的配置完全匹配
-    const redirectUri = 'http://localhost:3000/api/auth/google/callback';
+    const redirectUri = process.env.NEXT_PUBLIC_GOOGLE_CALLBACK_URL || 'http://localhost:3000/api/auth/google/callback';
     
     // 检查必需参数
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;

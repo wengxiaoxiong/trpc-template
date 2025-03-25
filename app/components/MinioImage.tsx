@@ -12,6 +12,16 @@ interface MinioImageProps {
   preview?: boolean;
 }
 
+// 判断字符串是否为标准URL的函数
+const isValidUrl = (string: string): boolean => {
+  try {
+    const url = new URL(string);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch (_) {
+    return false;
+  }
+};
+
 export const MinioImage = ({
   pathName,
   width = 100,
@@ -26,7 +36,16 @@ export const MinioImage = ({
 
   useEffect(() => {
     const loadImageUrl = async () => {
-      if (pathName && pathName.includes('/')) {
+      if (!pathName) return;
+      
+      // 如果pathName已经是一个有效的URL，直接使用
+      if (isValidUrl(pathName)) {
+        setImageUrl(pathName);
+        return;
+      }
+      
+      // 否则，如果包含路径分隔符，尝试从Minio获取URL
+      if (pathName.includes('/')) {
         try {
           const result = await utils.client.minio.getFileUrl.query({ path: pathName });
           setImageUrl(result.url);

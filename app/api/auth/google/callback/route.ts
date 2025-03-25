@@ -20,22 +20,22 @@ export async function GET(request: Request) {
     // 如果有错误参数，重定向到登录页面并显示错误
     if (error) {
       console.error('Google auth callback error:', error)
-      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/login?error=${encodeURIComponent(error)}`)
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/login?error=${encodeURIComponent(error)}`)
     }
 
     // 如果没有授权码，重定向到登录页面
     if (!code) {
       console.error('Google auth callback missing code')
-      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/login?error=${encodeURIComponent('授权失败')}`)
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/login?error=${encodeURIComponent('授权失败')}`)
     }
 
     // 将授权码传递到前端处理
-    const redirectUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/login?code=${encodeURIComponent(code)}`;
+    const redirectUrl = `${process.env.NEXT_PUBLIC_APP_URL}/login?code=${encodeURIComponent(code)}`;
     console.log('Redirecting to:', redirectUrl);
     
     return NextResponse.redirect(redirectUrl)
   } catch (error) {
     console.error('Google auth callback error:', error)
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/login?error=${encodeURIComponent('认证服务错误')}`)
+    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/login?error=${encodeURIComponent('认证服务错误')}`)
   }
 } 

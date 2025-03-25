@@ -152,9 +152,9 @@ export default function AuthDebugPage() {
         <h3 className="font-medium mb-2">调试说明</h3>
         <ul className="list-disc list-inside space-y-1">
           <li>此页面显示存储在浏览器中的认证信息</li>
-          <li>如果显示"已登录"但你仍无法访问受保护的页面，可能是token已过期或无效</li>
-          <li>你可以点击"清除认证信息"来注销，然后重新登录</li>
-          <li>点击"前往登录页"尝试重新登录，或点击"前往测试页"测试Google登录流程</li>
+          <li>如果显示「已登录」但你仍无法访问受保护的页面，可能是token已过期或无效</li>
+          <li>你可以点击「清除认证信息」来注销，然后重新登录</li>
+          <li>点击「前往登录页」尝试重新登录，或点击「前往测试页」测试Google登录流程</li>
         </ul>
       </div>
       
@@ -162,9 +162,9 @@ export default function AuthDebugPage() {
         <h3 className="text-xl font-semibold mb-2">调试提示：</h3>
         <p className="mb-2">如果您在登录时遇到问题，请检查：</p>
         <ol className="list-decimal ml-5 space-y-1">
-          <li>localStorage中的'authToken'是否存在</li>
-          <li>token是否有'正确的格式'</li>
-          <li>token是否'尚未过期'（检查'exp'字段）</li>
+          <li>localStorage中的「authToken」是否存在</li>
+          <li>token是否有「正确的格式」</li>
+          <li>token是否「尚未过期」（检查「exp」字段）</li>
           {/* 更多调试提示 */}
         </ol>
       </div>
