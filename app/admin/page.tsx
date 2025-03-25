@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Switch, message, Space, Pagination, Tabs, ConfigProvider, Progress, Tooltip, Statistic, Row, Col } from 'antd';
+import { Table, Button, Modal, Form, Input, Switch, message, Space, Pagination, Tabs, ConfigProvider, Progress, Tooltip, Statistic, Row, Col, Avatar, Typography } from 'antd';
 import { trpc } from '@/utils/trpc/client';
-import { PlusOutlined, EditOutlined, DeleteOutlined, FileOutlined, HddOutlined, UserOutlined, CloudOutlined, KeyOutlined, SettingOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, DeleteOutlined, FileOutlined, HddOutlined, UserOutlined, CloudOutlined, KeyOutlined, SettingOutlined, MailOutlined, GoogleOutlined } from '@ant-design/icons';
 import UserFilesModal from './components/UserFilesModal';
 import { AdminRouteGuard } from '../components/AdminRouteGuard';
 import { MainPageLayout } from '../components/MainPageLayout';
@@ -14,6 +14,7 @@ import InvitationCodeManager from './components/InvitationCodeManager';
 import dayjs from 'dayjs';
 import zhCN from 'antd/locale/zh_CN';
 import { useI18n } from '../i18n-provider';
+import { MinioImage } from '../components/MinioImage';
 
 export default function AdminPage() {
   const [form] = Form.useForm();
@@ -39,15 +40,15 @@ export default function AdminPage() {
     pageSize,
     search: searchText,
   });
-  
+
   // 获取最大存储空间配置
   const { data: maxStorageConfig } = trpc.config.getConfig.useQuery({
     key: 'user.storage.max',
     locale: 'common'
   });
-  
+
   const maxStorage = maxStorageConfig ? parseInt(maxStorageConfig.value) : 2147483648; // 默认2GB
-  
+
   // 格式化存储大小显示函数
   const formatFileSize = (size: number) => {
     if (size < 1024) {
@@ -123,6 +124,7 @@ export default function AdminPage() {
     setEditingUser(user);
     form.setFieldsValue({
       username: user.username,
+      email: user.email,
       isAdmin: user.isAdmin,
     });
     setIsModalVisible(true);
@@ -146,12 +148,14 @@ export default function AdminPage() {
         updateUser.mutate({
           id: editingUser.id,
           username: values.username,
+          email: values.email,
           isAdmin: values.isAdmin,
         });
       } else {
         createUser.mutate({
           username: values.username,
           password: values.password,
+          email: values.email,
           isAdmin: values.isAdmin,
         });
       }
@@ -169,9 +173,49 @@ export default function AdminPage() {
       key: 'id',
     },
     {
+      title: t('admin.user_management.avatar', '头像'),
+      dataIndex: 'avatar',
+      key: 'avatar',
+      render: (avatar: string | null, record: any) => (
+        avatar ? (
+          <MinioImage
+            pathName={avatar}
+            width={32}
+            height={32}
+            className="rounded-full"
+            preview={false}
+          />
+        ) : (
+          <Avatar
+            icon={<UserOutlined />}
+            size={32}
+            className="rounded-full"
+          />
+        )
+      ),
+    },
+    {
       title: t('admin.user_management.username', '用户名'),
       dataIndex: 'username',
       key: 'username',
+    },
+    {
+      title: t('admin.user_management.email', '邮箱'),
+      dataIndex: 'email',
+      key: 'email',
+      render: (email: string | null, record: any) => (
+        <div className="flex items-center">
+          {email ? (
+            <>
+              <MailOutlined className="mr-1" />
+              <Typography.Text ellipsis style={{ maxWidth: 180 }}>{email}</Typography.Text>
+              {record.googleId && <GoogleOutlined className="ml-2 text-blue-500" title="Google账号" />}
+            </>
+          ) : (
+            <Typography.Text type="secondary">{t('admin.user_management.no_email', '无')}</Typography.Text>
+          )}
+        </div>
+      ),
     },
     {
       title: t('admin.user_management.created_at', '创建时间'),
@@ -210,22 +254,22 @@ export default function AdminPage() {
       render: (_: any, record: any) => {
         const storageUsed = Number(record.storageUsed) || 0;
         const percentage = Math.min((storageUsed / maxStorage) * 100, 100);
-        
+
         // 确定进度条状态
         const getProgressStatus = () => {
           if (percentage >= 90) return "exception";
           if (percentage >= 70) return "normal";
           return "success";
         };
-        
+
         return (
           <Tooltip title={`${formatFileSize(storageUsed)} / ${formatFileSize(maxStorage)}`}>
             <div className="flex items-center space-x-2">
               <HddOutlined />
               <div className="flex-grow w-28">
-                <Progress 
-                  percent={parseFloat(percentage.toFixed(1))} 
-                  size="small" 
+                <Progress
+                  percent={parseFloat(percentage.toFixed(1))}
+                  size="small"
                   status={getProgressStatus()}
                   format={() => formatFileSize(storageUsed)}
                 />
@@ -268,9 +312,9 @@ export default function AdminPage() {
   ];
 
   // 注册配置管理
-  const { data: requireInvitationCode, isLoading: isLoadingConfig } = 
+  const { data: requireInvitationCode, isLoading: isLoadingConfig } =
     trpc.user.getRequireInvitationCodeSetting.useQuery();
-  
+
   const { mutate: updateConfig } = trpc.config.updateConfig.useMutation({
     onSuccess: () => {
       message.success('配置更新成功');
@@ -292,7 +336,7 @@ export default function AdminPage() {
 
   // 获取所有用户存储空间使用总量
   const { data: totalStorageUsed = 0 } = trpc.user.getTotalStorageUsed.useQuery();
-  
+
   // 用户管理页面的标签页
   const tabItems = [
     {
@@ -309,7 +353,7 @@ export default function AdminPage() {
           <Row gutter={16}>
             <Col span={8}>
               <Card>
-                <Statistic 
+                <Statistic
                   title={t('dashboard.total_users', '用户总数')}
                   value={data?.total || 0}
                   prefix={<UserOutlined />}
@@ -318,7 +362,7 @@ export default function AdminPage() {
             </Col>
             <Col span={8}>
               <Card>
-                <Statistic 
+                <Statistic
                   title={t('dashboard.storage_usage', '存储使用情况')}
                   value={data ? formatFileSize(totalStorageUsed) : '0 B'}
                   prefix={<HddOutlined />}
@@ -326,7 +370,7 @@ export default function AdminPage() {
               </Card>
             </Col>
           </Row>
-          
+
           {/* 更多统计信息可以在这里添加 */}
         </div>
       ),
@@ -392,13 +436,13 @@ export default function AdminPage() {
         </span>
       ),
       children: (
-        <Card 
+        <Card
           title={t('admin.invitation_code.title', '邀请码管理')}
           extra={
             <div className="flex items-center">
               <span className="mr-2">{t('admin.invitation_code.require_for_registration', '需要邀请码注册')}：</span>
-              <Switch 
-                checked={requireInvitationCode} 
+              <Switch
+                checked={requireInvitationCode}
                 onChange={handleToggleInvitationCodeRequirement}
                 loading={isLoadingConfig}
               />
@@ -429,10 +473,10 @@ export default function AdminPage() {
     <AdminRouteGuard>
       <ConfigProvider locale={getAntdLocale()}>
         <MainPageLayout>
-          <Tabs 
-            items={tabItems} 
-            activeKey={activeTab} 
-            onChange={setActiveTab} 
+          <Tabs
+            items={tabItems}
+            activeKey={activeTab}
+            onChange={setActiveTab}
             tabPosition="left"
             className="admin-tabs"
           />
@@ -446,23 +490,29 @@ export default function AdminPage() {
             <Form form={form} layout="vertical">
               <Form.Item
                 name="username"
-                label="用户名"
-                rules={[{ required: true, message: '请输入用户名' }]}
+                label={t('admin.user_management.username', '用户名')}
+                rules={[{ required: true, message: t('admin.user_management.username_required', '请输入用户名') }]}
               >
                 <Input />
               </Form.Item>
               {!editingUser && (
                 <Form.Item
                   name="password"
-                  label="密码"
-                  rules={[{ required: true, message: '请输入密码' }]}
+                  label={t('admin.user_management.password', '密码')}
+                  rules={[{ required: true, message: t('admin.user_management.password_required', '请输入密码') }]}
                 >
                   <Input.Password />
                 </Form.Item>
               )}
               <Form.Item
+                name="email"
+                label={t('admin.user_management.email', '邮箱')}
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item
                 name="isAdmin"
-                label="管理员权限"
+                label={t('admin.user_management.is_admin', '管理员权限')}
                 valuePropName="checked"
               >
                 <Switch />

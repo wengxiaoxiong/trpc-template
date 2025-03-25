@@ -215,6 +215,7 @@ export const userRouter = router({
     .input(z.object({
       username: z.string(),
       password: z.string().min(6),
+      email: z.string().email().optional(),
       isAdmin: z.boolean().default(false),
       avatar: z.string().optional(),
     }))
@@ -257,6 +258,7 @@ export const userRouter = router({
     .input(z.object({
       id: z.number(),
       username: z.string().optional(),
+      email: z.string().email().optional(),
       isAdmin: z.boolean().optional(),
       avatar: z.string().optional(),
     }))
