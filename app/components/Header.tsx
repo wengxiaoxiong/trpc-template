@@ -102,28 +102,28 @@ export function Header() {
                     >
                         <span className="text-xl font-bold text-gray-800">{siteTitle}</span>
                     </div>
-                </div>
-                
-                <div className="hidden lg:flex items-center space-x-6">
-                    {navItems.map((item, index) => (
-                        <Button
-                            key={index}
-                            type="link"
-                            className="text-gray-600 hover:text-indigo-600"
-                            onClick={() => router.push(item.href)}
-                        >
-                            {t(`header.${item.label}`)}
-                        </Button>
-                    ))}
-                    {user?.isAdmin && (
-                        <Button
-                            type="link"
-                            className="text-gray-600 hover:text-indigo-600"
-                            onClick={() => router.push('/admin')}
-                        >
-                            {t('header.admin')}
-                        </Button>
-                    )}
+
+                    <div className="hidden lg:flex items-center space-x-6">
+                        {navItems.map((item, index) => (
+                            <Button
+                                key={index}
+                                type="link"
+                                className="text-gray-600 hover:text-indigo-600"
+                                onClick={() => router.push(item.href)}
+                            >
+                                {t(`header.${item.label}`)}
+                            </Button>
+                        ))}
+                        {user?.isAdmin && (
+                            <Button
+                                type="link"
+                                className="text-gray-600 hover:text-indigo-600"
+                                onClick={() => router.push('/admin')}
+                            >
+                                {t('header.admin')}
+                            </Button>
+                        )}
+                    </div>
                 </div>
                 
                 <div className="hidden lg:flex items-center space-x-6 mr-4">
