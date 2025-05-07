@@ -73,7 +73,7 @@ export const MainPageLayout = ({ children }: DashboardLayoutProps) => {
               <div className="flex items-center">
                 <BulbOutlined style={{ fontSize: '24px', marginRight: '12px' }} />
                 <div>
-                  <div className="text-lg font-semibold">Chain Of Design</div>
+                  <div className="text-lg font-semibold">Comic Generator</div>
                   <div className="text-xs opacity-80">AI辅助产品创新与开发</div>
                 </div>
               </div>

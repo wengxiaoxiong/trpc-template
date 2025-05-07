@@ -13,7 +13,7 @@ const navItems = [
     { href: '/workflow/upload', label: '工作流' },
     { href: '/tasks', label: '任务列表' },
     { href: '/servers', label: '服务器' },
-    { href: '/agent', label: 'Agent' },
+    { href: '/chain_of_design', label: 'Chain Of Design' },
 ]
 
 export function Header() {
